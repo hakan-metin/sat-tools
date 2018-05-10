@@ -87,7 +87,6 @@ $(BIN)$(exec)_release: $(release_objects)
 $(BIN)$(exec)_debug: $(debug_objects)
 	$(call cmd-ld, $@, $^)
 
-
 $(OBJ)release/%.o: %.cc
 	$(call cmd-cxx, $@, $<, $(CFLAGS))
 

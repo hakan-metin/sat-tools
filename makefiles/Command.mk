@@ -84,7 +84,7 @@ endef
 # Here are defined the commands for C, C++, assembly compilation, objects
 # archiving and linking
 
-COMMON-FLAGS :=  -Wall #-Wextra
+COMMON-FLAGS :=  -Wall -Wextra
 
 # Link several .a in a .elf
 # Arg1 = target (.elf)
