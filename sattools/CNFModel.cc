@@ -41,6 +41,27 @@ int64 CNFModel::numberOfClauses() const {
         _ternary_clauses.size() + _large_clauses.size();
 }
 
+RangeIterator<std::unique_ptr<Clause>> CNFModel::unaryClauses() {
+    return { &_unary_clauses };
+}
+
+RangeIterator<std::unique_ptr<Clause>> CNFModel::binaryClauses() {
+    return { &_binary_clauses };
+}
+
+RangeIterator<std::unique_ptr<Clause>> CNFModel::ternaryClauses() {
+    return { &_ternary_clauses };
+}
+
+RangeIterator<std::unique_ptr<Clause>> CNFModel::largeClauses() {
+    return { &_large_clauses };
+}
+
+RangeIterator<std::unique_ptr<Clause>> CNFModel::clauses() {
+    return { &_binary_clauses, &_ternary_clauses, &_large_clauses };
+}
+
+
 }  // namespace sat
 
 /*

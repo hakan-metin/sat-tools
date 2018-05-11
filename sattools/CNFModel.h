@@ -10,6 +10,7 @@
 #include "sattools/Clause.h"
 #include "sattools/Literal.h"
 #include "sattools/Logging.h"
+#include "sattools/RangeIterator.h"
 
 namespace sat {
 
@@ -27,6 +28,12 @@ class CNFModel {
     int64 numberOfBinaryClauses()  const { return _binary_clauses.size();  }
     int64 numberOfTernaryClauses() const { return _ternary_clauses.size(); }
     int64 numberOfLargeClauses()   const { return _large_clauses.size();   }
+
+    RangeIterator<std::unique_ptr<Clause>> unaryClauses();
+    RangeIterator<std::unique_ptr<Clause>> binaryClauses();
+    RangeIterator<std::unique_ptr<Clause>> ternaryClauses();
+    RangeIterator<std::unique_ptr<Clause>> largeClauses();
+    RangeIterator<std::unique_ptr<Clause>> clauses();
 
  private:
     int64 _num_variables;

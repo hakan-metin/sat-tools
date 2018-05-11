@@ -45,7 +45,7 @@ struct X {
 
 #define LOG(mode) (X(), std::cout << __FILE__ << ":" << __LINE__ << "] ")
 
-#endif // USE_GLOG
+#endif  // USE_GLOG
 
 #include "sattools/IntegralTypes.h"
 #include "sattools/Macros.h"

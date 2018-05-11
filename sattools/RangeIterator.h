@@ -1,0 +1,53 @@
+// Copyright 2017 Hakan Metin
+
+#ifndef SATTOOLS_RANGEITERATOR_H_
+#define SATTOOLS_RANGEITERATOR_H_
+
+#include <initializer_list>
+#include <vector>
+
+namespace sat {
+
+template <class T>
+struct RangeIterator {
+    RangeIterator(std::initializer_list<std::vector<T>*> list) : _range(list) {}
+
+    struct Iterator {
+        explicit
+        Iterator(const typename std::vector<std::vector<T>*>& container,
+                 unsigned int index)
+            : _container(container), _index(index), _j(0) {}
+        T& operator*() { return _container[_index]->at(_j); }
+        Iterator& operator++() {
+            if (++_j >= _container[_index]->size()) {
+                _index++;
+                _j = 0;
+            }
+            return *this;
+        }
+
+        bool operator!=(const Iterator& other) const {
+            return other._index != _index;
+        }
+     private:
+        typename std::vector<std::vector<T>*> _container;
+        unsigned int _index;
+        unsigned int _j;
+    };
+
+    Iterator begin() { return Iterator(_range, 0); }
+    Iterator end()   { return Iterator(_range, _range.size()); }
+
+ private:
+    std::vector<std::vector<T>*> _range;
+};
+
+}  // namespace sat
+
+#endif  // SATTOOLS_RANGEITERATOR_H_
+/*
+ * Local Variables:
+ * mode: c++
+ * indent-tabs-mode: nil
+ * End:
+ */

@@ -60,21 +60,11 @@ run-test-valgrind: test
 run-test-gdb: test
 	$(call 	cmd-call, gdb --args ./$(BIN)test)
 
+check-style: $(sources) $(headers)
+	$(call cmd-call, ./tests/sanity/cpplint.py, $^)
+
 ################################################################################
 
-
-check-style: $(sources) $(headers)
-	$(call cmd-call, ./scripts/cpplint.py $^)
-
-# Special build
-$(GTEST_DIR)libgtest.a:
-	$(call cmd-call, scripts/build_gtest.sh)
-
-$(GLOG_DIR)libglog.a:
-	$(call cmd-call, scripts/build_glog.sh)
-
-$(GFLAGS_DIR)lib/libgflags.a:
-	$(call cmd-call, scripts/build_gflags.sh)
 
 # Generic rules
 

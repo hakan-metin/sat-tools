@@ -7,7 +7,6 @@ namespace sat {
 // static
 Clause* Clause::create(const std::vector<Literal>& literals,
                        bool is_redundant) {
-
     Clause *clause = reinterpret_cast<Clause*>(
         ::operator new(sizeof(Clause) + literals.size() * sizeof(Literal)));
 
