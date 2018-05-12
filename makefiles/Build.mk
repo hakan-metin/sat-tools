@@ -10,7 +10,7 @@ debug_objects   := $(patsubst %.cc, $(OBJ)debug/%.o, $(sources))
 tests := $(wildcard tests/units/*.test.cc)
 tests_objects := $(patsubst %.cc, $(OBJ)%.o, $(tests))
 tests_objects += $(debug_objects)
-tests_objects := $(filter-out %SatRunner.o, $(tests_objects))
+tests_objects := $(filter-out %main.o, $(tests_objects))
 
 $(call REQUIRE-DIR, $(objects))
 $(call REQUIRE-DIR, $(BIN)$(exec))
@@ -32,8 +32,8 @@ $(BIN)$(exec): $(objects)
 $(BIN)$(exec)_release: $(release_objects)
 $(BIN)$(exec)_debug: $(debug_objects)
 
-CFLAGS += -I. -I$(SRC)
-LDFLAGS +=
+CFLAGS += -I. -I$(SRC) #-DUSE_GLOG
+LDFLAGS += #-lglog
 
 default: CFLAGS += -O3 -fPIC -Wall -Wextra
 default: $(BIN)$(exec)
@@ -50,7 +50,7 @@ debug: $(BIN)$(exec)_debug
 ################################################################################
 # TESTS
 
-test: CFLAGS += -isystem ${GTEST_DIR}/include -O0 --coverage -fPIC
+test: CFLAGS +=  -O0 --coverage -fPIC
 test: LDFLAGS += -lgtest -lgtest_main -lpthread -lgcov
 test: $(BIN)test
 run-test: test
@@ -64,7 +64,6 @@ check-style: $(sources) $(headers)
 	$(call cmd-call, ./tests/sanity/cpplint.py, $^)
 
 ################################################################################
-
 
 # Generic rules
 

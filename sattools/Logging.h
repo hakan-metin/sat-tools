@@ -16,6 +16,7 @@
 #define SATTOOLS_LOGGING_H_
 
 #include <cassert>
+#include <cstdlib>
 #include <iostream>
 
 #ifdef USE_GLOG
@@ -40,10 +41,10 @@
 #define CHECK_NOTNULL(cond) (assert((cond != nullptr)))
 
 struct X {
-    ~X() { std::cout << std::endl; }
+    ~X() { std::cerr << std::endl; }
 };
 
-#define LOG(mode) (X(), std::cout << __FILE__ << ":" << __LINE__ << "] ")
+#define LOG(mode) (X(), std::wcerr << __FILE__ << ":" << __LINE__ << "] ")
 
 #endif  // USE_GLOG
 

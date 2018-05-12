@@ -68,7 +68,7 @@ TEST(StreamBuffer, read_int) {
     ASSERT_EQ(value, -2);
     ASSERT_EQ(*stream, ' '); ++stream;
 
-    value = streamone.cnf();
+    value = stream.readInt();
     ASSERT_EQ(value, 3);
     ASSERT_EQ(*stream, ' '); ++stream;
 }

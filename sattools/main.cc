@@ -21,7 +21,7 @@ int main() {
     CNFReader reader;
     CNFModel model;
 
-    reader.load("tests/resources/test.cnf", &model);
+    reader.load("tests/resources/teast.cnf", &model);
     LOG(INFO) << model.numberOfVariables() << " " << model.numberOfClauses();
 
     for (const std::unique_ptr<Clause>& clause : model.clauses()) {

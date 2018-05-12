@@ -1,0 +1,22 @@
+language: cpp
+dist: trusty
+sudo: false
+
+before_install:
+  - pip install --user cpp-coveralls
+
+addons:
+  apt:
+    packages:
+    - valgrind
+    - libgtest-dev
+    - libgoogle-glog-dev
+
+matrix:
+  include:
+    - os: linux
+      compiler: gcc
+
+script:
+  - make run-test-valgrind
+  - make check-style

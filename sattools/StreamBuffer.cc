@@ -14,14 +14,15 @@ StreamBuffer::StreamBuffer(const char* filename) :
         _index(0),
         _size(0) {
     _in = gzopen(filename, "rb");
-    if (_in == nullptr)
-        LOG(FATAL) << "Cannot open file " << filename;
+    if (_in == nullptr) {
+        LOG(FATAL) << "Cannot open file '" << filename << "'";
+        abort();
+    }
 }
 
 StreamBuffer::~StreamBuffer() {
-    if (_in != nullptr) {
+    if (_in != nullptr)
         gzclose(_in);
-    }
 }
 
 
