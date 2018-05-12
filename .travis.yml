@@ -15,5 +15,5 @@ matrix:
       compiler: gcc
 
 script:
-  - make run-test-valgrind
+  - make
   - make check-style
