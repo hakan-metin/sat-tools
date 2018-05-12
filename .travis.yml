@@ -2,9 +2,6 @@ language: cpp
 dist: trusty
 sudo: false
 
-before_install:
-  - pip install --user cpp-coveralls
-
 addons:
   apt:
     packages:
