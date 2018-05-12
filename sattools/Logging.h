@@ -44,7 +44,7 @@ struct X {
     ~X() { std::cerr << std::endl; }
 };
 
-#define LOG(mode) (X(), std::wcerr << __FILE__ << ":" << __LINE__ << "] ")
+#define LOG(mode) (X(), std::cerr << __FILE__ << ":" << __LINE__ << "] ")
 
 #endif  // USE_GLOG
 

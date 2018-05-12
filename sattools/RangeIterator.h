@@ -14,25 +14,29 @@ struct RangeIterator {
 
     struct Iterator {
         explicit
-        Iterator(const typename std::vector<std::vector<T>*>& container,
-                 unsigned int index)
-            : _container(container), _index(index), _j(0) {}
-        T& operator*() { return _container[_index]->at(_j); }
+        Iterator(const typename std::vector<std::vector<T>*>& c, unsigned int i)
+            : _c(c), _i(i), _j(0) {
+            if (_i < _c.size() && _j >= _c[_i]->size())
+                ++*this;
+        }
+
+        T& operator*() { return _c[_i]->at(_j); }
         Iterator& operator++() {
-            if (++_j >= _container[_index]->size()) {
-                _index++;
+            _j++;
+            while (_i < _c.size() && _j >= _c[_i]->size()) {
                 _j = 0;
+                _i++;
             }
             return *this;
         }
 
         bool operator!=(const Iterator& other) const {
-            return other._index != _index;
+            return other._i != _i;
         }
+
      private:
-        typename std::vector<std::vector<T>*> _container;
-        unsigned int _index;
-        unsigned int _j;
+        const typename std::vector<std::vector<T>*>& _c;
+        unsigned int _i, _j;
     };
 
     Iterator begin() { return Iterator(_range, 0); }
