@@ -37,6 +37,7 @@ class CNFModel {
 
  private:
     int64 _num_variables;
+    int64 _num_trivial_clauses;
     std::vector<std::unique_ptr<Clause>> _unary_clauses;
     std::vector<std::unique_ptr<Clause>> _binary_clauses;
     std::vector<std::unique_ptr<Clause>> _ternary_clauses;

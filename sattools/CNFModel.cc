@@ -4,7 +4,7 @@
 
 namespace sat {
 
-CNFModel::CNFModel() : _num_variables(0) {
+CNFModel::CNFModel() : _num_variables(0), _num_trivial_clauses(0) {
 }
 
 CNFModel::~CNFModel() {
@@ -15,8 +15,16 @@ void CNFModel::addClause(std::vector<Literal>* literals) {
 
     /* Remove duplicate literals in clause */
     std::sort(literals->begin(), literals->end());
-    auto last_element_it = std::unique(literals->begin(), literals->end());
-    literals->erase(last_element_it, literals->end());
+    literals->erase(std::unique(literals->begin(), literals->end()),
+                    literals->end());
+
+    /* Check if clause is trivial */
+    for (unsigned int i = 1; i < literals->size(); i++) {
+        if (literals->at(i) == literals->at(i - 1).negated()) {
+            _num_trivial_clauses++;
+            return;
+        }
+    }
 
     BooleanVariable var = literals->back().variable();
     if (var > _num_variables)
@@ -38,7 +46,7 @@ int64 CNFModel::numberOfVariables() const {
 }
 int64 CNFModel::numberOfClauses() const {
     return _unary_clauses.size() + _binary_clauses.size() +
-        _ternary_clauses.size() + _large_clauses.size();
+        _ternary_clauses.size() + _large_clauses.size() + _num_trivial_clauses;
 }
 
 RangeIterator<std::unique_ptr<Clause>> CNFModel::unaryClauses() {
