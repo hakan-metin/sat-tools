@@ -1,7 +1,7 @@
 // Copyright 2017 Hakan Metin
 
-#ifndef SATTOOLS_GRAPH_H_
-#define SATTOOLS_GRAPH_H_
+#ifndef SATTOOLS_COLOREDGRAPH_H_
+#define SATTOOLS_COLOREDGRAPH_H_
 
 #include <vector>
 #include <numeric>
@@ -41,7 +41,7 @@ class ColoredGraph {
 
 }  // namespace sat
 
-#endif  // SATTOOLS_GRAPH_H_
+#endif  // SATTOOLS_COLOREDGRAPH_H_
 /*
  * Local Variables:
  * mode: c++
