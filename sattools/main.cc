@@ -11,6 +11,9 @@
 #include "sattools/Logging.h"
 #include "sattools/RangeIterator.h"
 #include "sattools/StreamBuffer.h"
+#include "sattools/ColoredGraph.h"
+#include "sattools/IntRange.h"
+
 
 using sat::Clause;
 using sat::CNFModel;
@@ -21,6 +24,10 @@ int main() {
     CNFReader reader;
     CNFModel model;
 
+    for (int a : IntRange(0, 10))
+        std::cout << a << std::endl;
+
+    return 0;
     reader.load("tests/resources/test.cnf", &model);
     LOG(INFO) << model.numberOfVariables() << " " << model.numberOfClauses();
 
