@@ -29,6 +29,8 @@ class Clause {
     int  size()         const { return _size;        }
     bool is_redundant() const { return _is_redundant; }
 
+    std::string debugString() const;
+
  private:
     // Packed data, use 32 bits
     bool _is_redundant : 1;

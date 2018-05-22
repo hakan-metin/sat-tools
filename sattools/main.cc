@@ -1,6 +1,7 @@
 // Copyright 2017 Hakan Metin
 
 #include <iostream>
+#include <string>
 
 #include "sattools/Assignment.h"
 #include "sattools/Bitset.h"
@@ -12,32 +13,28 @@
 #include "sattools/RangeIterator.h"
 #include "sattools/StreamBuffer.h"
 #include "sattools/ColoredGraph.h"
-#include "sattools/IntRange.h"
-
 
 using sat::Clause;
 using sat::CNFModel;
 using sat::CNFReader;
 using sat::Literal;
 
-int main() {
+int main(int argc, char *argv[]) {
     CNFReader reader;
     CNFModel model;
 
-    for (int a : IntRange(0, 10))
-        std::cout << a << std::endl;
+    if (argc < 2)
+        LOG(FATAL) << "Need CNF file";
 
-    return 0;
-    reader.load("tests/resources/test.cnf", &model);
+    std::string cnf_filename(argv[1]);
+
+    if (!reader.load(cnf_filename, &model))
+        LOG(FATAL) << "Cannot load CNF file:" << cnf_filename;
+
     LOG(INFO) << model.numberOfVariables() << " " << model.numberOfClauses();
 
-    for (const std::unique_ptr<Clause>& clause : model.clauses()) {
-        for (const Literal& l : *clause) {
-            std::cout << l.signedValue() << " ";
-        }
-        std::cout << std::endl;
-    }
-
+    for (const std::unique_ptr<Clause>& clause : model.clauses())
+        std::cout << clause->debugString() << std::endl;
 
     return 0;
 }

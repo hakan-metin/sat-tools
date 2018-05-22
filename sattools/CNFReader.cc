@@ -50,7 +50,7 @@ bool CNFReader::load(const std::string &filename, CNFModel *model) {
             " variables: found " <<  model->numberOfVariables();
         return false;
     }
-    if (model->numberOfClauses() != expected_num_clauses) {
+    if (model->numberOfInitialClauses() != expected_num_clauses) {
         LOG(ERROR) << "Expected " << expected_num_clauses <<
             " clauses: found " <<  model->numberOfClauses();
         return false;

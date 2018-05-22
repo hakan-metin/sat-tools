@@ -20,6 +20,16 @@ Clause* Clause::create(const std::vector<Literal>& literals,
     return clause;
 }
 
+std::string Clause::debugString() const {
+    std::string str;
+    for (const Literal& literal : *this) {
+        if (!str.empty()) str.append(" ");
+        str.append(literal.debugString());
+    }
+    return str;
+}
+
+
 }  // namespace sat
 /*
  * Local Variables:

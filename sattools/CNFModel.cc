@@ -45,6 +45,12 @@ int64 CNFModel::numberOfVariables() const {
     return _num_variables + 1;  // Because start from 0
 }
 int64 CNFModel::numberOfClauses() const {
+    return _binary_clauses.size() +
+        _ternary_clauses.size() +
+        _large_clauses.size();
+}
+
+int64 CNFModel::numberOfInitialClauses() const {
     return _unary_clauses.size() + _binary_clauses.size() +
         _ternary_clauses.size() + _large_clauses.size() + _num_trivial_clauses;
 }
@@ -68,7 +74,6 @@ RangeIterator<std::unique_ptr<Clause>> CNFModel::largeClauses() {
 RangeIterator<std::unique_ptr<Clause>> CNFModel::clauses() {
     return { &_binary_clauses, &_ternary_clauses, &_large_clauses };
 }
-
 
 }  // namespace sat
 

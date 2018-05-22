@@ -24,6 +24,8 @@ class CNFModel {
     int64 numberOfVariables() const;
     int64 numberOfClauses() const;
 
+    int64 numberOfInitialClauses() const;
+
     int64 numberOfUnaryClauses()   const { return _unary_clauses.size();   }
     int64 numberOfBinaryClauses()  const { return _binary_clauses.size();  }
     int64 numberOfTernaryClauses() const { return _ternary_clauses.size(); }
