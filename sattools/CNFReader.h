@@ -3,6 +3,7 @@
 #ifndef SATTOOLS_CNFREADER_H_
 #define SATTOOLS_CNFREADER_H_
 
+#include <algorithm>
 #include <vector>
 #include <string>
 

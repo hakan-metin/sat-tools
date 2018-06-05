@@ -13,6 +13,8 @@ CNFReader::~CNFReader() {
 bool CNFReader::load(const std::string &filename, CNFModel *model) {
     StreamBuffer in(filename);
     unsigned int expected_num_vars = 0, expected_num_clauses = 0;
+    unsigned int num_vars = 0, num_clauses = 0;
+
     int read_int;
 
     std::vector<Literal> literals;
@@ -37,22 +39,25 @@ bool CNFReader::load(const std::string &filename, CNFModel *model) {
                 if (read_int != 0) {
                     Literal lit(read_int);
                     literals.push_back(lit);
+                    num_vars = std::max<int>(num_vars, std::abs(read_int));
                 }
             } while (read_int != 0);
             model->addClause(&literals);
+            num_clauses++;
             in.skipLine();
         }
         in.skipWhiteSpaces();
     }
 
-    if (model->numberOfVariables() != expected_num_vars) {
+    if (expected_num_vars != num_vars) {
         LOG(ERROR) << "Expected " << expected_num_vars <<
-            " variables: found " <<  model->numberOfVariables();
+            " variables: found " <<  num_vars;
         return false;
     }
-    if (model->numberOfInitialClauses() != expected_num_clauses) {
+
+    if (expected_num_clauses != num_clauses) {
         LOG(ERROR) << "Expected " << expected_num_clauses <<
-            " clauses: found " <<  model->numberOfClauses();
+            " clauses: found " <<  num_clauses;
         return false;
     }
     return true;

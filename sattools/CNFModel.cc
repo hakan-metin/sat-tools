@@ -27,11 +27,10 @@ void CNFModel::addClause(std::vector<Literal>* literals) {
     }
 
     BooleanVariable var = literals->back().variable();
-    if (var > _num_variables)
-        _num_variables = var.value();
+    _num_variables = std::max<int>(_num_variables, var.value());
 
-    std::unique_ptr<Clause> clause
-        (Clause::create(*literals, /* is_redundant= */ false));
+    std::unique_ptr<Clause> clause(Clause::create(*literals,
+                                                  /* is_redundant= */ false));
 
     switch (clause->size()) {
     case 1:  _unary_clauses.emplace_back(clause.release());   break;
@@ -48,11 +47,6 @@ int64 CNFModel::numberOfClauses() const {
     return _binary_clauses.size() +
         _ternary_clauses.size() +
         _large_clauses.size();
-}
-
-int64 CNFModel::numberOfInitialClauses() const {
-    return _unary_clauses.size() + _binary_clauses.size() +
-        _ternary_clauses.size() + _large_clauses.size() + _num_trivial_clauses;
 }
 
 RangeIterator<std::unique_ptr<Clause>> CNFModel::unaryClauses() {

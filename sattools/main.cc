@@ -29,10 +29,9 @@ int main(int argc, char *argv[]) {
     std::string cnf_filename(argv[1]);
 
     if (!reader.load(cnf_filename, &model))
-        LOG(FATAL) << "Cannot load CNF file:" << cnf_filename;
+        LOG(FATAL) << "Cannot load CNF file: " << cnf_filename;
 
     LOG(INFO) << model.numberOfVariables() << " " << model.numberOfClauses();
-
     for (const std::unique_ptr<Clause>& clause : model.clauses())
         std::cout << clause->debugString() << std::endl;
 
