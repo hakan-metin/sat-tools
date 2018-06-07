@@ -90,6 +90,17 @@ class Literal {
 };
 
 }  // namespace sat
+
+namespace std {
+template <>
+struct hash<sat::Literal> {
+    size_t operator()(const sat::Literal& literal) const {
+        return literal.index().value();
+    }
+};
+}  // namespace std
+
+
 #endif  // SATTOOLS_LITERAL_H_
 /*
  * Local Variables:
