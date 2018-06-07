@@ -35,6 +35,8 @@ class Permutation {
     bool isTrivialImage(const Literal& element) const;
     bool isTrivialInverse(const Literal& element) const;
 
+    bool isPermutationSpurious() const;
+
     std::string debugString() const;
     void debugPrint() const;
 

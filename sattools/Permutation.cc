@@ -25,7 +25,7 @@ void Permutation::closeCurrentCycle() {
     if (back == sz)
         return;
 
-    DCHECK_GE(sz - last, 2);
+    DCHECK_GE(sz - back, 2);
     _cycles_lim.push_back(sz);
 
     // Store image and inverse
@@ -61,6 +61,22 @@ bool Permutation::isTrivialImage(const Literal& element) const {
 }
 bool Permutation::isTrivialInverse(const Literal& element) const {
     return _inverse.find(element) == _inverse.end();
+}
+
+bool Permutation::isPermutationSpurious() const {
+    const unsigned int num_cycles = numberOfCycles();
+    for (unsigned int c = 0; c < num_cycles; ++c) {
+        for (const Literal& element : cycle(c)) {
+            if (isTrivialImage(element))
+                return true;
+            if (isTrivialImage(element.negated()))
+                return true;
+            if (imageOf(element).negated() != imageOf(element.negated()))
+                return true;
+        }
+    }
+
+    return false;
 }
 
 std::string Permutation::debugString() const {
