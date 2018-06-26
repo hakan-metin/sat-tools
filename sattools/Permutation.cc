@@ -63,7 +63,7 @@ bool Permutation::isTrivialInverse(const Literal& element) const {
     return _inverse.find(element) == _inverse.end();
 }
 
-bool Permutation::isPermutationSpurious() const {
+bool Permutation::isSpurious() const {
     const unsigned int num_cycles = numberOfCycles();
     for (unsigned int c = 0; c < num_cycles; ++c) {
         for (const Literal& element : cycle(c)) {

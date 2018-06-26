@@ -19,7 +19,7 @@ bool Group::addPermutation(std::unique_ptr<Permutation>&& permutation) {
     if (num_cycles == 0)
         return false;
 
-    if (permutation->isPermutationSpurious())
+    if (permutation->isSpurious())
         return false;
 
     if (permutation->size() > _watchers.size())
@@ -56,8 +56,11 @@ std::string Group::debugString() const {
     std::string str;
 
     unsigned int i = 0;
-    for (const std::unique_ptr<Permutation>& permutation : _permutations)
+    for (const std::unique_ptr<Permutation>& permutation : _permutations) {
+        if (!str.empty())
+            str += '\n';
         str += "[" + std::to_string(i++) + "]: " + permutation->debugString();
+    }
 
     return str;
 }

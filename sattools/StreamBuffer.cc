@@ -46,7 +46,7 @@ int StreamBuffer::readInt() {
         ++(*this);
     }
 
-    if (!std::isspace(c) && c != '\0')
+    if (!std::isspace(c) && c != '\0' && c != ',' && c != ')')
         LOG(FATAL) << "Cannot read literal " << value << c;
 
     return negative ? -value : value;
