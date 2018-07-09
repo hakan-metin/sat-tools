@@ -8,36 +8,25 @@
 #include "sattools/CNFModel.h"
 #include "sattools/Group.h"
 #include "sattools/LiteralGraphNodeAdaptor.h"
-#include "sattools/Saucy1Reader.h"
 
 namespace sat {
-
-class SymmetryFinder {
+template<typename Graph>
+class SymmetryFinder : private Graph {
+    using Graph::addNode;
  public:
-    enum Tool {
-        BLISS,
-        SAUCY3,
-    };
-    enum FileEncoding {
-        // Look like:
-        // [
-        // (3,5)(4,6)(9,11)(10,12),
-        // (1,3)(2,4)(7,9)(8,10)
-        // ]
-        SAUCY1
-    };
+    SymmetryFinder() {}
+    ~SymmetryFinder() {}
 
-    explicit SymmetryFinder(const CNFModel& model);
-    ~SymmetryFinder();
-
-    bool computeAutomorphism(Tool tool, Group *group);
-    bool loadAutomorphism(FileEncoding encoding,
-                          const std::string& symmetry_filename,
-                          Group *group);
+    void buildGraph(const CNFModel& model);
 
  private:
-    const CNFModel& _model;
+    Graph _graph;
 };
+
+template<typename Graph>
+inline void SymmetryFinder<Graph>::buildGraph(const CNFModel& model) {
+    _graph.addNode(2);
+}
 
 }  // namespace sat
 

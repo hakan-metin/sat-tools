@@ -15,7 +15,6 @@
 #include "sattools/StreamBuffer.h"
 #include "sattools/SymmetryFinder.h"
 #include "sattools/ColoredGraph.h"
-#include "sattools/BlissSymmetryFinder.h"
 
 using sat::Clause;
 using sat::CNFModel;
@@ -26,13 +25,11 @@ using sat::SymmetryFinder;
 using sat::LiteralGraphNodeAdaptor;
 using sat::DoubleLiteralGraphNodeAdaptor;
 using sat::ConsecutiveLiteralGraphNodeAdaptor;
-using sat::BlissSymmetryFinder;
 
 int main(int argc, char *argv[]) {
     CNFReader reader;
     CNFModel model;
     Group group;
-    SymmetryFinder finder(model);
 
     if (argc < 2)
         LOG(FATAL) << "Need CNF file";
@@ -48,9 +45,5 @@ int main(int argc, char *argv[]) {
     for (const std::unique_ptr<Clause>& clause : model.clauses())
         std::cout << clause->debugString() << std::endl;
 
-    finder.loadAutomorphism(sat::SymmetryFinder::FileEncoding::SAUCY1,
-                            symmetry_filename, &group);
-
-    LOG(INFO) << group.debugString();
     return 0;
 }
