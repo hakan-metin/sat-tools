@@ -16,6 +16,7 @@ typedef int NodeIndex;
 class ColoredGraph {
  public:
     ColoredGraph();
+    explicit ColoredGraph(unsigned int num_node);
     virtual ~ColoredGraph();
 
     void addNode(NodeIndex node);

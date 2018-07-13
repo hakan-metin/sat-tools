@@ -9,6 +9,13 @@ ColoredGraph::ColoredGraph() :
     _num_edges(0) {
 }
 
+ColoredGraph::ColoredGraph(unsigned int num_nodes) :
+    _num_nodes(num_nodes),
+    _num_edges(0) {
+    _adjacency.resize(_num_nodes);
+    _colors.resize(_num_nodes);
+}
+
 ColoredGraph::~ColoredGraph() {
 }
 
