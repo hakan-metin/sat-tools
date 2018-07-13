@@ -28,7 +28,7 @@ class SymmetryFinder : private Graph {
 
 template<typename Graph, typename Adaptor>
 inline void SymmetryFinder<Graph, Adaptor>::buildGraph(CNFModel& model) {
-    const bool verbose = false;
+    const bool verbose = true;
     const unsigned int num_vars = model.numberOfVariables();
     const unsigned int num_nodes = num_vars * 2 +
         model.numberOfUnaryClauses() +  model.numberOfTernaryClauses() +
@@ -39,7 +39,7 @@ inline void SymmetryFinder<Graph, Adaptor>::buildGraph(CNFModel& model) {
     _graph = std::unique_ptr<Graph>(new Graph(num_nodes));
     _adaptor = std::unique_ptr<Adaptor>(new Adaptor(num_vars));
 
-    std::vector<bool> seen(num_nodes, false);
+    std::vector<bool> seen(num_vars, false);
 
     // Boolean consistency
     for (BooleanVariable var(0); var < num_vars; ++var) {
@@ -89,7 +89,6 @@ inline void SymmetryFinder<Graph, Adaptor>::buildGraph(CNFModel& model) {
 
             if (verbose)
                 LOG(INFO) << x << " " << clause_node;
-
             _graph->addEdge(x, clause_node);
         }
         clause_node++;
@@ -99,12 +98,12 @@ inline void SymmetryFinder<Graph, Adaptor>::buildGraph(CNFModel& model) {
     // Change color of clauses
     const unsigned int kClauseColor = 1;
     for (clause_node = num_vars * 2; clause_node < num_nodes; clause_node++)
-        _graph->color(clause_node) = kClauseColor;
+        _graph->setColor(clause_node, kClauseColor);
 
     int64 color = kClauseColor + 1;
     for (unsigned int i = 0; i < seen.size(); i++)
         if (!seen[i])
-            _graph->color(i) = color++;
+            _graph->setColor(i, color++);
 
     CHECK_LT(color, std::numeric_limits<int32>::max());
 }

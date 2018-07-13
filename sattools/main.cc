@@ -21,6 +21,8 @@ using sat::Clause;
 using sat::CNFModel;
 using sat::CNFReader;
 using sat::ColoredGraph;
+using sat::AdjacencyColoredGraph;
+using sat::BlissColoredGraph;
 using sat::Group;
 using sat::Literal;
 using sat::SymmetryFinder;
@@ -47,7 +49,7 @@ int main(int argc, char *argv[]) {
     // for (const std::unique_ptr<Clause>& clause : model.clauses())
     //     std::cout << clause->debugString() << std::endl;
 
-    SymmetryFinder<ColoredGraph, DoubleLiteralGraphNodeAdaptor> finder;
+    SymmetryFinder<BlissColoredGraph, DoubleLiteralGraphNodeAdaptor> finder;
     finder.buildGraph(model);
 
     return 0;
