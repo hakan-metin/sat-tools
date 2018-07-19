@@ -72,13 +72,15 @@ inline void SymmetryFinder<Graph, Adaptor>::buildGraph(CNFModel& model) {
 
         x = _adaptor->literalToNode(first) - 1;
         y = _adaptor->literalToNode(second) - 1;
-
-        seen[x] = true;
-        seen[y] = true;
-
         if (verbose)
             LOG(INFO) << x << " " << y;
         _graph->addEdge(x, y);
+
+        x = first.variable().value();
+        y = second.variable().value();
+
+        seen[x] = true;
+        seen[y] = true;
     }
 
     // Graph edges for unary clauses
@@ -88,17 +90,22 @@ inline void SymmetryFinder<Graph, Adaptor>::buildGraph(CNFModel& model) {
         seen[x] = true;
 
         _graph->addEdge(x, clause_node++);  // must be post increment
+
+        x = first.variable().value();
+        seen[x] = true;
     }
 
     // Graph edges for large clauses
     for (const std::unique_ptr<Clause>& clause : model.largeClauses()) {
         for (const Literal& literal : *clause) {
             x =  _adaptor->literalToNode(literal) - 1;
-            seen[x] = true;
 
             if (verbose)
                 LOG(INFO) << x << " " << clause_node;
             _graph->addEdge(x, clause_node);
+
+            x = literal.variable().value();
+            seen[x] = true;
         }
         clause_node++;
     }
