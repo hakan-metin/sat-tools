@@ -9,26 +9,34 @@
 #include <limits>
 
 #include "sattools/CNFModel.h"
+#include "sattools/LiteralGraphNodeAdaptor.h"
 #include "sattools/Group.h"
 
 namespace sat {
+
+
+
 template<typename Graph, typename Adaptor>
 class SymmetryFinder : private Graph {
     using Graph::addNode;
+    using Graph::findAutomorphisms;
+
  public:
     SymmetryFinder() {}
     ~SymmetryFinder() {}
 
     void buildGraph(CNFModel& model);
+    void findAutomorphisms(Group *group);
 
  private:
+    unsigned int _num_vars;
     std::unique_ptr<Graph> _graph;
-    std::unique_ptr<Adaptor> _adaptor;
+    std::unique_ptr<LiteralGraphNodeAdaptor> _adaptor;
 };
 
 template<typename Graph, typename Adaptor>
 inline void SymmetryFinder<Graph, Adaptor>::buildGraph(CNFModel& model) {
-    const bool verbose = true;
+    const bool verbose = false;
     const unsigned int num_vars = model.numberOfVariables();
     const unsigned int num_nodes = num_vars * 2 +
         model.numberOfUnaryClauses() +  model.numberOfTernaryClauses() +
@@ -36,8 +44,9 @@ inline void SymmetryFinder<Graph, Adaptor>::buildGraph(CNFModel& model) {
     unsigned int clause_node = num_vars * 2;
     unsigned int x, y;
 
+    _num_vars = num_vars;
     _graph = std::unique_ptr<Graph>(new Graph(num_nodes));
-    _adaptor = std::unique_ptr<Adaptor>(new Adaptor(num_vars));
+    _adaptor = std::unique_ptr<LiteralGraphNodeAdaptor>(new Adaptor(num_vars));
 
     std::vector<bool> seen(num_vars, false);
 
@@ -56,7 +65,7 @@ inline void SymmetryFinder<Graph, Adaptor>::buildGraph(CNFModel& model) {
     // Note this is an optimization for the graph but when automorphism is
     // computed you MUST check if the permutation is spurious with
     // permutation->isSpurious() method
-    // TODO  add reference Handbook of Satisfiability - Shatter
+    // TODO(Hakan)  add reference Handbook of Satisfiability - Shatter
     for (const std::unique_ptr<Clause>& clause : model.binaryClauses()) {
         const Literal first = clause->literals()[0];
         const Literal second = clause->literals()[1];
@@ -107,6 +116,12 @@ inline void SymmetryFinder<Graph, Adaptor>::buildGraph(CNFModel& model) {
 
     CHECK_LT(color, std::numeric_limits<int32>::max());
 }
+
+template<typename Graph, typename Adaptor>
+inline void SymmetryFinder<Graph, Adaptor>::findAutomorphisms(Group *group) {
+    _graph->findAutomorphisms(_num_vars, _adaptor, group);
+}
+
 
 }  // namespace sat
 

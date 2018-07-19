@@ -15,14 +15,16 @@
 #include "sattools/StreamBuffer.h"
 #include "sattools/SymmetryFinder.h"
 #include "sattools/ColoredGraph.h"
+#include "sattools/ColoredGraphSymmetryFinder.h"
 #include "sattools/LiteralGraphNodeAdaptor.h"
 
 using sat::Clause;
 using sat::CNFModel;
 using sat::CNFReader;
 using sat::ColoredGraph;
+using sat::BlissColoredGraphSymmetryFinder;
 using sat::AdjacencyColoredGraph;
-using sat::BlissColoredGraph;
+using sat::BlissColoredGraphSymmetryFinder;
 using sat::Group;
 using sat::Literal;
 using sat::SymmetryFinder;
@@ -49,8 +51,10 @@ int main(int argc, char *argv[]) {
     // for (const std::unique_ptr<Clause>& clause : model.clauses())
     //     std::cout << clause->debugString() << std::endl;
 
-    SymmetryFinder<BlissColoredGraph, DoubleLiteralGraphNodeAdaptor> finder;
+    SymmetryFinder<BlissColoredGraphSymmetryFinder,
+                   DoubleLiteralGraphNodeAdaptor> finder;
     finder.buildGraph(model);
+    finder.findAutomorphisms(&group);
 
     return 0;
 }

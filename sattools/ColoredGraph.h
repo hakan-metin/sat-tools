@@ -11,10 +11,6 @@
 #include "sattools/IntRange.h"
 #include "sattools/Logging.h"
 
-#ifdef USE_BLISS
-#include "bliss/graph.hh"
-#endif
-
 namespace sat {
 
 typedef int32 NodeIndex;
@@ -29,9 +25,6 @@ class ColoredGraph {
     virtual void addEdge(NodeIndex a, NodeIndex b) = 0;
     virtual void setColor(NodeIndex node, unsigned int color) = 0;
 
-    // int32  color(NodeIndex node) const { return _colors[node]; }
-    // int32& color(NodeIndex node)       { return _colors[node]; }
-
     int64 numberOfNodes() const { return _num_nodes; }
     int64 numberOfEdges() const { return _num_edges; }
 
@@ -39,7 +32,6 @@ class ColoredGraph {
     int64 _num_nodes;
     int64 _num_edges;
 };
-
 
 class AdjacencyColoredGraph : public ColoredGraph {
  public:
@@ -55,22 +47,6 @@ class AdjacencyColoredGraph : public ColoredGraph {
     std::vector<std::vector<NodeIndex>> _adjacency;
     std::vector<int32> _colors;
 };
-
-#ifdef USE_BLISS
-class BlissColoredGraph : public ColoredGraph {
- public:
-    BlissColoredGraph();
-    explicit BlissColoredGraph(unsigned int num_nodes);
-    virtual ~BlissColoredGraph();
-
-    void addNode(NodeIndex node) override;
-    void addEdge(NodeIndex a, NodeIndex b) override;
-    void setColor(NodeIndex node, unsigned int color) override;
-
- private:
-    std::unique_ptr<bliss::Graph> _graph;
-};
-#endif
 
 }  // namespace sat
 

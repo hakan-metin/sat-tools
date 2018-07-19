@@ -51,38 +51,4 @@ void AdjacencyColoredGraph::setColor(NodeIndex node, unsigned int color) {
     _colors[node] = color;
 }
 
-/* -------------------------------------------------------------------------- */
-
-BlissColoredGraph::BlissColoredGraph() : ColoredGraph(),
-                                         _graph(new bliss::Graph(_num_nodes)) {
-}
-
-BlissColoredGraph::BlissColoredGraph(unsigned int num_nodes)
-    : ColoredGraph(num_nodes),
-      _graph(new bliss::Graph(num_nodes)) {
-    LOG(INFO) << "I AM BLISS";
-}
-
-BlissColoredGraph::~BlissColoredGraph() {
-}
-
-void BlissColoredGraph::addNode(NodeIndex node) {
-    unsigned int n;
-    while (_num_nodes <= node) {
-        n = _graph->add_vertex();
-        CHECK_EQ(n, _num_nodes);
-        _num_nodes = node + 1;
-    }
-}
-
-void BlissColoredGraph::addEdge(NodeIndex a, NodeIndex b) {
-    _graph->add_edge(a, b);
-    _num_edges++;
-}
-
-void BlissColoredGraph::setColor(NodeIndex node, unsigned int color) {
-    CHECK_LT(node, _num_nodes);
-    _graph->change_color(node, color);
-}
-
 }  // namespace sat
