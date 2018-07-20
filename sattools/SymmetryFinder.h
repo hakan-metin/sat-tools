@@ -61,6 +61,18 @@ inline void SymmetryFinder<Graph, Adaptor>::buildGraph(CNFModel& model) {
         _graph->addEdge(x, y);
     }
 
+    // Graph edges for unary clauses
+    for (const std::unique_ptr<Clause>& clause : model.unaryClauses()) {
+        const Literal first = clause->literals()[0];
+        x = _adaptor->literalToNode(first) - 1;
+        seen[x] = true;
+
+        _graph->addEdge(x, clause_node++);  // must be post increment
+
+        x = first.variable().value();
+        seen[x] = true;
+    }
+
     // Graph edges for binary clauses
     // Note this is an optimization for the graph but when automorphism is
     // computed you MUST check if the permutation is spurious with
@@ -83,16 +95,19 @@ inline void SymmetryFinder<Graph, Adaptor>::buildGraph(CNFModel& model) {
         seen[y] = true;
     }
 
-    // Graph edges for unary clauses
-    for (const std::unique_ptr<Clause>& clause : model.unaryClauses()) {
-        const Literal first = clause->literals()[0];
-        x = _adaptor->literalToNode(first) - 1;
-        seen[x] = true;
+    // Graph edges for ternary clauses
+    for (const std::unique_ptr<Clause>& clause : model.ternaryClauses()) {
+        for (const Literal& literal : *clause) {
+            x =  _adaptor->literalToNode(literal) - 1;
 
-        _graph->addEdge(x, clause_node++);  // must be post increment
+            if (verbose)
+                LOG(INFO) << x << " " << clause_node;
+            _graph->addEdge(x, clause_node);
 
-        x = first.variable().value();
-        seen[x] = true;
+            x = literal.variable().value();
+            seen[x] = true;
+        }
+        clause_node++;
     }
 
     // Graph edges for large clauses
