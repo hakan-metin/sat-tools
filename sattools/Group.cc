@@ -11,7 +11,7 @@ Group::~Group() {
 }
 
 bool Group::addPermutation(std::unique_ptr<Permutation>&& permutation) {
-    CHECK_NOTNULL(permutation);
+    CHECK_NOTNULL(permutation.get());
 
     const unsigned int permutation_index = _permutations.size();
     const unsigned int num_cycles = permutation->numberOfCycles();
