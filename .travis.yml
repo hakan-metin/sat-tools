@@ -15,5 +15,6 @@ matrix:
       compiler: gcc
 
 script:
+  - source .env
   - make
   - make check-style
