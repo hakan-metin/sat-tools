@@ -10,6 +10,7 @@
 
 #include "sattools/Macros.h"
 #include "sattools/Permutation.h"
+#include "sattools/Logging.h"
 
 namespace sat {
 
