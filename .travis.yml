@@ -16,5 +16,6 @@ matrix:
 
 script:
   - source .env
+  - make -C third_party/automorphism/bliss/ lib
   - make
   - make check-style
