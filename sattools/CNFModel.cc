@@ -69,6 +69,28 @@ RangeIterator<std::unique_ptr<Clause>> CNFModel::clauses() {
     return { &_binary_clauses, &_ternary_clauses, &_large_clauses };
 }
 
+
+RangeIterator<std::unique_ptr<Clause>> CNFModel::unaryClauses() const {
+    return { &_unary_clauses };
+}
+
+RangeIterator<std::unique_ptr<Clause>> CNFModel::binaryClauses() const {
+    return { &_binary_clauses };
+}
+
+RangeIterator<std::unique_ptr<Clause>> CNFModel::ternaryClauses() const {
+    return { &_ternary_clauses };
+}
+
+RangeIterator<std::unique_ptr<Clause>> CNFModel::largeClauses() const {
+    return { &_large_clauses };
+}
+
+RangeIterator<std::unique_ptr<Clause>> CNFModel::clauses() const {
+    return { &_binary_clauses, &_ternary_clauses, &_large_clauses };
+}
+
+
 }  // namespace sat
 
 /*

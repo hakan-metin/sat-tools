@@ -35,6 +35,13 @@ class CNFModel {
     RangeIterator<std::unique_ptr<Clause>> largeClauses();
     RangeIterator<std::unique_ptr<Clause>> clauses();
 
+    RangeIterator<std::unique_ptr<Clause>> unaryClauses() const;
+    RangeIterator<std::unique_ptr<Clause>> binaryClauses() const;
+    RangeIterator<std::unique_ptr<Clause>> ternaryClauses() const;
+    RangeIterator<std::unique_ptr<Clause>> largeClauses() const;
+    RangeIterator<std::unique_ptr<Clause>> clauses() const;
+
+
  private:
     int64 _num_variables;
     int64 _num_trivial_clauses;

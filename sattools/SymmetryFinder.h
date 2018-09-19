@@ -23,7 +23,7 @@ class SymmetryFinder : private Graph {
     SymmetryFinder() {}
     ~SymmetryFinder() {}
 
-    void buildGraph(CNFModel& model);
+    void buildGraph(const CNFModel& model);
     void findAutomorphisms(Group *group);
 
  private:
@@ -33,7 +33,7 @@ class SymmetryFinder : private Graph {
 };
 
 template<typename Graph, typename Adaptor>
-inline void SymmetryFinder<Graph, Adaptor>::buildGraph(CNFModel& model) {
+inline void SymmetryFinder<Graph, Adaptor>::buildGraph(const CNFModel& model) {
     const bool verbose = false;
     const unsigned int num_vars = model.numberOfVariables();
     const unsigned int num_nodes = num_vars * 2 +

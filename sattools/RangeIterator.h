@@ -10,17 +10,18 @@ namespace sat {
 
 template <class T>
 struct RangeIterator {
-    RangeIterator(std::initializer_list<std::vector<T>*> list) : _range(list) {}
+    RangeIterator(std::initializer_list<const std::vector<T>*> list) :
+        _range(list) {}
 
     struct Iterator {
         explicit
-        Iterator(const typename std::vector<std::vector<T>*>& c, unsigned int i)
+        Iterator(const std::vector<const std::vector<T>*>& c, unsigned int i)
             : _c(c), _i(i), _j(0) {
             if (_i < _c.size() && _j >= _c[_i]->size())
                 ++*this;
         }
 
-        T& operator*() { return _c[_i]->at(_j); }
+        const T& operator*() const { return _c[_i]->at(_j); }
         Iterator& operator++() {
             _j++;
             while (_i < _c.size() && _j >= _c[_i]->size()) {
@@ -35,7 +36,7 @@ struct RangeIterator {
         }
 
      private:
-        const typename std::vector<std::vector<T>*>& _c;
+        const typename std::vector<const std::vector<T>*>& _c;
         unsigned int _i, _j;
     };
 
@@ -43,7 +44,7 @@ struct RangeIterator {
     Iterator end()   { return Iterator(_range, _range.size()); }
 
  private:
-    std::vector<std::vector<T>*> _range;
+    std::vector<const std::vector<T>*> _range;
 };
 
 }  // namespace sat
