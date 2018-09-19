@@ -60,7 +60,6 @@ void
 BlissColoredGraphSymmetryFinder::findAutomorphisms(unsigned int num_vars,
                         const std::unique_ptr<LiteralGraphNodeAdaptor>& adaptor,
                         Group *group) {
-
         bliss::Stats stats;
         SymmetryFinderInfo info(num_vars, adaptor.get(), group);
 

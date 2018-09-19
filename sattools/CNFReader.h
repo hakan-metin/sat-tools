@@ -6,6 +6,7 @@
 #include <algorithm>
 #include <vector>
 #include <string>
+#include <utility>
 
 #include "sattools/CNFModel.h"
 #include "sattools/Literal.h"

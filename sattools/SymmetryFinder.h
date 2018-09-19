@@ -14,8 +14,6 @@
 
 namespace sat {
 
-
-
 template<typename Graph, typename Adaptor>
 class SymmetryFinder : private Graph {
     using Graph::addNode;

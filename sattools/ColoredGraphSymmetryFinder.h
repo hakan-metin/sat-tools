@@ -6,6 +6,7 @@
 #include <vector>
 #include <numeric>
 #include <memory>
+#include <utility>
 
 #include "sattools/ColoredGraph.h"
 #include "sattools/Group.h"
