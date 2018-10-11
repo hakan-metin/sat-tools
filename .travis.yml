@@ -10,16 +10,16 @@ addons:
     - valgrind
     - libgtest-dev
     - libgoogle-glog-dev
-    - g++-8
+    - g++-7
 
 matrix:
   include:
     - os: linux
-      compiler: gcc-8
+      compiler: gcc-7
 
 
   script:
    - source .env
    - make -C third_party/automorphism/bliss/ lib
-   - alias g++="/usr/bin/g++-8" && make V=3
+   - alias g++="/usr/bin/g++-7"
    - make check-style
