@@ -11,6 +11,7 @@
 #include "sattools/IntType.h"
 #include "sattools/IntegralTypes.h"
 #include "sattools/Logging.h"
+#include "sattools/Orbits.h"
 #include "sattools/RangeIterator.h"
 #include "sattools/StreamBuffer.h"
 #include "sattools/SymmetryFinder.h"
@@ -27,6 +28,7 @@ using sat::AdjacencyColoredGraph;
 using sat::BlissColoredGraphSymmetryFinder;
 using sat::Group;
 using sat::Literal;
+using sat::Orbits;
 using sat::SymmetryFinder;
 using sat::LiteralGraphNodeAdaptor;
 using sat::DoubleLiteralGraphNodeAdaptor;
@@ -40,21 +42,33 @@ int main(int argc, char *argv[]) {
     if (argc < 2)
         LOG(FATAL) << "Need CNF file";
 
+#ifdef USE_GLOG
+    google::InitGoogleLogging(argv[0]);
+    FLAGS_logtostderr = 1;
+#endif
+
     std::string cnf_filename(argv[1]);
     std::string symmetry_filename = cnf_filename + ".txt";
 
     if (!reader.load(cnf_filename, &model))
         LOG(FATAL) << "Cannot load CNF file: " << cnf_filename;
 
+    LOG(INFO) << "Vars: " << model.numberOfVariables() <<
+        " Clauses: " << model.numberOfClauses();
 
-    // LOG(INFO) << model.numberOfVariables() << " " << model.numberOfClauses();
     // for (const std::unique_ptr<Clause>& clause : model.clauses())
     //     std::cout << clause->debugString() << std::endl;
 
     SymmetryFinder<BlissColoredGraphSymmetryFinder,
                    DoubleLiteralGraphNodeAdaptor> finder;
-    finder.buildGraph(model);
-    finder.findAutomorphisms(&group);
+    finder.findAutomorphisms(model, &group);
+
+    LOG(INFO) << std::endl << group.debugString() << std::endl;
+
+    Orbits orbits;
+    orbits.assign(group);
+
+    LOG(INFO) << "number of orbits " << orbits.numberOfOrbits();
 
     return 0;
 }

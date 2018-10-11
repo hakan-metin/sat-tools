@@ -64,7 +64,6 @@ BlissColoredGraphSymmetryFinder::findAutomorphisms(unsigned int num_vars,
         SymmetryFinderInfo info(num_vars, adaptor.get(), group);
 
         _graph->find_automorphisms(stats, &on_bliss_automorphim, &info);
-        LOG(INFO) << group->debugString();
 }
 
 }  // namespace sat

@@ -97,7 +97,6 @@ inline int DisjointSets::Find(int element) {
     return root->index;
 }
 
-
 inline void DisjointSets::debugPrint() {
     for (unsigned int i = 0; i < _nodes.size(); i++)
         if (_nodes[i] != nullptr)
