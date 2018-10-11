@@ -26,7 +26,7 @@ class ConsecutiveLiteralGraphNodeAdaptor: public LiteralGraphNodeAdaptor {
  public:
     explicit ConsecutiveLiteralGraphNodeAdaptor(unsigned int num_vars) :
         LiteralGraphNodeAdaptor(num_vars) {}
-    virtual ~ConsecutiveLiteralGraphNodeAdaptor() {}
+    virtual ~ConsecutiveLiteralGraphNodeAdaptor() override {}
 
     unsigned int literalToNode(const Literal& literal) const {
         return literal.index().value() + 1;
@@ -45,7 +45,7 @@ class DoubleLiteralGraphNodeAdaptor: public LiteralGraphNodeAdaptor {
  public:
     explicit DoubleLiteralGraphNodeAdaptor(unsigned int num_vars) :
         LiteralGraphNodeAdaptor(num_vars) {}
-    virtual ~DoubleLiteralGraphNodeAdaptor() {}
+    virtual ~DoubleLiteralGraphNodeAdaptor() override {}
 
     unsigned int literalToNode(const Literal& literal) const {
         unsigned int v = literal.variable().value();
