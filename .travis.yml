@@ -19,7 +19,6 @@ matrix:
 
 
   script:
-   - g++ --version
    - source .env
    - make -C third_party/automorphism/bliss/ lib
    - make V=3
