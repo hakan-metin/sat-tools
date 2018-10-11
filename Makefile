@@ -6,8 +6,7 @@ OBJ := obj/
 DEP := .dep/
 
 MAKEFLAGS += --no-print-directory   \
-             --no-builtin-rules     \
-             --no-builtin-variables
+              --no-builtin-rules
 
 MAKEFILES_DIR = makefiles/
 

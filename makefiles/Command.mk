@@ -1,5 +1,3 @@
-
-
 # Create a copy of a source file/directory to a target file/directory.
 # Arg1 = target file
 # Arg2 = source file
@@ -92,7 +90,7 @@ COMMON-FLAGS :=  -Wall -Wextra
 # Arg3 = compiled archives (.a)
 define cmd-ld
   $(call cmd-echo,  LD      $(strip $(call cmd-format, $(1))))
-  $(Q)g++ -o $(1) $(2) -lz $(3) $(LDFLAGS)
+  $(Q)$(CXX) -o $(1) $(2) -lz $(3) $(LDFLAGS)
 endef
 
 # Create a compiled archive (static linking) from several .o in a .a
@@ -100,7 +98,7 @@ endef
 # Arg2 = compiled objects (.o)
 define cmd-ar
   $(call cmd-echo,  AR      $(strip $(call cmd-format, $(1))))
-  $(Q)ar cr $(1) $(2)
+  $(Q)$(AR) cr $(1) $(2)
 endef
 
 # Compile a C++ source file into on object file (.o)
@@ -110,7 +108,7 @@ endef
 # Arg4 = addition flags
 define cmd-cxx
   $(call cmd-echo,  CCXX    $(strip $(call cmd-format, $(1))))
-  $(Q)g++ $(COMMON-FLAGS) -std=c++17 -c $(2) -o $(1) $(3)
+  $(Q)$(CXX) $(COMMON-FLAGS) -std=c++17 -c $(2) -o $(1) $(3)
 endef
 
 # Compile a C source file into on object file (.o)
@@ -120,7 +118,7 @@ endef
 # Arg4 = addition flags
 define cmd-cc
   $(call cmd-echo,  CC      $(strip $(call cmd-format, $(1))))
-  $(Q)gcc $(COMMON-FLAGS) -std=gnu99 -c $(2) -o $(1) $(4)
+  $(Q)$(CC) $(COMMON-FLAGS) -std=gnu99 -c $(2) -o $(1) $(4)
 endef
 
 # Compile a GAS assembly source file into on object file (.o)
@@ -129,7 +127,7 @@ endef
 # Arg3 = header files (.h)
 define cmd-as
   $(call cmd-echo,  AS      $(strip $(call cmd-format, $(1))))
-  $(Q)gcc $(COMMON-FLAGS) -std=gnu99 -c $(2) -o $(1)
+  $(Q)$(CC) $(COMMON-FLAGS) -std=gnu99 -c $(2) -o $(1)
 endef
 
 
@@ -150,20 +148,19 @@ define cmd-mkdir
   $(Q)mkdir $(1)
 endef
 
-
 define cmd-depcxx
   $(call cmd-info,  DEPCXX  $(strip $(call cmd-format, $(1))))
-  $(Q)g++ $(COMMON-FLAGS) -std=gnu++11 $(2) -MM -o $(1) -MT $(3) $(CFLAGS)
+  $(Q)$(CXX) $(COMMON-FLAGS) -std=gnu++17 $(2) -MM -o $(1) -MT $(3) $(CFLAGS)
 endef
 
 define cmd-depc
   $(call cmd-info,  DEPC    $(strip $(call cmd-format, $(1))))
-  $(Q)gcc $(COMMON-FLAGS) -std=gnu99 $(2) -MM -o $(1) -MT $(3)
+  $(Q)$(CC) $(COMMON-FLAGS) -std=gnu99 $(2) -MM -o $(1) -MT $(3)
 endef
 
 define cmd-depas
   $(call cmd-info,  DEPAS   $(strip $(call cmd-format, $(1))))
-  $(Q)gcc $(COMMON-FLAGS) -std=gnu99 $(2) -MM -o $(1) -MT $(3)
+  $(Q)$(CC) $(COMMON-FLAGS) -std=gnu99 $(2) -MM -o $(1) -MT $(3)
 endef
 
 define cmd-dep
