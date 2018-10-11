@@ -14,7 +14,7 @@ matrix:
               - libgtest-dev
               - libgoogle-glog-dev
               - g++-8
-          env: GCCVVER='8'
+          env: GCCVER='8'
 
 
 before_script:
