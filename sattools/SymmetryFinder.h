@@ -23,13 +23,14 @@ class SymmetryFinder : private Graph {
     SymmetryFinder() {}
     ~SymmetryFinder() {}
 
-    void buildGraph(const CNFModel& model);
-    void findAutomorphisms(Group *group);
+    void findAutomorphisms(const CNFModel& model, Group *group);
 
  private:
     unsigned int _num_vars;
     std::unique_ptr<Graph> _graph;
     std::unique_ptr<LiteralGraphNodeAdaptor> _adaptor;
+
+    void buildGraph(const CNFModel& model);
 };
 
 template<typename Graph, typename Adaptor>
@@ -138,7 +139,9 @@ inline void SymmetryFinder<Graph, Adaptor>::buildGraph(const CNFModel& model) {
 }
 
 template<typename Graph, typename Adaptor>
-inline void SymmetryFinder<Graph, Adaptor>::findAutomorphisms(Group *group) {
+void SymmetryFinder<Graph, Adaptor>::findAutomorphisms(const CNFModel& model,
+                                                       Group *group) {
+    buildGraph(model);
     _graph->findAutomorphisms(_num_vars, _adaptor, group);
 }
 

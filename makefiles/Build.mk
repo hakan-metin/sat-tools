@@ -61,7 +61,7 @@ run-test-gdb: test
 	$(call 	cmd-call, gdb --args ./$(BIN)test)
 
 check-style: $(sources) $(headers)
-	$(call cmd-call, ./tests/sanity/cpplint.py, $^)
+	$(call cmd-call, ./tests/sanity/cpplint.py, $^) | grep ':'
 
 ################################################################################
 
