@@ -18,9 +18,9 @@ matrix:
 
 
 before_script:
-  - export AR=gcc-ar-${GCCVER} ; fi
-  - export RANLIB=gcc-ranlib-${GCCVER} ; fi
-  - export NM=gcc-nm-${GCCVER} ; fi
+  - export AR=gcc-ar-${GCCVER}
+  - export RANLIB=gcc-ranlib-${GCCVER}
+  - export NM=gcc-nm-${GCCVER}
 
 script:
    - g++ --version
