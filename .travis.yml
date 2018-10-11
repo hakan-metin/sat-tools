@@ -16,8 +16,11 @@ matrix:
               - libgoogle-glog-dev
               - g++-7
       env:
-        - MATRIX_EVAL="CC=gcc-7 && CXX=g++-7"
+        - MATRIX_EVAL="CC=gcc-7 && CXX=g++-8"
 
+
+before_script:
+   - alias g++=/usr/bin/g++-8
 
 script:
    - g++ --version
