@@ -25,8 +25,7 @@ before_script:
   - export NM=gcc-nm-8
 
 script:
-   - g++ --version
    - source .env
    - make -C third_party/automorphism/bliss/ lib
-   - make V=3
+   - make
    - make check-style
