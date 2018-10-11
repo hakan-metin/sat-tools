@@ -2,17 +2,26 @@ language: cpp
 dist: trusty
 sudo: false
 
-addons:
-  apt:
-    sources:
-       - ubuntu-toolchain-r-test
-    packages:
-    - valgrind
-    - libgtest-dev
-    - libgoogle-glog-dev
-    - g++-7
 
 matrix:
   include:
     - os: linux
-      compiler: gcc-7
+      addons:
+        apt:
+          sources:
+            - ubuntu-toolchain-r-test
+          packages:
+              - valgrind
+              - libgtest-dev
+              - libgoogle-glog-dev
+              - g++-7
+      env:
+        - MATRIX_EVAL="CC=gcc-7 && CXX=g++-7"
+
+
+script:
+   - g++ --version
+   - source .env
+   - make -C third_party/automorphism/bliss/ lib
+   - make V=3
+   - make check-style
