@@ -15,10 +15,12 @@ matrix:
               - libgoogle-glog-dev
               - g++-8
               - gcc-8
-          env: GCCVER='8' CXX_COMPILER='g++-8' C_COMPILER='gcc-8'
+          env: GCCVER='8'
 
 
 before_script:
+  - export CC=gcc-${GCCVER}
+  - export CXX=g++-${GCCVER}
   - export AR=gcc-ar-${GCCVER}
   - export RANLIB=gcc-ranlib-${GCCVER}
   - export NM=gcc-nm-${GCCVER}
