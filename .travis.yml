@@ -19,9 +19,7 @@ matrix:
 
 
 script:
-  - alias g++="/usr/bin/g++-7"
-  - which g++
   - source .env
   - make -C third_party/automorphism/bliss/ lib
-  - make
+  - alias g++="/usr/bin/g++-7" && make V=4
   - make check-style
