@@ -5,7 +5,6 @@ sudo: false
 matrix:
   include:
     - os: linux
-      compiler: g++-8
       addons:
         apt:
           sources:
@@ -15,7 +14,13 @@ matrix:
               - libgtest-dev
               - libgoogle-glog-dev
               - g++-8
+          env: GCCVVER='8'
 
+
+before_script:
+  - export AR=gcc-ar-${GCCVER} ; fi
+  - export RANLIB=gcc-ranlib-${GCCVER} ; fi
+  - export NM=gcc-nm-${GCCVER} ; fi
 
 script:
    - g++ --version
