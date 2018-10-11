@@ -5,6 +5,7 @@
 
 #include <unordered_map>
 #include <vector>
+#include <numeric>
 #include <string>
 
 #include "sattools/Literal.h"
@@ -23,6 +24,7 @@ class Permutation {
     unsigned int size()           const { return _size; }
     unsigned int numberOfCycles() const { return _cycles_lim.size(); }
     bool isIdentity()             const { return _cycles.empty(); }
+    unsigned int order() const;
 
     const std::vector<Literal>& support() const { return _cycles; }
     struct Iterator;

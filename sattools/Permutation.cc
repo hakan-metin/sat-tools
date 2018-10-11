@@ -79,6 +79,13 @@ bool Permutation::isSpurious() const {
     return false;
 }
 
+unsigned int Permutation::order() const {
+    unsigned int order = 1;
+    for (unsigned int c = 0; c < numberOfCycles(); c++)
+        order = std::lcm(order, cycle(c).size());
+    return order;
+}
+
 std::string Permutation::debugString() const {
     std::string str, str_cycle;
 
