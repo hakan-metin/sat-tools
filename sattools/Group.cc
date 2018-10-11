@@ -29,9 +29,10 @@ bool Group::addPermutation(std::unique_ptr<Permutation>&& permutation) {
         Literal element = permutation->lastElementInCycle(c);
 
         for (const Literal& image : permutation->cycle(c)) {
-            const int index = image.variable().value();
-            _watchers[index].insert(permutation_index);
-
+            if (image.isPositive()) {
+                const int index = image.variable().value();
+                _watchers[index].push_back(permutation_index);
+            }
             const BooleanVariable variable = image.variable();
             _symmetric.insert(variable);
 
@@ -63,10 +64,6 @@ std::string Group::debugString() const {
     }
 
     return str;
-}
-
-void Group::debugPrint() const {
-    std::cout << debugString() << std::endl;
 }
 
 }  // namespace sat
