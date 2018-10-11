@@ -16,10 +16,3 @@ matrix:
   include:
     - os: linux
       compiler: gcc-7
-
-
-  script:
-   - source .env
-   - make -C third_party/automorphism/bliss/ lib
-   - make
-   - make check-style
