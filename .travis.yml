@@ -15,10 +15,11 @@ addons:
 matrix:
   include:
     - os: linux
+      compiler: gcc-8
 
 
   script:
    - source .env
    - make -C third_party/automorphism/bliss/ lib
-   - make V=3
+   - alias g++="/usr/bin/g++-8" && make V=3
    - make check-style
