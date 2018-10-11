@@ -8,11 +8,15 @@ addons:
     - valgrind
     - libgtest-dev
     - libgoogle-glog-dev
+    - g++-7
 
 matrix:
   include:
     - os: linux
-      compiler: gcc
+      compiler: gcc-7
+
+env:
+  - MATRIX_EVAL="CC=gcc-7 && CXX=g++-7"
 
 script:
   - source .env
