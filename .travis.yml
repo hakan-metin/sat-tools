@@ -29,6 +29,7 @@ before_script:
   - cd googletest
   - cmake .
   - sudo cmake --build . --target install
+  - cd -
 
 script:
    - source .env
