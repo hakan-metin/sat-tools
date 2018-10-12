@@ -17,7 +17,7 @@
 
 #include <cstdlib>  // for size_t.
 
-#if (defined(COMPILER_GCC3) || defined(OS_MACOSX)) && !defined(SWIG)
+#if (defined(COMPILER_GCC3) || defined(__APPLE__)) && !defined(SWIG)
 #define ATTRIBUTE_UNUSED __attribute__ ((__unused__))
 #else  // GCC
 #define ATTRIBUTE_UNUSED
