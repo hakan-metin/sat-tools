@@ -35,5 +35,5 @@ script:
    - source .env
    - make -C third_party/automorphism/bliss/ lib
    - make
-   - make run-test
+   - make run-test-valgrind
    - make check-style
