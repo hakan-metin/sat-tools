@@ -46,7 +46,7 @@ inline void DisjointSets::Add(unsigned int element) {
         _nodes.resize(element + 1);
 
     if (_nodes[element] == nullptr) {
-        _nodes[element] = std::move(std::make_unique<Node>(element));
+        _nodes[element] = std::make_unique<Node>(element);
         _num_elements++;
         _num_sets++;
     }

@@ -201,7 +201,7 @@ class IntType {
     ++value_;
     return *this;
   }
-  const ThisType operator++(int v) {  // postfix ++
+  const ThisType operator++(int v ATTRIBUTE_UNUSED) {  // postfix ++
     ThisType temp(*this);
     ++value_;
     return temp;
@@ -210,7 +210,7 @@ class IntType {
     --value_;
     return *this;
   }
-  const ThisType operator--(int v) {  // postfix --
+  const ThisType operator--(int v ATTRIBUTE_UNUSED) {  // postfix --
     ThisType temp(*this);
     --value_;
     return temp;
