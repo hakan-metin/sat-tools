@@ -20,8 +20,7 @@ bool Saucy1Reader::load(const std::string& symmetry_filename,
     LiteralIndex lit_index;
     Literal lit;
 
-    _adaptor = std::unique_ptr<LiteralGraphNodeAdaptor>
-        (new DoubleLiteralGraphNodeAdaptor(num_vars));
+    _adaptor = std::make_unique<DoubleLiteralGraphNodeAdaptor>(num_vars);
 
     CHECK_EQ(*in, '[');
     ++in;
@@ -33,7 +32,7 @@ bool Saucy1Reader::load(const std::string& symmetry_filename,
 
     while (*in != '\n') {
         CHECK_EQ(*in, '(');
-        generator = std::unique_ptr<Permutation>(new Permutation(num_vars));
+        generator = std::make_unique<Permutation>(num_vars);
 
         while (*in == '(') {
             ++in;
