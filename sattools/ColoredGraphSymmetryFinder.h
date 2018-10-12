@@ -50,8 +50,8 @@ class BlissColoredGraphSymmetryFinder : public ColoredGraphSymmetryFinder {
  public:
     BlissColoredGraphSymmetryFinder() : ColoredGraphSymmetryFinder() {}
     explicit BlissColoredGraphSymmetryFinder(unsigned int num_nodes) :
-        ColoredGraphSymmetryFinder(num_nodes),
-        _graph(new bliss::Graph(num_nodes)) {}
+        ColoredGraphSymmetryFinder(num_nodes) {
+        _graph = std::make_unique<bliss::Graph>(num_nodes); }
     virtual ~BlissColoredGraphSymmetryFinder() {}
 
     void addNode(NodeIndex node) override;

@@ -44,8 +44,8 @@ inline void SymmetryFinder<Graph, Adaptor>::buildGraph(const CNFModel& model) {
     unsigned int x, y;
 
     _num_vars = num_vars;
-    _graph = std::unique_ptr<Graph>(new Graph(num_nodes));
-    _adaptor = std::unique_ptr<LiteralGraphNodeAdaptor>(new Adaptor(num_vars));
+    _graph = std::make_unique<Graph>(num_nodes);
+    _adaptor = std::make_unique<Adaptor>(num_vars);
 
     std::vector<bool> seen(num_vars, false);
 

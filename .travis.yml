@@ -1,6 +1,6 @@
 language: cpp
 dist: trusty
-sudo: false
+sudo: true
 
 matrix:
   include:
@@ -11,10 +11,10 @@ matrix:
             - ubuntu-toolchain-r-test
           packages:
               - valgrind
-              - libgtest-dev
               - libgoogle-glog-dev
               - g++-8
               - gcc-8
+              - cmake
 
 
 before_script:
@@ -24,8 +24,16 @@ before_script:
   - export RANLIB=gcc-ranlib-8
   - export NM=gcc-nm-8
 
+# Build gtest
+  - git clone https://github.com/google/googletest.git
+  - cd googletest
+  - cmake .
+  - sudo cmake --build . --target install
+  - cd -
+
 script:
    - source .env
    - make -C third_party/automorphism/bliss/ lib
    - make
+   - make run-test
    - make check-style

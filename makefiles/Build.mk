@@ -56,12 +56,12 @@ test: $(BIN)test
 run-test: test
 	$(call 	cmd-call, ./$(BIN)test)
 run-test-valgrind: test
-	$(call 	cmd-call, valgrind --leak-check=full ./$(BIN)test)
+	$(call 	cmd-valgrind,  ./$(BIN)test)
 run-test-gdb: test
-	$(call 	cmd-call, gdb --args ./$(BIN)test)
+	$(call 	cmd-gdb, ./$(BIN)test)
 
 check-style: $(sources) $(headers)
-	$(call cmd-call, ./tests/sanity/cpplint.py, $^) | grep ':'
+	$(call cmd-call, ./tests/sanity/cpplint.py, $^)
 
 ################################################################################
 

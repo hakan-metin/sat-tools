@@ -10,7 +10,8 @@ on_bliss_automorphim(void* arg, const unsigned int n, const unsigned int* aut) {
     unsigned int num_vars = info->num_vars;
     LiteralGraphNodeAdaptor *adaptor = info->adaptor;
     Group *group = info->group;
-    std::unique_ptr<Permutation> permutation(new Permutation(num_vars));
+    std::unique_ptr<Permutation> permutation =
+        std::make_unique<Permutation>(num_vars);
     std::vector<bool> seen(n);
     LiteralIndex index;
 
