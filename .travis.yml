@@ -15,6 +15,7 @@ matrix:
               - libgoogle-glog-dev
               - g++-8
               - gcc-8
+              - cmake
 
 
 before_script:
@@ -23,6 +24,15 @@ before_script:
   - export AR=gcc-ar-8
   - export RANLIB=gcc-ranlib-8
   - export NM=gcc-nm-8
+
+# Build gtest
+  - rm -rf /tmp/buildgtest
+  - mkdir /tmp/buildgtest
+  - cd  /tmp/buildgtest
+  - cmake /usr/src/googletest
+  - cmake --build .
+  - cp ./googlemock/gtest/libgtest_main.a /usr/local/lib
+  - cp ./googlemock/gtest/libgtest.a /usr/local/lib
 
 script:
    - source .env
