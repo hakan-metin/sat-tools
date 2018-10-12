@@ -12,6 +12,7 @@ matrix:
           packages:
               - valgrind
               - libgtest-dev
+              - googletest
               - libgoogle-glog-dev
               - g++-8
               - gcc-8
@@ -26,13 +27,11 @@ before_script:
   - export NM=gcc-nm-8
 
 # Build gtest
-  - rm -rf /tmp/buildgtest
-  - mkdir /tmp/buildgtest
-  - cd  /tmp/buildgtest
-  - cmake /usr/src/googletest
+  - git clone https://github.com/google/googletest.git
+  - cd googletest
+  - cmake .
   - cmake --build .
-  - cp ./googlemock/gtest/libgtest_main.a /usr/local/lib
-  - cp ./googlemock/gtest/libgtest.a /usr/local/lib
+  - cp lib/*.a /usr/local/lib
 
 script:
    - source .env
