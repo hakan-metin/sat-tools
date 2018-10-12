@@ -1,6 +1,6 @@
 language: cpp
 dist: trusty
-sudo: false
+sudo: true
 
 matrix:
   include:
@@ -28,12 +28,11 @@ before_script:
   - git clone https://github.com/google/googletest.git
   - cd googletest
   - cmake .
-  - cmake --build .
-  - cp lib/*.a /usr/local/lib
+  - sudo cmake --build . --target install
 
 script:
    - source .env
    - make -C third_party/automorphism/bliss/ lib
    - make
-   - make test
+   - make run-test
    - make check-style
