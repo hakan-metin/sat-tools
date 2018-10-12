@@ -27,6 +27,15 @@ class Order {
 };
 
 
+class StaticOrder : public Order {
+
+};
+
+
+class DynamicOrder : public Order {
+
+};
+
 }  // namespace sat
 #endif  // SATTOOLS_ORDER_H_
 /*
