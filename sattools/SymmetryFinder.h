@@ -64,7 +64,9 @@ inline void SymmetryFinder<Graph, Adaptor>::buildGraph(const CNFModel& model) {
     for (const std::unique_ptr<Clause>& clause : model.unaryClauses()) {
         const Literal first = clause->literals()[0];
         x = _adaptor->literalToNode(first) - 1;
-        seen[x] = true;
+
+        if (verbose)
+            LOG(INFO) << x << " " << clause_node;
 
         _graph->addEdge(x, clause_node++);  // must be post increment
 
