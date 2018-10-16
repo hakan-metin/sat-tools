@@ -15,7 +15,7 @@ bool Saucy1Reader::load(const std::string& symmetry_filename,
           unsigned int num_vars,
           Group *group) {
     std::unique_ptr<Permutation> generator;
-    StreamBuffer in(symmetry_filename);
+    StreamBuffer in(symmetry_filename, kRead);
     int parsed;
     LiteralIndex lit_index;
     Literal lit;

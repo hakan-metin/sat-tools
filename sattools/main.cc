@@ -7,6 +7,7 @@
 #include "sattools/Bitset.h"
 #include "sattools/CNFModel.h"
 #include "sattools/CNFReader.h"
+#include "sattools/CNFWriter.h"
 #include "sattools/Group.h"
 #include "sattools/IntType.h"
 #include "sattools/IntegralTypes.h"
@@ -24,6 +25,7 @@
 using sat::Clause;
 using sat::CNFModel;
 using sat::CNFReader;
+using sat::CNFWriter;
 using sat::ColoredGraph;
 using sat::AdjacencyColoredGraph;
 using sat::BlissAutomorphismFinder;
@@ -66,6 +68,10 @@ int main(int argc, char *argv[]) {
     finder.findAutomorphisms(model, &group);
 
     LOG(INFO) << std::endl << group.debugString() << std::endl;
+
+    CNFWriter writer;
+
+    writer.dump("/tmp/model.cnf", model);
 
     // Orbits orbits;
     // orbits.assign(group);
