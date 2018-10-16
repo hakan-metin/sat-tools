@@ -17,8 +17,7 @@ GMPOBJS = $(addsuffix g,  $(OBJS))
 LIB =
 #LIB += /usr/lib/ccmalloc.o -ldl
 
-# CC = g++
-# RANLIB = ranlib
+# CXX = g++
 # AR = ar
 
 BLISSLIB = libbliss.a
@@ -33,17 +32,15 @@ gmp:	bliss_gmp
 all:: lib bliss
 
 %.o %.og:	%.cc
-	$(CXX) $(CFLAGS) -c -o $@ $<
+	$(CC) $(CFLAGS) -c -o $@ $<
 
 lib: $(OBJS)
 	rm -f $(BLISSLIB)
-	$(AR) cr $(BLISSLIB) $(OBJS)
-	$(RANLIB) $(BLISSLIB)
+	$(AR) scr $(BLISSLIB) $(OBJS)
 
 lib_gmp: $(GMPOBJS)
 	rm -f $(BLISSLIB)
-	$(AR) cr $(BLISSLIB) $(GMPOBJS)
-	$(RANLIB) $(BLISSLIB)
+	$(AR) scr $(BLISSLIB) $(GMPOBJS)
 
 bliss: bliss.o lib $(OBJS)
 	$(CXX) $(CFLAGS) -o bliss bliss.o $(OBJS) $(LIB)
