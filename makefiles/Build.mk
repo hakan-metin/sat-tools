@@ -32,7 +32,7 @@ $(BIN)$(exec): $(objects)
 $(BIN)$(exec)_release: $(release_objects)
 $(BIN)$(exec)_debug: $(debug_objects)
 
-CFLAGS += -I. -I$(SRC) -DUSE_BLISS -DUSE_SAUCY -DUSE_GLOG
+CFLAGS += -I. -I$(SRC) -DUSE_GLOG
 LDFLAGS += -lbliss -lsaucy -lglog
 
 default: CFLAGS += -O3 -fPIC -Wall -Wextra

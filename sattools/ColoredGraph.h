@@ -43,7 +43,7 @@ class AdjacencyColoredGraph : public ColoredGraph {
     void addEdge(NodeIndex a, NodeIndex b) override;
     void setColor(NodeIndex node, unsigned int color) override;
 
- private:
+ protected:
     std::vector<std::vector<NodeIndex>> _adjacency;
     std::vector<int32> _colors;
 };
