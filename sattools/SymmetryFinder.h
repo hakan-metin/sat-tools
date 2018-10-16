@@ -147,7 +147,6 @@ void SymmetryFinder<Graph, Adaptor>::findAutomorphisms(const CNFModel& model,
     _graph->findAutomorphisms(_num_vars, _adaptor, group);
 }
 
-
 }  // namespace sat
 
 #endif  // SATTOOLS_SYMMETRYFINDER_H_

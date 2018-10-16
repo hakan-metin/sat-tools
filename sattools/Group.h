@@ -22,6 +22,7 @@ class Group {
     bool addPermutation(std::unique_ptr<Permutation>&& permutation);
     struct Iterator;
     Iterator watch(BooleanVariable var) const;
+    Iterator watch(Literal literal) const;
 
     const std::vector< std::unique_ptr<Permutation> >& permutations() const {
         return _permutations;

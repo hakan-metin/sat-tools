@@ -52,6 +52,10 @@ Group::Iterator Group::watch(BooleanVariable variable) const {
     const int index = variable.value();
     return Iterator(_watchers[index].begin(), _watchers[index].end());
 }
+Group::Iterator Group::watch(Literal literal) const {
+    const int index = literal.variable().value();
+    return Iterator(_watchers[index].begin(), _watchers[index].end());
+}
 
 std::string Group::debugString() const {
     std::string str;

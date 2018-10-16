@@ -5,6 +5,7 @@
 
 #include "sattools/Assignment.h"
 #include "sattools/Bitset.h"
+#include "sattools/Breaker.h"
 #include "sattools/CNFModel.h"
 #include "sattools/CNFReader.h"
 #include "sattools/Group.h"
@@ -19,6 +20,7 @@
 #include "sattools/ColoredGraphSymmetryFinder.h"
 #include "sattools/LiteralGraphNodeAdaptor.h"
 
+using sat::Breaker;
 using sat::Clause;
 using sat::CNFModel;
 using sat::CNFReader;
@@ -53,8 +55,8 @@ int main(int argc, char *argv[]) {
     if (!reader.load(cnf_filename, &model))
         LOG(FATAL) << "Cannot load CNF file: " << cnf_filename;
 
-    LOG(INFO) << "Vars: " << model.numberOfVariables() <<
-        " Clauses: " << model.numberOfClauses();
+    // LOG(INFO) << "Vars: " << model.numberOfVariables() <<
+    //     " Clauses: " << model.numberOfClauses();
 
     // for (const std::unique_ptr<Clause>& clause : model.clauses())
     //     std::cout << clause->debugString() << std::endl;
@@ -63,12 +65,17 @@ int main(int argc, char *argv[]) {
                    DoubleLiteralGraphNodeAdaptor> finder;
     finder.findAutomorphisms(model, &group);
 
-    LOG(INFO) << std::endl << group.debugString() << std::endl;
+    // LOG(INFO) << std::endl << group.debugString() << std::endl;
 
     Orbits orbits;
     orbits.assign(group);
 
     LOG(INFO) << "number of orbits " << orbits.numberOfOrbits();
+
+
+    Breaker breaker;
+
+    breaker.addUnits(model, group);
 
     return 0;
 }
