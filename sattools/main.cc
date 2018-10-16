@@ -26,6 +26,7 @@ using sat::ColoredGraph;
 using sat::BlissColoredGraphSymmetryFinder;
 using sat::AdjacencyColoredGraph;
 using sat::BlissColoredGraphSymmetryFinder;
+using sat::SaucyColoredGraphSymmetryFinder;
 using sat::Group;
 using sat::Literal;
 using sat::Orbits;
@@ -59,16 +60,16 @@ int main(int argc, char *argv[]) {
     // for (const std::unique_ptr<Clause>& clause : model.clauses())
     //     std::cout << clause->debugString() << std::endl;
 
-    SymmetryFinder<BlissColoredGraphSymmetryFinder,
+    SymmetryFinder<SaucyColoredGraphSymmetryFinder,
                    DoubleLiteralGraphNodeAdaptor> finder;
     finder.findAutomorphisms(model, &group);
 
     LOG(INFO) << std::endl << group.debugString() << std::endl;
 
-    Orbits orbits;
-    orbits.assign(group);
+    // Orbits orbits;
+    // orbits.assign(group);
 
-    LOG(INFO) << "number of orbits " << orbits.numberOfOrbits();
+    // LOG(INFO) << "number of orbits " << orbits.numberOfOrbits();
 
     return 0;
 }

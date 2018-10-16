@@ -18,7 +18,12 @@
 
 #ifdef USE_BLISS
 #include "bliss/graph.hh"
+#endif  // USE_BLISS
+
+#ifdef USE_SAUCY
+#include "saucy/saucy.h"
 #endif
+
 
 namespace sat {
 
@@ -66,7 +71,31 @@ class BlissColoredGraphSymmetryFinder : public ColoredGraphSymmetryFinder {
  private:
     std::unique_ptr<bliss::Graph> _graph;
 };
-#endif
+#endif  // USE_BLISS
+
+#ifdef USE_SAUCY
+
+class SaucyColoredGraphSymmetryFinder : public ColoredGraphSymmetryFinder {
+ public:
+    SaucyColoredGraphSymmetryFinder() : ColoredGraphSymmetryFinder() {}
+    explicit SaucyColoredGraphSymmetryFinder(unsigned int num_nodes);
+    virtual ~SaucyColoredGraphSymmetryFinder() {}
+
+    void addNode(NodeIndex node) override;
+    void addEdge(NodeIndex a, NodeIndex b) override;
+    void setColor(NodeIndex node, unsigned int color) override;
+
+    void
+    findAutomorphisms(unsigned int num_vars,
+                      const std::unique_ptr<LiteralGraphNodeAdaptor>& adaptor,
+                      Group *group) override;
+
+ private:
+    std::vector< std::vector<unsigned int> > _graph;
+    std::vector<int> _colors;
+};
+#endif  // USE_SAUCY
+
 
 }  // namespace sat
 
