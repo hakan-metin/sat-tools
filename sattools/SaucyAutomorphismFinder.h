@@ -3,7 +3,7 @@
 #ifndef SATTOOLS_SAUCYAUTOMORPHISMFINDER_H_
 #define SATTOOLS_SAUCYAUTOMORPHISMFINDER_H_
 
-#include "saucy/saucy.h"
+#include <saucy/saucy.h>
 
 #include <vector>
 #include <numeric>
@@ -67,7 +67,6 @@ on_saucy_automorphism(int n, const int *aut, int k ATTRIBUTE_UNUSED,
             index = adaptor->nodeToLiteral(j + 1);
             if (index != kNoLiteralIndex)
                 permutation->addToCurrentCycle(Literal(index));
-
         }
         permutation->closeCurrentCycle();
     }

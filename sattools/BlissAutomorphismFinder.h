@@ -3,7 +3,7 @@
 #ifndef SATTOOLS_BLISSAUTOMORPHISMFINDER_H_
 #define SATTOOLS_BLISSAUTOMORPHISMFINDER_H_
 
-#include "bliss/graph.hh"
+#include <bliss/graph.hh>
 
 #include <vector>
 #include <numeric>
