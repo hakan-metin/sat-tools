@@ -185,7 +185,6 @@ SaucyColoredGraphSymmetryFinder::findAutomorphisms(unsigned int num_vars,
                  static_cast<void*>(&info), &stats);
     free(g);
     saucy_free(s);
-
 }
 
 #endif  // USE_SAUCY
