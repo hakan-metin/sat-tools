@@ -5,18 +5,18 @@
 namespace sat {
 
 TEST(StreamBuffer, file_not_exists) {
-    ASSERT_DEATH(StreamBuffer stream("file_not_exists"),
+    ASSERT_DEATH(StreamBuffer stream("file_not_exists", kRead),
                  ".*Cannot open file.*");
 }
 
 TEST(StreamBuffer, operator_star) {
-    StreamBuffer stream("tests/resources/test.cnf");
+    StreamBuffer stream("tests/resources/test.cnf", kRead);
 
     ASSERT_EQ(*stream, 'p');
 }
 
 TEST(StreamBuffer, operator_plusplus) {
-    StreamBuffer stream("tests/resources/test.cnf");
+    StreamBuffer stream("tests/resources/test.cnf", kRead);
 
     ASSERT_EQ(*stream, 'p'); ++stream;
     ASSERT_EQ(*stream, ' '); ++stream;
@@ -31,7 +31,7 @@ TEST(StreamBuffer, operator_plusplus) {
 }
 
 TEST(StreamBuffer, skip_whitespaces) {
-    StreamBuffer stream("tests/resources/test.cnf");
+    StreamBuffer stream("tests/resources/test.cnf", kRead);
 
     stream.skipWhiteSpaces();
     ASSERT_EQ(*stream, 'p'); ++stream;
@@ -40,7 +40,7 @@ TEST(StreamBuffer, skip_whitespaces) {
 }
 
 TEST(StreamBuffer, skip_line) {
-    StreamBuffer stream("tests/resources/test.cnf");
+    StreamBuffer stream("tests/resources/test.cnf", kRead);
 
     ASSERT_EQ(*stream, 'p');
     stream.skipLine();
@@ -56,7 +56,7 @@ TEST(StreamBuffer, skip_line) {
 
 TEST(StreamBuffer, read_int) {
     int value;
-    StreamBuffer stream("tests/resources/test.cnf");
+    StreamBuffer stream("tests/resources/test.cnf", kRead);
 
     stream.skipLine();
 

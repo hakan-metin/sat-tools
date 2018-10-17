@@ -8,6 +8,7 @@
 #include "sattools/Breaker.h"
 #include "sattools/CNFModel.h"
 #include "sattools/CNFReader.h"
+#include "sattools/CNFWriter.h"
 #include "sattools/Group.h"
 #include "sattools/IntType.h"
 #include "sattools/IntegralTypes.h"
@@ -17,17 +18,20 @@
 #include "sattools/StreamBuffer.h"
 #include "sattools/SymmetryFinder.h"
 #include "sattools/ColoredGraph.h"
-#include "sattools/ColoredGraphSymmetryFinder.h"
+#include "sattools/BlissAutomorphismFinder.h"
+#include "sattools/SaucyAutomorphismFinder.h"
+
 #include "sattools/LiteralGraphNodeAdaptor.h"
 
 using sat::Breaker;
 using sat::Clause;
 using sat::CNFModel;
 using sat::CNFReader;
+using sat::CNFWriter;
 using sat::ColoredGraph;
-using sat::BlissColoredGraphSymmetryFinder;
 using sat::AdjacencyColoredGraph;
-using sat::BlissColoredGraphSymmetryFinder;
+using sat::BlissAutomorphismFinder;
+using sat::SaucyAutomorphismFinder;
 using sat::Group;
 using sat::Literal;
 using sat::Orbits;
@@ -61,16 +65,20 @@ int main(int argc, char *argv[]) {
     // for (const std::unique_ptr<Clause>& clause : model.clauses())
     //     std::cout << clause->debugString() << std::endl;
 
-    SymmetryFinder<BlissColoredGraphSymmetryFinder,
+    SymmetryFinder<SaucyAutomorphismFinder,
                    DoubleLiteralGraphNodeAdaptor> finder;
     finder.findAutomorphisms(model, &group);
 
     // LOG(INFO) << std::endl << group.debugString() << std::endl;
 
-    Orbits orbits;
-    orbits.assign(group);
+    CNFWriter writer;
 
-    LOG(INFO) << "number of orbits " << orbits.numberOfOrbits();
+    writer.dump("/tmp/model.cnf", model);
+
+    // Orbits orbits;
+    // orbits.assign(group);
+
+    // LOG(INFO) << "number of orbits " << orbits.numberOfOrbits();
 
 
     Breaker breaker;
