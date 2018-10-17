@@ -14,9 +14,9 @@ static const int kBufferSize = 4096;
 
 namespace sat {
 
-static const std::string kRead = "rb";
-static const std::string kCompressedWrite = "w";
-static const std::string kUncompressedWrite = "wT";
+static const char kRead[] = "rb";
+static const char kCompressedWrite[] = "w";
+static const char kUncompressedWrite[] = "wT";
 
 class StreamBuffer {
  public:

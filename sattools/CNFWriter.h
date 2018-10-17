@@ -3,9 +3,9 @@
 #ifndef SATTOOLS_CNFWRITER_H_
 #define SATTOOLS_CNFWRITER_H_
 
-#include <algorithm>
 #include <vector>
 #include <string>
+#include <memory>
 #include <utility>
 
 #include "sattools/CNFModel.h"
@@ -27,7 +27,7 @@ class CNFWriter {
 };
 }  // namespace sat
 
-#endif  // SATTOOLS_CNFWRITE_H_
+#endif  // SATTOOLS_CNFWRITER_H_
 
 /*
  * Local Variables:
