@@ -11,7 +11,7 @@ CNFReader::~CNFReader() {
 }
 
 bool CNFReader::load(const std::string &filename, CNFModel *model) {
-    StreamBuffer in(filename);
+    StreamBuffer in(filename, kRead);
     unsigned int expected_num_vars = 0, expected_num_clauses = 0;
     unsigned int num_vars = 0, num_clauses = 0;
 

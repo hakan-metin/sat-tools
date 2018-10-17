@@ -4,16 +4,16 @@
 
 namespace sat {
 
-StreamBuffer::StreamBuffer(const std::string& filename) :
-    StreamBuffer(filename.c_str()) {
+StreamBuffer::StreamBuffer(const std::string& filename, const std::string& mode)
+    : StreamBuffer(filename.c_str(), mode.c_str()) {
 }
 
-StreamBuffer::StreamBuffer(const char* filename) :
+StreamBuffer::StreamBuffer(const char* filename, const char* mode) :
         _filename(filename),
         _in(nullptr),
         _index(0),
         _size(0) {
-    _in = gzopen(filename, "rb");
+    _in = gzopen(filename, mode);
     if (_in == nullptr) {
         LOG(FATAL) << "Cannot open file '" << filename << "'";
         abort();
@@ -85,6 +85,34 @@ unsigned char StreamBuffer::read() {
         _index = 0;
     }
     return (_index >= _size) ? '\0' : _buffer[_index];
+}
+
+void StreamBuffer::write(bool force) {
+    if (_index >= kBufferSize || force) {
+        gzwrite(_in, _buffer, _index);
+        _index = 0;
+    }
+}
+
+void StreamBuffer::write(const std::string& s) {
+    for (const char& c : s) {
+        _buffer[_index++] = c;
+        write(false);
+    }
+}
+
+void StreamBuffer::write(const char *s) {
+    std::string ss(s);
+    write(ss);
+}
+
+void StreamBuffer::writeInt(int n) {
+    std::string s = std::to_string(n);
+    write(s);
+}
+
+void StreamBuffer::flush() {
+    write(true);
 }
 
 }  // namespace sat
