@@ -11,7 +11,7 @@ CNFWriter::~CNFWriter() {
 }
 
 bool CNFWriter::dump(const std::string &filename, const CNFModel& model) {
-    StreamBuffer out(filename, kCompressedWrite);
+    StreamBuffer out(filename, kUncompressedWrite);
 
     out.write("p cnf ");
     out.writeInt(model.numberOfVariables());

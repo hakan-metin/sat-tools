@@ -14,13 +14,13 @@
 #include "sattools/IntegralTypes.h"
 #include "sattools/Logging.h"
 #include "sattools/Orbits.h"
+#include "sattools/OrderGenerator.h"
 #include "sattools/RangeIterator.h"
 #include "sattools/StreamBuffer.h"
 #include "sattools/SymmetryFinder.h"
 #include "sattools/ColoredGraph.h"
 #include "sattools/BlissAutomorphismFinder.h"
 #include "sattools/SaucyAutomorphismFinder.h"
-
 #include "sattools/LiteralGraphNodeAdaptor.h"
 
 using sat::Breaker;
@@ -35,6 +35,7 @@ using sat::SaucyAutomorphismFinder;
 using sat::Group;
 using sat::Literal;
 using sat::Orbits;
+using sat::OrderGenerator;
 using sat::SymmetryFinder;
 using sat::LiteralGraphNodeAdaptor;
 using sat::DoubleLiteralGraphNodeAdaptor;
@@ -43,7 +44,7 @@ using sat::ConsecutiveLiteralGraphNodeAdaptor;
 int main(int argc, char *argv[]) {
     CNFReader reader;
     CNFModel model;
-    Group group;
+    Group bliss_group, saucy_group;
 
     if (argc < 2)
         LOG(FATAL) << "Need CNF file";
@@ -65,25 +66,30 @@ int main(int argc, char *argv[]) {
     // for (const std::unique_ptr<Clause>& clause : model.clauses())
     //     std::cout << clause->debugString() << std::endl;
 
+
     SymmetryFinder<SaucyAutomorphismFinder,
-                   DoubleLiteralGraphNodeAdaptor> finder;
-    finder.findAutomorphisms(model, &group);
+                   DoubleLiteralGraphNodeAdaptor> bliss_finder;
+    bliss_finder.findAutomorphisms(model, &bliss_group);
 
-    // LOG(INFO) << std::endl << group.debugString() << std::endl;
+    //    LOG(INFO) << std::endl << bliss_group.debugString() << std::endl;
 
-    CNFWriter writer;
+    OrderGenerator orderGenerator(model, bliss_group);
+    orderGenerator.score2();
+    orderGenerator.score();
 
-    writer.dump("/tmp/model.cnf", model);
+    // LOG(INFO) << "==========";
+
+    // SymmetryFinder<SaucyAutomorphismFinder,
+    //                DoubleLiteralGraphNodeAdaptor> saucy_finder;
+    // saucy_finder.findAutomorphisms(model, &saucy_group);
+    // LOG(INFO) << std::endl << saucy_group.debugString() << std::endl;
+    // breaker.addUnits(model, saucy_group);
+
 
     // Orbits orbits;
     // orbits.assign(group);
-
     // LOG(INFO) << "number of orbits " << orbits.numberOfOrbits();
 
-
-    Breaker breaker;
-
-    breaker.addUnits(model, group);
 
     return 0;
 }

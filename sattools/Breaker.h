@@ -18,15 +18,13 @@
 namespace sat {
 
 class Breaker {
+
  public:
     Breaker();
     virtual ~Breaker();
 
-    void addUnits(CNFModel& model, const Group& group);
-
  private:
-    std::unordered_map<Literal, std::unordered_set<Literal> > _resolutions;
-    std::unique_ptr<Order> _order;
+    Group _group;
 
 };
 
