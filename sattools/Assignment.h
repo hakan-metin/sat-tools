@@ -42,6 +42,8 @@ class Assignment {
     Literal getTrueLiteralForAssignedVariable(BooleanVariable var) const;
     Literal getFalseLiteralForAssignedVariable(BooleanVariable var) const;
 
+    bool hasSameAssignmentValue(Literal x, Literal y) const;
+
     unsigned int numberOfVariables() const;
 
  private:
@@ -90,6 +92,11 @@ inline Literal
 Assignment::getFalseLiteralForAssignedVariable(BooleanVariable var) const {
     DCHECK(variableIsAssigned(var));
     return Literal(var, !_assignment.IsSet(LiteralIndex(var.value() << 1)));
+}
+
+inline bool Assignment::hasSameAssignmentValue(Literal x, Literal y) const {
+    return (literalIsAssigned(x) && literalIsAssigned(y)) &&
+        !(literalIsTrue(x) ^ literalIsTrue(y));
 }
 
 inline unsigned int Assignment::numberOfVariables() const {

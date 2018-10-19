@@ -23,6 +23,7 @@
 #include "sattools/SaucyAutomorphismFinder.h"
 #include "sattools/LiteralGraphNodeAdaptor.h"
 
+using sat::Assignment;
 using sat::Breaker;
 using sat::Clause;
 using sat::CNFModel;
@@ -71,12 +72,20 @@ int main(int argc, char *argv[]) {
                    DoubleLiteralGraphNodeAdaptor> bliss_finder;
     bliss_finder.findAutomorphisms(model, &bliss_group);
 
-    //    LOG(INFO) << std::endl << bliss_group.debugString() << std::endl;
+    LOG(INFO) << std::endl << bliss_group.debugString() << std::endl;
 
     OrderGenerator orderGenerator(model, bliss_group);
-    orderGenerator.score2();
-    orderGenerator.score();
-    orderGenerator.score_per_cycle();
+    LOG(INFO) << orderGenerator.debugString();
+
+    orderGenerator.createOrder();
+
+    Assignment assignment(model.numberOfVariables());
+
+    Breaker breaker(model, bliss_group, assignment);
+
+
+
+
 
     // LOG(INFO) << "==========";
 

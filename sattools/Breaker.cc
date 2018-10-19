@@ -4,22 +4,32 @@
 
 namespace sat {
 
-Breaker::Breaker() {
+Breaker::Breaker(const CNFModel& model, const Group& group,
+                 const Assignment& assignment) :
+    _model(model),
+    _group(group),
+    _assignment(assignment) {
+
+    for (const std::unique_ptr<Permutation>& perm : _group.permutations()) {
+        _breakers.emplace_back(BreakerInfo(perm, _assignment));
+    }
 }
 
 Breaker::~Breaker() {
 }
 
 
-struct OrderLt {
-    const std::vector<int64>& values;
+bool Breaker::updateOrder(Literal literal) {
+    if (!_order->add(literal))
+        return false;
 
-    bool operator() (int i, int j) {
-        if (values[i] != values[j])
-                return values[i] > values[j];
-        return i < j;
-    }
-    explicit OrderLt(const std::vector<int64>& v) : values(v) {}
-};
+    for (unsigned int idx : _group.watch(literal))
+        _breakers[idx].addLookupLiteral(literal);
+
+    return true;
+}
+
+
+
 
 }  // namespace sat
