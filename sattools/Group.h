@@ -42,6 +42,8 @@ class Group {
     std::unordered_set<BooleanVariable> _symmetric;
     std::unordered_set<BooleanVariable> _inverting;
     std::vector< std::vector<int> > _watchers;
+
+    DISALLOW_COPY_AND_ASSIGN(Group);
 };
 
 struct Group::Iterator {

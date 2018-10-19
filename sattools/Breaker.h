@@ -24,7 +24,6 @@ class Breaker {
     virtual ~Breaker();
 
  private:
-    Group _group;
 
 };
 

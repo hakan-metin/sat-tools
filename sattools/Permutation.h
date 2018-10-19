@@ -31,6 +31,8 @@ class Permutation {
     Iterator cycle(unsigned int i) const;
     Literal lastElementInCycle(unsigned int i) const;
 
+    unsigned int literalInCycle(const Literal& x) const;
+
     const Literal imageOf(const Literal& element) const;
     const Literal inverseOf(const Literal& element) const;
 
@@ -49,6 +51,8 @@ class Permutation {
 
     std::unordered_map<Literal, Literal> _image;
     std::unordered_map<Literal, Literal> _inverse;
+
+    std::unordered_map<Literal, unsigned int> _cycles_map;
 
     DISALLOW_COPY_AND_ASSIGN(Permutation);
 };

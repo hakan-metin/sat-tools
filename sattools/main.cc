@@ -67,7 +67,7 @@ int main(int argc, char *argv[]) {
     //     std::cout << clause->debugString() << std::endl;
 
 
-    SymmetryFinder<SaucyAutomorphismFinder,
+    SymmetryFinder<BlissAutomorphismFinder,
                    DoubleLiteralGraphNodeAdaptor> bliss_finder;
     bliss_finder.findAutomorphisms(model, &bliss_group);
 
@@ -76,6 +76,7 @@ int main(int argc, char *argv[]) {
     OrderGenerator orderGenerator(model, bliss_group);
     orderGenerator.score2();
     orderGenerator.score();
+    orderGenerator.score_per_cycle();
 
     // LOG(INFO) << "==========";
 

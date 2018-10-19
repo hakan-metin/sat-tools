@@ -9,6 +9,9 @@ void Permutation::addToCurrentCycle(Literal x) {
     const int back = _cycles_lim.empty() ? 0 : _cycles_lim.back();
     _cycles.push_back(x);
 
+    // Fill cycles_map
+    _cycles_map[x] = _cycles_lim.size();
+
     // Store image and inverse
     if (_cycles.size() > 0 && cs != back) {
         const Literal e = _cycles[cs - 1];
@@ -48,6 +51,11 @@ Literal Permutation::lastElementInCycle(unsigned int i) const {
 
     return _cycles[_cycles_lim[i] - 1];
 }
+
+unsigned int Permutation::literalInCycle(const Literal& x) const {
+    return _cycles_map.at(x);
+}
+
 
 const Literal Permutation::imageOf(const Literal& element) const {
     return _image.at(element);
