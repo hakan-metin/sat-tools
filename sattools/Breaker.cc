@@ -24,49 +24,62 @@ Breaker::~Breaker() {
 
 
 void Breaker::symsimp() {
-
     _order_generator = std::make_unique<OrderGenerator>(_model, _group);
+    _big = std::make_unique<BIG>(_model);
 
-    while (true) {
+    while (fillOrderWithScore()) {
+        // TODO(hakan) : extends order if binary clause
+        generateSBPs();
 
-        for (const std::pair<double, PermCycleInfo> & p : *_order_generator) {
-            PermCycleInfo info = p.second;
-            unsigned int perm = info.perm;
 
-            const std::unique_ptr<BreakerInfo>& breaker = _breakers[perm];
-            if (breaker->isStable()) {
-                Literal literal = _order_generator->minimalOccurence(info);
-                CHECK(updateOrder(literal));
-                addFullCycleInOrder(info, literal);
+        // if (!_assignment->literalIsAssigned(-5)) {
+        //     _assignment->assignFromTrueLiteral(-5);
+        //     _assignment->assignFromTrueLiteral(-6);
+        //     for (std::unique_ptr<BreakerInfo> & breaker : _breakers)
+        //         breaker->assignmentIsUpdated();
+        // }
+
+        Literal unit;
+        for (const std::vector<Literal>& literals : _injector) {
+            CHECK_EQ(literals.size(), 2);
+            Literal a = literals[0];
+            Literal b = literals[1];
+            if (_big->isUnitViaResolution(a, b, &unit)) {
+                LOG(INFO) << "FOUND UNIT " << unit.debugString();
+                if (!_assignment->literalIsAssigned(unit))
+                    _assignment->assignFromTrueLiteral(unit);
             }
         }
 
-        LOG(INFO) << _order->debugString();
-        std::vector<Literal> add_order;
-
-        for (const Literal& literal : add_order)
-            updateOrder(literal);
-
-        generateSBPs();
+        for (std::unique_ptr<BreakerInfo> & breaker : _breakers)
+            breaker->assignmentIsUpdated();
 
         LOG(INFO) << _injector.debugString();
-
-        bool found_units = false;
-        // Literal unit;
-        // for (const std::vector<Literal>& literals : _injector) {
-        //     if (_big.findUnits(literals, *unit)) {
-        //         found_units = true;
-        //         _assignment->assignFromTrueLiteral(unit);
-        //     }
-        // }
-
-        if (found_units)
-            update();
-
-        break;
+        _injector.clear();
     }
+
+    LOG(INFO) << _order->debugString();
 }
 
+
+bool Breaker::fillOrderWithScore() {
+    for (const std::pair<double, PermCycleInfo> & p : *_order_generator) {
+        PermCycleInfo info = p.second;
+        unsigned int perm = info.perm;
+        const std::unique_ptr<BreakerInfo>& breaker = _breakers[perm];
+        if (breaker->isStable()) {
+
+            Literal literal = _order_generator->minimalOccurence(info);
+            CHECK(updateOrder(literal));
+            addFullCycleInOrder(info, literal);
+            LOG(INFO) << _order->debugString();
+
+            return true;
+        }
+    }
+
+    return false;
+}
 
 void Breaker::addFullCycleInOrder(const PermCycleInfo& info,
                                   const Literal& literal) {
@@ -95,23 +108,10 @@ bool Breaker::updateOrder(Literal literal) {
 }
 
 void Breaker::generateSBPs() {
-    LOG(INFO) << "BREAK";
+    LOG(INFO) << "GENERATE SBPS";
     for (std::unique_ptr<BreakerInfo> & breaker : _breakers) {
         breaker->generateSBP(&_injector);
     }
-}
-
-
-void Breaker::update() {
-    for (std::unique_ptr<BreakerInfo> & breaker : _breakers) {
-        breaker->assignmentIsUpdated();
-    }
-}
-
-
-
-void Breaker::print() {
-    LOG(INFO) << _injector.debugString();
 }
 
 }  // namespace sat

@@ -28,6 +28,18 @@ class ClauseInjector {
         _clauses.emplace_back(literals);
     }
 
+    void clear() {
+        _clauses.clear();
+    }
+
+    std::vector<std::vector<Literal> >::const_iterator begin() {
+        return _clauses.begin();
+    }
+
+    std::vector<std::vector<Literal> >::const_iterator end() {
+        return _clauses.end();
+    }
+
     std::string debugString() const {
         std::stringstream ss;
         for (const std::vector<Literal>& literals : _clauses) {

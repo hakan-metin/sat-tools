@@ -105,9 +105,6 @@ int main(int argc, char *argv[]) {
     // breaker.update();
     // breaker.generateSBPs();
 
-
-    breaker.print();
-
     // LOG(INFO) << "==========";
 
     // SymmetryFinder<SaucyAutomorphismFinder,

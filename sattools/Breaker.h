@@ -11,6 +11,7 @@
 
 #include "sattools/Assignment.h"
 #include "sattools/BreakerInfo.h"
+#include "sattools/BinaryImplicationGraph.h"
 #include "sattools/CNFModel.h"
 #include "sattools/ClauseInjector.h"
 #include "sattools/Group.h"
@@ -33,9 +34,6 @@ class Breaker {
 
     bool updateOrder(Literal literal);
     void generateSBPs();
-    void update();
-
-    void print();
 
  private:
     const CNFModel &_model;
@@ -43,10 +41,13 @@ class Breaker {
     Assignment *_assignment;
     ClauseInjector _injector;
 
+    std::unique_ptr<BIG> _big;
+
     std::unique_ptr<OrderGenerator> _order_generator;
     std::unique_ptr<Order> _order;
     std::vector<std::unique_ptr<BreakerInfo>> _breakers;
 
+    bool fillOrderWithScore();
     void addFullCycleInOrder(const PermCycleInfo& info, const Literal& literal);
 };
 
