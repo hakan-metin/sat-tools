@@ -49,16 +49,16 @@ std::multimap<B,A> flip_map(const std::map<A,B> &src)
     return dst;
 }
 
-struct PermScoreInfo {
+struct PermCycleInfo {
  public:
-    PermScoreInfo(unsigned int p, unsigned int c) : num_perm(p), num_cycle(c) {}
-    unsigned int num_perm;
-    unsigned int num_cycle;
+    PermCycleInfo(unsigned int p, unsigned int c) : perm(p), cycle(c) {}
+    unsigned int perm;
+    unsigned int cycle;
 
-    bool operator<(PermScoreInfo other) const {
-        if (other.num_perm == num_perm)
-            return other.num_cycle > num_cycle;
-        return other.num_perm > num_perm;
+    bool operator<(PermCycleInfo other) const {
+        if (other.perm == perm)
+            return other.cycle > cycle;
+        return other.perm > perm;
     }
 };
 
@@ -67,7 +67,31 @@ class OrderGenerator {
     OrderGenerator(const CNFModel& model, const Group& group);
     virtual ~OrderGenerator();
 
-    void createOrder();
+    bool hasScore(unsigned int perm, unsigned int cycle) const {
+        return _info_to_scores.at(PermCycleInfo(perm, cycle)) < 0;
+    }
+
+    Literal minimalOccurence(const PermCycleInfo& info) {
+        unsigned int perm = info.perm;
+        unsigned int cycle = info.cycle;
+
+        const std::unique_ptr<Permutation>& p = _group.permutation(perm);
+        Literal literal = p->lastElementInCycle(cycle);
+
+        for (Literal image : p->cycle(cycle))
+            if (_occurences[image] < _occurences[literal])
+                literal = image;
+
+        return literal;
+    }
+
+    std::multimap<double, PermCycleInfo>::const_iterator begin() const {
+        return _scores_to_infos.begin();
+    }
+
+    std::multimap<double, PermCycleInfo>::const_iterator end() const {
+        return _scores_to_infos.end();
+    }
 
     std::string debugString() const;
 
@@ -75,11 +99,9 @@ class OrderGenerator {
     const CNFModel &_model;
     const Group& _group;
 
-    std::unique_ptr<Order> _order;
-
-    std::multimap<double, PermScoreInfo> _scores;
+    std::map<PermCycleInfo, double> _info_to_scores;
+    std::multimap<double, PermCycleInfo> _scores_to_infos;
     std::map<Literal, int64> _occurences;
-
 
     void compute_scoring();
 };

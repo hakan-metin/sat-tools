@@ -7,6 +7,7 @@
 
 #include "sattools/Assignment.h"
 #include "sattools/CNFModel.h"
+#include "sattools/ClauseInjector.h"
 #include "sattools/Group.h"
 #include "sattools/Literal.h"
 #include "sattools/Order.h"
@@ -20,26 +21,23 @@ class BreakerInfo {
                 const Assignment& assignment);
     ~BreakerInfo();
 
-    void addLookupLiteral(Literal literal) { _lookup.push_back(literal); }
-    bool isStable() const { return _lookup_index >= _lookup.size(); }
-    bool generateSBP() { return false; }
+    void addLookupLiteral(Literal literal);
+    void assignmentIsUpdated();
+    void generateSBP(ClauseInjector *injector);
+
+    bool isStable() const;
+    bool isActive() const;
 
  private:
     const std::unique_ptr<Permutation>& _permutation;
     const Assignment &_assignment;
 
+    std::unordered_set<Literal> _used;
     std::vector<Literal> _lookup;
     unsigned int _lookup_index;
+    bool _already_done;
 
-    // void update() {
-    //     for (; _lookup_index<_lookup.size(); _lookup_index++) {
-    //         Literal element = _lookup[_lookup_index];
-    //         Literal image = _permutation->imageOf(element);
-
-    //         if (_assignment.hasSameAssignmentValue(element, image))
-    //             break;
-    //     }
-    // }
+    DISALLOW_COPY_AND_ASSIGN(BreakerInfo);
 };
 
 }  // namespace sat

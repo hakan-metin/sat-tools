@@ -74,18 +74,39 @@ int main(int argc, char *argv[]) {
 
     LOG(INFO) << std::endl << bliss_group.debugString() << std::endl;
 
-    OrderGenerator orderGenerator(model, bliss_group);
-    LOG(INFO) << orderGenerator.debugString();
-
-    orderGenerator.createOrder();
-
     Assignment assignment(model.numberOfVariables());
 
-    Breaker breaker(model, bliss_group, assignment);
+    Breaker breaker(model, bliss_group, &assignment);
+
+    breaker.symsimp();
 
 
+    // breaker.updateOrder(4);
+    // breaker.updateOrder(5);
+    // breaker.updateOrder(6);
+
+    // breaker.updateOrder(1);
+    // breaker.updateOrder(2);
+    // breaker.updateOrder(3);
+
+    // breaker.updateOrder(7);
+    // breaker.updateOrder(8);
+    // breaker.updateOrder(9);
+
+    // breaker.generateSBPs();
+    // assignment.assignFromTrueLiteral(-5);
+    // assignment.assignFromTrueLiteral(-6);
+    // breaker.update();
+    // breaker.generateSBPs();
 
 
+    // assignment.assignFromTrueLiteral(-2);
+    // assignment.assignFromTrueLiteral(-3);
+    // breaker.update();
+    // breaker.generateSBPs();
+
+
+    breaker.print();
 
     // LOG(INFO) << "==========";
 

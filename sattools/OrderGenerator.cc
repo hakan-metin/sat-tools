@@ -5,7 +5,7 @@
 namespace sat {
 
 OrderGenerator::OrderGenerator(const CNFModel& model, const Group& group)
-    : _model(model), _group(group), _order(nullptr) {
+    : _model(model), _group(group) {
     compute_scoring();
 }
 
@@ -13,9 +13,7 @@ OrderGenerator::~OrderGenerator() {
 }
 
 void OrderGenerator::compute_scoring() {
-
-    std::map<PermScoreInfo, double> scores;
-    std::vector<PermScoreInfo> targets;
+    std::vector<PermCycleInfo> targets;
     std::unordered_set<unsigned int> touched;
 
     for (const std::unique_ptr<Clause>& clause : _model.binaryClauses()) {
@@ -38,65 +36,37 @@ void OrderGenerator::compute_scoring() {
             }
 
             if (isInSameCycle) {
-                unsigned int num_cycle = perm->literalInCycle(first);
-                targets.push_back(PermScoreInfo(idx, num_cycle));
+                unsigned int cycle = perm->literalInCycle(first);
+                targets.push_back(PermCycleInfo(idx, cycle));
                 touched.insert(idx);
             }
         }
 
         // Give score
         const double score = 1.0 / targets.size();
-        for (PermScoreInfo info : targets) {
-            scores[info] -= score;  // score is negative to sort greater
+        for (PermCycleInfo info : targets) {
+            _info_to_scores[info] -= score;  // score is negative (sort greater)
         }
     }
-    _scores = flip_map(scores);
+    _scores_to_infos = flip_map(_info_to_scores);
 
     // Compute occurences for touched permutations
     for (unsigned int idx : touched) {
         const std::unique_ptr<Permutation>& perm = _group.permutation(idx);
         for (const Literal& literal : perm->support()) {
-            if (literal.isNegative())
-                continue;
             _occurences[literal]++;
         }
     }
 }
 
-void OrderGenerator::createOrder() {
-
-    _order = std::make_unique<Order>();
-
-    std::unordered_set<unsigned int> used;
-
-    for (auto p : _scores) {
-        PermScoreInfo info = p.second;
-        unsigned int num_perm = info.num_perm;
-        unsigned int num_cycle = info.num_cycle;
-
-        if (!used.insert(num_perm).second)
-            continue;
-
-        for (Literal l : _group.permutation(num_perm)->cycle(num_cycle)) {
-            if (l.isNegative())
-                l = l.negated();
-
-            _order->add(l);
-        }
-        LOG(INFO) << _order->debugString();
-    }
-    LOG(INFO) << _order->debugString();
-}
-
-
 std::string OrderGenerator::debugString() const {
     std::stringstream output;
 
-    for (const auto& p : _scores) {
+    for (const auto& p : _scores_to_infos) {
         double score = p.first;
-        const PermScoreInfo& info = p.second;
+        const PermCycleInfo& info = p.second;
 
-        output << score << " : " << info.num_perm << "  " << info.num_cycle
+        output << score << " : " << info.perm << "  " << info.cycle
                << std::endl;
     }
 

@@ -12,9 +12,11 @@
 #include "sattools/Assignment.h"
 #include "sattools/BreakerInfo.h"
 #include "sattools/CNFModel.h"
+#include "sattools/ClauseInjector.h"
 #include "sattools/Group.h"
 #include "sattools/Literal.h"
 #include "sattools/Order.h"
+#include "sattools/OrderGenerator.h"
 #include "sattools/Macros.h"
 
 namespace sat {
@@ -23,19 +25,29 @@ namespace sat {
 class Breaker {
 
  public:
-    Breaker(const CNFModel& model, const Group& group,
-            const Assignment& assignment);
+    Breaker(const CNFModel& model, const Group& group, Assignment *assignment);
     virtual ~Breaker();
 
+
+    void symsimp();
+
     bool updateOrder(Literal literal);
+    void generateSBPs();
+    void update();
+
+    void print();
 
  private:
     const CNFModel &_model;
     const Group& _group;
-    const Assignment &_assignment;
+    Assignment *_assignment;
+    ClauseInjector _injector;
 
+    std::unique_ptr<OrderGenerator> _order_generator;
     std::unique_ptr<Order> _order;
-    std::vector<BreakerInfo> _breakers;
+    std::vector<std::unique_ptr<BreakerInfo>> _breakers;
+
+    void addFullCycleInOrder(const PermCycleInfo& info, const Literal& literal);
 };
 
 }  // namespace sat
