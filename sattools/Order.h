@@ -8,6 +8,7 @@
 #include <unordered_map>
 #include <memory>
 #include <utility>
+#include <string>
 
 #include "sattools/Literal.h"
 
@@ -21,6 +22,7 @@ class Order {
     bool add(Literal x);
     bool contains(Literal x) const;
 
+    std::string debugString() const;
  private:
     std::vector<Literal> _order;
     std::unordered_map<Literal, unsigned int> _indexes;

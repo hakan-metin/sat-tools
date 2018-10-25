@@ -12,11 +12,23 @@ bool Order::add(Literal literal) {
     _indexes[literal] = sz;
     _indexes[literal.negated()] = sz;
 
+    _order.push_back(literal);
+
     return true;
 }
 
 bool Order::contains(Literal literal) const {
     return _indexes.find(literal) != _indexes.end();
+}
+
+std::string Order::debugString() const {
+    std::string output;
+
+    for (Literal l : _order)
+        output += l.debugString() + " ";
+    // output += "\n";
+
+    return output;
 }
 
 }  // namespace sat
