@@ -69,43 +69,21 @@ int main(int argc, char *argv[]) {
 
 
     SymmetryFinder<BlissAutomorphismFinder,
-                   DoubleLiteralGraphNodeAdaptor> bliss_finder;
+                   ConsecutiveLiteralGraphNodeAdaptor> bliss_finder;
     bliss_finder.findAutomorphisms(model, &bliss_group);
-
-    LOG(INFO) << std::endl << bliss_group.debugString() << std::endl;
 
     Assignment assignment(model.numberOfVariables());
 
-    Breaker breaker(model, bliss_group, &assignment);
+    Breaker breaker(bliss_group, &model, &assignment);
 
     breaker.symsimp();
 
+    std::string output = "/tmp/reduce-" +
+        std::string(basename(cnf_filename.c_str()));
+    CNFWriter::dump(output, model);
 
-    // breaker.updateOrder(4);
-    // breaker.updateOrder(5);
-    // breaker.updateOrder(6);
+    LOG(INFO) << "Simplified CNF in written in " + output;
 
-    // breaker.updateOrder(1);
-    // breaker.updateOrder(2);
-    // breaker.updateOrder(3);
-
-    // breaker.updateOrder(7);
-    // breaker.updateOrder(8);
-    // breaker.updateOrder(9);
-
-    // breaker.generateSBPs();
-    // assignment.assignFromTrueLiteral(-5);
-    // assignment.assignFromTrueLiteral(-6);
-    // breaker.update();
-    // breaker.generateSBPs();
-
-
-    // assignment.assignFromTrueLiteral(-2);
-    // assignment.assignFromTrueLiteral(-3);
-    // breaker.update();
-    // breaker.generateSBPs();
-
-    // LOG(INFO) << "==========";
 
     // SymmetryFinder<SaucyAutomorphismFinder,
     //                DoubleLiteralGraphNodeAdaptor> saucy_finder;

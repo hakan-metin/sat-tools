@@ -3,6 +3,7 @@
 #ifndef SATTOOLS_ORDERGENERATOR_H_
 #define SATTOOLS_ORDERGENERATOR_H_
 
+#include <algorithm>
 #include <vector>
 #include <unordered_set>
 #include <unordered_map>
@@ -35,17 +36,15 @@ struct OrderLt {
 
 // Utility function to store map by value
 template<typename A, typename B>
-std::pair<B,A> flip_pair(const std::pair<A,B> &p)
-{
-    return std::pair<B,A>(p.second, p.first);
+std::pair<B, A> flip_pair(const std::pair<A, B> &p) {
+    return std::pair<B, A>(p.second, p.first);
 }
 // Utility function to flip map by value
 template<typename A, typename B>
-std::multimap<B,A> flip_map(const std::map<A,B> &src)
-{
-    std::multimap<B,A> dst;
+std::multimap<B, A> flip_map(const std::map<A, B> &src) {
+    std::multimap<B, A> dst;
     std::transform(src.begin(), src.end(), std::inserter(dst, dst.begin()),
-                   flip_pair<A,B>);
+                   flip_pair<A, B>);
     return dst;
 }
 
@@ -71,19 +70,7 @@ class OrderGenerator {
         return _info_to_scores.at(PermCycleInfo(perm, cycle)) < 0;
     }
 
-    Literal minimalOccurence(const PermCycleInfo& info) {
-        unsigned int perm = info.perm;
-        unsigned int cycle = info.cycle;
-
-        const std::unique_ptr<Permutation>& p = _group.permutation(perm);
-        Literal literal = p->lastElementInCycle(cycle);
-
-        for (Literal image : p->cycle(cycle))
-            if (_occurences[image] < _occurences[literal])
-                literal = image;
-
-        return literal;
-    }
+    Literal minimalOccurence(const PermCycleInfo& info);
 
     std::multimap<double, PermCycleInfo>::const_iterator begin() const {
         return _scores_to_infos.begin();
@@ -102,6 +89,8 @@ class OrderGenerator {
     std::map<PermCycleInfo, double> _info_to_scores;
     std::multimap<double, PermCycleInfo> _scores_to_infos;
     std::map<Literal, int64> _occurences;
+
+    std::unordered_map<Literal, std::unordered_set<Literal>> _powers;
 
     void compute_scoring();
 };

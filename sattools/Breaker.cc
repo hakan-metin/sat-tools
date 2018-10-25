@@ -4,12 +4,10 @@
 
 namespace sat {
 
-Breaker::Breaker(const CNFModel& model, const Group& group,
-                 Assignment *assignment) :
-    _model(model),
+Breaker::Breaker(const Group& group, CNFModel* model, Assignment *assignment) :
     _group(group),
+    _model(model),
     _assignment(assignment) {
-
     _order = std::make_unique<Order>();
 
     for (const std::unique_ptr<Permutation>& perm : _group.permutations()) {
@@ -24,43 +22,65 @@ Breaker::~Breaker() {
 
 
 void Breaker::symsimp() {
-    _order_generator = std::make_unique<OrderGenerator>(_model, _group);
-    _big = std::make_unique<BIG>(_model);
+    _order_generator = std::make_unique<OrderGenerator>(*_model, _group);
+    _big = std::make_unique<BIG>(*_model);
 
     while (fillOrderWithScore()) {
-        // TODO(hakan) : extends order if binary clause
-        generateSBPs();
-
-
-        // if (!_assignment->literalIsAssigned(-5)) {
-        //     _assignment->assignFromTrueLiteral(-5);
-        //     _assignment->assignFromTrueLiteral(-6);
-        //     for (std::unique_ptr<BreakerInfo> & breaker : _breakers)
-        //         breaker->assignmentIsUpdated();
-        // }
+        for (std::unique_ptr<BreakerInfo> & breaker : _breakers)
+            breaker->generateSBP(&_injector);
 
         Literal unit;
         for (const std::vector<Literal>& literals : _injector) {
             CHECK_EQ(literals.size(), 2);
             Literal a = literals[0];
             Literal b = literals[1];
-            if (_big->isUnitViaResolution(a, b, &unit)) {
-                LOG(INFO) << "FOUND UNIT " << unit.debugString();
-                if (!_assignment->literalIsAssigned(unit))
-                    _assignment->assignFromTrueLiteral(unit);
-            }
+            if (_big->isUnitViaResolution(a, b, &unit))
+                updateAssignment(unit);
+            if (_assignment->literalIsFalse(a))
+                updateAssignment(b);
         }
+
+        // _injector.clear();
+    }
+
+    unsigned int count = 0;
+    for (BooleanVariable var(0); var < _model->numberOfVariables(); ++var) {
+        if (_assignment->variableIsAssigned(var)) {
+            Literal l = _assignment->getTrueLiteralForAssignedVariable(var);
+            std::vector<Literal> literals = { l };
+            _model->addClause(&literals);
+            count++;
+        }
+    }
+
+    LOG(INFO) << "Breaker add " << count << " units";
+}
+
+bool Breaker::updateAssignment(Literal literal) {
+    if (!_assignment->literalIsAssigned(literal)) {
+        _assignment->assignFromTrueLiteral(literal);
+        updateOrder(literal);
 
         for (std::unique_ptr<BreakerInfo> & breaker : _breakers)
             breaker->assignmentIsUpdated();
 
-        LOG(INFO) << _injector.debugString();
-        _injector.clear();
+        return true;
     }
 
-    LOG(INFO) << _order->debugString();
+    return false;
 }
 
+
+
+bool Breaker::addUnitInOrder(Literal unit) {
+    bool added = false;
+
+    if (updateOrder(unit)) {
+        added = true;
+    }
+
+    return added;
+}
 
 bool Breaker::fillOrderWithScore() {
     for (const std::pair<double, PermCycleInfo> & p : *_order_generator) {
@@ -68,11 +88,12 @@ bool Breaker::fillOrderWithScore() {
         unsigned int perm = info.perm;
         const std::unique_ptr<BreakerInfo>& breaker = _breakers[perm];
         if (breaker->isStable()) {
-
             Literal literal = _order_generator->minimalOccurence(info);
+            if (_assignment->literalIsAssigned(literal))
+                continue;
+
             CHECK(updateOrder(literal));
-            addFullCycleInOrder(info, literal);
-            LOG(INFO) << _order->debugString();
+            addFullCycleInOrder(perm, literal);
 
             return true;
         }
@@ -81,9 +102,8 @@ bool Breaker::fillOrderWithScore() {
     return false;
 }
 
-void Breaker::addFullCycleInOrder(const PermCycleInfo& info,
+void Breaker::addFullCycleInOrder(unsigned int perm,
                                   const Literal& literal) {
-    unsigned int perm = info.perm;
     const std::unique_ptr<Permutation>& p = _group.permutation(perm);
 
     Literal image = p->imageOf(literal);
@@ -91,7 +111,6 @@ void Breaker::addFullCycleInOrder(const PermCycleInfo& info,
         updateOrder(image);
         image = p->imageOf(image);
     }
-
 }
 
 bool Breaker::updateOrder(Literal literal) {
@@ -108,10 +127,22 @@ bool Breaker::updateOrder(Literal literal) {
 }
 
 void Breaker::generateSBPs() {
-    LOG(INFO) << "GENERATE SBPS";
     for (std::unique_ptr<BreakerInfo> & breaker : _breakers) {
         breaker->generateSBP(&_injector);
     }
 }
+
+std::string Breaker::debugString() const {
+    std::stringstream ss;
+
+    ss << _order->debugString() <<  std::endl;
+
+    for (unsigned int i = 0; i < _breakers.size(); i++) {
+        const std::unique_ptr<BreakerInfo>& info = _breakers[i];
+        ss << "[" << i << "] : " << info->debugString() << std::endl;
+    }
+    return ss.str();
+}
+
 
 }  // namespace sat

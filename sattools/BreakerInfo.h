@@ -4,6 +4,11 @@
 #define SATTOOLS_BREAKERINFO_H_
 
 #include <vector>
+#include <memory>
+#include <unordered_set>
+#include <utility>
+#include <string>
+#include <sstream>
 
 #include "sattools/Assignment.h"
 #include "sattools/CNFModel.h"
@@ -27,6 +32,8 @@ class BreakerInfo {
 
     bool isStable() const;
     bool isActive() const;
+
+    std::string debugString() const;
 
  private:
     const std::unique_ptr<Permutation>& _permutation;

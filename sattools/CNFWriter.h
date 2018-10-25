@@ -17,10 +17,7 @@ namespace sat {
 
 class CNFWriter {
  public:
-    CNFWriter();
-    ~CNFWriter();
-
-    bool dump(const std::string &filename, const CNFModel& model);
+    static bool dump(const std::string &filename, const CNFModel& model);
 
  private:
     DISALLOW_COPY_AND_ASSIGN(CNFWriter);

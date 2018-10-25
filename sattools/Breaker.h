@@ -6,8 +6,11 @@
 #include <vector>
 #include <unordered_set>
 #include <unordered_map>
+
 #include <memory>
 #include <utility>
+#include <string>
+#include <sstream>
 
 #include "sattools/Assignment.h"
 #include "sattools/BreakerInfo.h"
@@ -24,9 +27,8 @@ namespace sat {
 
 
 class Breaker {
-
  public:
-    Breaker(const CNFModel& model, const Group& group, Assignment *assignment);
+    Breaker(const Group& group, CNFModel* model, Assignment *assignment);
     virtual ~Breaker();
 
 
@@ -35,9 +37,11 @@ class Breaker {
     bool updateOrder(Literal literal);
     void generateSBPs();
 
+    std::string debugString() const;
+
  private:
-    const CNFModel &_model;
     const Group& _group;
+    CNFModel *_model;
     Assignment *_assignment;
     ClauseInjector _injector;
 
@@ -47,8 +51,11 @@ class Breaker {
     std::unique_ptr<Order> _order;
     std::vector<std::unique_ptr<BreakerInfo>> _breakers;
 
+    bool updateAssignment(Literal literal);
+
+    bool addUnitInOrder(Literal unit);
     bool fillOrderWithScore();
-    void addFullCycleInOrder(const PermCycleInfo& info, const Literal& literal);
+    void addFullCycleInOrder(unsigned int perm, const Literal& literal);
 };
 
 }  // namespace sat

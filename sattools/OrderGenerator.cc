@@ -48,15 +48,47 @@ void OrderGenerator::compute_scoring() {
             _info_to_scores[info] -= score;  // score is negative (sort greater)
         }
     }
-    _scores_to_infos = flip_map(_info_to_scores);
 
     // Compute occurences for touched permutations
     for (unsigned int idx : touched) {
-        const std::unique_ptr<Permutation>& perm = _group.permutation(idx);
+  //    for (unsigned int idx = 0; idx < _group.numberOfPermutations(); idx++) {
+    const std::unique_ptr<Permutation>& perm = _group.permutation(idx);
         for (const Literal& literal : perm->support()) {
             _occurences[literal]++;
         }
     }
+
+    std::vector<PermCycleInfo> infos;
+    for (const auto& pair : _info_to_scores)
+        infos.push_back(pair.first);
+
+    for (const PermCycleInfo info : infos) {
+        int sum = 0;
+        unsigned int idx = info.perm;
+        unsigned int c = info.cycle;
+
+        const std::unique_ptr<Permutation>& perm = _group.permutation(idx);
+        for (Literal literal : perm->cycle(c))
+            sum += _occurences[literal];
+
+        _info_to_scores[info] += sum / 1000.0;
+    }
+
+    _scores_to_infos = flip_map(_info_to_scores);
+}
+
+Literal OrderGenerator::minimalOccurence(const PermCycleInfo& info) {
+    unsigned int perm = info.perm;
+    unsigned int cycle = info.cycle;
+
+    const std::unique_ptr<Permutation>& p = _group.permutation(perm);
+    Literal literal = p->lastElementInCycle(cycle);
+
+    for (Literal image : p->cycle(cycle))
+        if (_occurences[image] < _occurences[literal])
+            literal = image;
+
+    return literal;
 }
 
 std::string OrderGenerator::debugString() const {
@@ -68,6 +100,14 @@ std::string OrderGenerator::debugString() const {
 
         output << score << " : " << info.perm << "  " << info.cycle
                << std::endl;
+    }
+
+    // Occurences
+    for (const auto& pair : _occurences) {
+        Literal l = pair.first;
+        if (l.isNegative())
+            continue;
+        output << l.debugString() << " : " << pair.second << std::endl;
     }
 
     return output.str();

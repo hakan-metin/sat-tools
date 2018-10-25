@@ -1,7 +1,7 @@
 // Copyright 2017 Hakan Metin - LIP6
 
-#ifndef INCLUDE_SATTOOLS_CLAUSEINJECTOR_H_
-#define INCLUDE_SATTOOLS_CLAUSEINJECTOR_H_
+#ifndef SATTOOLS_CLAUSEINJECTOR_H_
+#define SATTOOLS_CLAUSEINJECTOR_H_
 
 
 #include <deque>
@@ -24,7 +24,7 @@ class ClauseInjector {
     ClauseInjector() {}
     ~ClauseInjector() {}
 
-    void addClause( std::vector<Literal> && literals) {
+    void addClause(std::vector<Literal> && literals) {
         _clauses.emplace_back(literals);
     }
 
@@ -43,20 +43,22 @@ class ClauseInjector {
     std::string debugString() const {
         std::stringstream ss;
         for (const std::vector<Literal>& literals : _clauses) {
+            ss << std::endl;
+
             for (const Literal &literal : literals) {
                 ss << literal.debugString() << " ";
             }
-            ss << std::endl;
         }
         return ss.str();
     }
+
  private:
     std::vector<std::vector<Literal> > _clauses;
 };
 
 }  // namespace sat
 
-#endif  // INCLUDE_SATTOOLS_CLAUSEINJECTOR_H_
+#endif  // SATTOOLS_CLAUSEINJECTOR_H_
 /*
  * Local Variables:
  * mode: c++

@@ -1,3 +1,4 @@
+// Copyright 2017 Hakan Metin - LIP6
 
 #include "sattools/BreakerInfo.h"
 
@@ -18,6 +19,8 @@ void BreakerInfo::addLookupLiteral(Literal literal) {
     if (_used.find(literal) != _used.end())
         return;
 
+    _lookup.push_back(literal);
+
     // Add all cycle
     Literal image = _permutation->imageOf(literal);
     _used.insert(literal);
@@ -25,8 +28,6 @@ void BreakerInfo::addLookupLiteral(Literal literal) {
         _used.insert(image);
         image = _permutation->imageOf(image);
     }
-
-    _lookup.push_back(literal);
 }
 
 
@@ -57,7 +58,8 @@ bool BreakerInfo::isActive() const {
 
 void BreakerInfo::assignmentIsUpdated() {
     if (isStable()) {
-        _lookup_index++;
+        if (isActive())
+            _lookup_index++;
         _already_done = false;
     }
 }
@@ -72,7 +74,6 @@ void BreakerInfo::generateSBP(ClauseInjector *injector) {
         Literal negate = literal.negated();
         Literal image = _permutation->imageOf(negate);
 
-
         while (image != negate) {
             std::vector<Literal> literals = {literal, image};
             injector->addClause(std::move(literals));
@@ -86,6 +87,18 @@ void BreakerInfo::generateSBP(ClauseInjector *injector) {
     _already_done = true;
 }
 
+std::string BreakerInfo::debugString() const {
+    std::stringstream ss;
+
+    ss << " order: ";
+    for (Literal literal : _lookup)
+        ss << literal.debugString() << " ";
+    ss << " | index: " << _lookup_index;
+    ss << " | active : " << isActive();
+    ss << " | stable: " << isStable();
+
+    return ss.str();
+}
 
 
 }  // namespace sat

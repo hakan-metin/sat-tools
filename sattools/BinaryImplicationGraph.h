@@ -1,10 +1,11 @@
 // Copyright 2017 Hakan Metin - LIP6
 
-#ifndef INCLUDE_SATTOOLS_BIG_H_
-#define INCLUDE_SATTOOLS_BIG_H_
+#ifndef SATTOOLS_BINARYIMPLICATIONGRAPH_H_
+#define SATTOOLS_BINARYIMPLICATIONGRAPH_H_
 
 #include <unordered_map>
 #include <unordered_set>
+#include <memory>
 #include <iostream>
 #include <string>
 #include <sstream>
@@ -15,7 +16,7 @@ namespace sat {
 
 class BIG {
  public:
-    BIG(const CNFModel& model);
+    explicit BIG(const CNFModel& model);
     ~BIG();
 
     bool isUnitViaResolution(Literal a, Literal b,  Literal *unit) const;
@@ -65,10 +66,9 @@ inline std::string BIG::debugString() const {
     return ss.str();
 }
 
-
 }  // namespace sat
 
-#endif  // INCLUDE_SATTOOLS_BIG_H_
+#endif  // SATTOOLS_BINARYIMPLICATIONGRAPH_H_
 /*
  * Local Variables:
  * mode: c++
