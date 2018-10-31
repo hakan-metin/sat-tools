@@ -22,7 +22,7 @@ Breaker::~Breaker() {
 
 
 void Breaker::symsimp() {
-    _order_generator = std::make_unique<OrderGenerator>(*_model, _group);
+    _order_generator = std::make_unique<OrderScoring>(*_model, _group);
     _big = std::make_unique<BIG>(*_model);
 
     while (fillOrderWithScore()) {
