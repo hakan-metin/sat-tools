@@ -20,7 +20,7 @@
 #include "sattools/Group.h"
 #include "sattools/Literal.h"
 #include "sattools/Order.h"
-#include "sattools/OrderGenerator.h"
+#include "sattools/OrderScoring.h"
 #include "sattools/Macros.h"
 
 namespace sat {
@@ -47,7 +47,7 @@ class Breaker {
 
     std::unique_ptr<BIG> _big;
 
-    std::unique_ptr<OrderGenerator> _order_generator;
+    std::unique_ptr<OrderScoring> _order_generator;
     std::unique_ptr<Order> _order;
     std::vector<std::unique_ptr<BreakerInfo>> _breakers;
 

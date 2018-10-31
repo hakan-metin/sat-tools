@@ -14,7 +14,7 @@
 #include "sattools/IntegralTypes.h"
 #include "sattools/Logging.h"
 #include "sattools/Orbits.h"
-#include "sattools/OrderGenerator.h"
+#include "sattools/OrderScoring.h"
 #include "sattools/RangeIterator.h"
 #include "sattools/StreamBuffer.h"
 #include "sattools/SymmetryFinder.h"
@@ -36,7 +36,7 @@ using sat::SaucyAutomorphismFinder;
 using sat::Group;
 using sat::Literal;
 using sat::Orbits;
-using sat::OrderGenerator;
+using sat::OrderScoring;
 using sat::SymmetryFinder;
 using sat::LiteralGraphNodeAdaptor;
 using sat::DoubleLiteralGraphNodeAdaptor;
@@ -69,11 +69,13 @@ int main(int argc, char *argv[]) {
 
 
     SymmetryFinder<BlissAutomorphismFinder,
-                   ConsecutiveLiteralGraphNodeAdaptor> bliss_finder;
+                   DoubleLiteralGraphNodeAdaptor> bliss_finder;
     bliss_finder.findAutomorphisms(model, &bliss_group);
 
-    Assignment assignment(model.numberOfVariables());
 
+    // LOG(INFO) << bliss_group.debugString();
+
+    Assignment assignment(model.numberOfVariables());
     Breaker breaker(bliss_group, &model, &assignment);
 
     breaker.symsimp();
@@ -91,11 +93,9 @@ int main(int argc, char *argv[]) {
     // LOG(INFO) << std::endl << saucy_group.debugString() << std::endl;
     // breaker.addUnits(model, saucy_group);
 
-
     // Orbits orbits;
     // orbits.assign(group);
     // LOG(INFO) << "number of orbits " << orbits.numberOfOrbits();
-
 
     return 0;
 }
