@@ -4,58 +4,47 @@
 #define SATTOOLS_BREAKER_H_
 
 #include <vector>
-#include <unordered_set>
-#include <unordered_map>
-
 #include <memory>
+#include <unordered_set>
 #include <utility>
 #include <string>
 #include <sstream>
 
 #include "sattools/Assignment.h"
-#include "sattools/BreakerInfo.h"
-#include "sattools/BinaryImplicationGraph.h"
 #include "sattools/CNFModel.h"
 #include "sattools/ClauseInjector.h"
 #include "sattools/Group.h"
 #include "sattools/Literal.h"
 #include "sattools/Order.h"
-#include "sattools/OrderScoring.h"
 #include "sattools/Macros.h"
 
 namespace sat {
 
-
 class Breaker {
  public:
-    Breaker(const Group& group, CNFModel* model, Assignment *assignment);
-    virtual ~Breaker();
+    Breaker(const std::unique_ptr<Permutation>&permutation,
+                const Assignment& assignment);
+    ~Breaker();
 
+    void addLookupLiteral(Literal literal);
+    void assignmentIsUpdated();
+    void generateSBP(ClauseInjector *injector);
 
-    void symsimp();
-
-    bool updateOrder(Literal literal);
-    void generateSBPs();
+    bool isStable() const;
+    bool isActive() const;
 
     std::string debugString() const;
 
  private:
-    const Group& _group;
-    CNFModel *_model;
-    Assignment *_assignment;
-    ClauseInjector _injector;
+    const std::unique_ptr<Permutation>& _permutation;
+    const Assignment &_assignment;
 
-    std::unique_ptr<BIG> _big;
+    std::unordered_set<Literal> _used;
+    std::vector<Literal> _lookup;
+    unsigned int _lookup_index;
+    bool _already_done;
 
-    std::unique_ptr<OrderScoring> _order_generator;
-    std::unique_ptr<Order> _order;
-    std::vector<std::unique_ptr<BreakerInfo>> _breakers;
-
-    bool updateAssignment(Literal literal);
-
-    bool addUnitInOrder(Literal unit);
-    bool fillOrderWithScore();
-    void addFullCycleInOrder(unsigned int perm, const Literal& literal);
+    DISALLOW_COPY_AND_ASSIGN(Breaker);
 };
 
 }  // namespace sat

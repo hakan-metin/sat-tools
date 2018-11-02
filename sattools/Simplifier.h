@@ -25,7 +25,6 @@ class Simplifier {
 
     std::unique_ptr<Breaker> _breaker;
     std::unique_ptr<BIG> _big;
-
 };
 
 

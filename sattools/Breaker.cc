@@ -4,145 +4,107 @@
 
 namespace sat {
 
-Breaker::Breaker(const Group& group, CNFModel* model, Assignment *assignment) :
-    _group(group),
-    _model(model),
-    _assignment(assignment) {
-    _order = std::make_unique<Order>();
-
-    for (const std::unique_ptr<Permutation>& perm : _group.permutations()) {
-        std::unique_ptr<BreakerInfo> info =
-            std::make_unique<BreakerInfo>(perm, *_assignment);
-        _breakers.push_back(std::move(info));
-    }
+Breaker::Breaker(const std::unique_ptr<Permutation>&permutation,
+                         const Assignment& assignment) :
+    _permutation(permutation),
+    _assignment(assignment),
+    _lookup_index(0),
+    _already_done(false) {
 }
 
 Breaker::~Breaker() {
 }
 
+void Breaker::addLookupLiteral(Literal literal) {
+    if (_used.find(literal) != _used.end())
+        return;
 
-void Breaker::symsimp() {
-    _order_generator = std::make_unique<OrderScoring>(*_model, _group);
-    _big = std::make_unique<BIG>(*_model);
+    _lookup.push_back(literal);
 
-    while (fillOrderWithScore()) {
-        for (std::unique_ptr<BreakerInfo> & breaker : _breakers)
-            breaker->generateSBP(&_injector);
-
-        Literal unit;
-        for (const std::vector<Literal>& literals : _injector) {
-            CHECK_EQ(literals.size(), 2);
-            Literal a = literals[0];
-            Literal b = literals[1];
-            if (_big->isUnitViaResolution(a, b, &unit))
-                updateAssignment(unit);
-            if (_assignment->literalIsFalse(a))
-                updateAssignment(b);
-        }
-
-        // _injector.clear();
-    }
-
-    unsigned int count = 0;
-    for (BooleanVariable var(0); var < _model->numberOfVariables(); ++var) {
-        if (_assignment->variableIsAssigned(var)) {
-            Literal l = _assignment->getTrueLiteralForAssignedVariable(var);
-            std::vector<Literal> literals = { l };
-            _model->addClause(&literals);
-            count++;
-        }
-    }
-
-    LOG(INFO) << "Breaker add " << count << " units";
-}
-
-bool Breaker::updateAssignment(Literal literal) {
-    if (!_assignment->literalIsAssigned(literal)) {
-        _assignment->assignFromTrueLiteral(literal);
-        updateOrder(literal);
-
-        for (std::unique_ptr<BreakerInfo> & breaker : _breakers)
-            breaker->assignmentIsUpdated();
-
-        return true;
-    }
-
-    return false;
-}
-
-
-
-bool Breaker::addUnitInOrder(Literal unit) {
-    bool added = false;
-
-    if (updateOrder(unit)) {
-        added = true;
-    }
-
-    return added;
-}
-
-bool Breaker::fillOrderWithScore() {
-    for (const std::pair<double, PermCycleInfo> & p : *_order_generator) {
-        PermCycleInfo info = p.second;
-        unsigned int perm = info.perm;
-        const std::unique_ptr<BreakerInfo>& breaker = _breakers[perm];
-        if (breaker->isStable()) {
-            Literal literal = _order_generator->minimalOccurence(info);
-            if (_assignment->literalIsAssigned(literal))
-                continue;
-
-            CHECK(updateOrder(literal));
-            addFullCycleInOrder(perm, literal);
-
-            return true;
-        }
-    }
-
-    return false;
-}
-
-void Breaker::addFullCycleInOrder(unsigned int perm,
-                                  const Literal& literal) {
-    const std::unique_ptr<Permutation>& p = _group.permutation(perm);
-
-    Literal image = p->imageOf(literal);
+    // Add all cycle
+    Literal image = _permutation->imageOf(literal);
+    _used.insert(literal);
     while (image != literal) {
-        updateOrder(image);
-        image = p->imageOf(image);
+        _used.insert(image);
+        image = _permutation->imageOf(image);
     }
 }
 
-bool Breaker::updateOrder(Literal literal) {
-    if (literal.isNegative())
-        literal = literal.negated();
 
-    if (!_order->add(literal))
-        return false;
+bool Breaker::isStable() const {
+    if (!isActive())
+        return true;
 
-    for (unsigned int idx : _group.watch(literal))
-        _breakers[idx]->addLookupLiteral(literal);
+    Literal element = _lookup[_lookup_index];
 
-    return true;
+    // TODO(hakan): this code can be removed all image of element will be
+    // units by definition of the algortithm - PROVE IT BEFORE REMOVE
+    Literal image = _permutation->imageOf(element);
+
+    while (element != image) {
+        if (!_assignment.hasSameAssignmentValue(element, image))
+            return false;
+        image = _permutation->imageOf(image);
+    }
+    //
+
+    return _assignment.literalIsFalse(element);
 }
 
-void Breaker::generateSBPs() {
-    for (std::unique_ptr<BreakerInfo> & breaker : _breakers) {
-        breaker->generateSBP(&_injector);
+bool Breaker::isActive() const {
+    return _lookup_index < _lookup.size();
+}
+
+
+void Breaker::assignmentIsUpdated() {
+    if (isStable()) {
+        if (isActive())
+            _lookup_index++;
+        _already_done = false;
     }
+}
+
+void Breaker::generateSBP(ClauseInjector *injector) {
+    if (_already_done)
+        return;
+
+    for (; _lookup_index < _lookup.size(); _lookup_index++) {
+        Literal literal = _lookup[_lookup_index];
+
+        Literal negate = literal.negated();
+        Literal image = _permutation->imageOf(negate);
+
+        while (image != negate) {
+            std::vector<Literal> literals = {literal, image};
+            injector->addClause(std::move(literals));
+            image = _permutation->imageOf(image);
+        }
+
+        if (!isStable())
+            break;
+    }
+
+    _already_done = true;
 }
 
 std::string Breaker::debugString() const {
     std::stringstream ss;
 
-    ss << _order->debugString() <<  std::endl;
+    ss << " order: ";
+    for (Literal literal : _lookup)
+        ss << literal.debugString() << " ";
+    ss << " | index: " << _lookup_index;
+    ss << " | active : " << isActive();
+    ss << " | stable: " << isStable();
 
-    for (unsigned int i = 0; i < _breakers.size(); i++) {
-        const std::unique_ptr<BreakerInfo>& info = _breakers[i];
-        ss << "[" << i << "] : " << info->debugString() << std::endl;
-    }
     return ss.str();
 }
 
 
 }  // namespace sat
+/*
+ * Local Variables:
+ * mode: c++
+ * indent-tabs-mode: nil
+ * End:
+ */

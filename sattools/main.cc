@@ -40,6 +40,7 @@ using sat::Literal;
 using sat::Orbits;
 using sat::OrderScoring;
 using sat::SymmetryFinder;
+using sat::Simplifier;
 using sat::LiteralGraphNodeAdaptor;
 using sat::DoubleLiteralGraphNodeAdaptor;
 using sat::ConsecutiveLiteralGraphNodeAdaptor;
@@ -75,18 +76,22 @@ int main(int argc, char *argv[]) {
     bliss_finder.findAutomorphisms(model, &bliss_group);
 
 
+    Simplifier simplifier(bliss_group, &model);
+
+
+
     // LOG(INFO) << bliss_group.debugString();
 
-    Assignment assignment(model.numberOfVariables());
-    Breaker breaker(bliss_group, &model, &assignment);
+    // Assignment assignment(model.numberOfVariables());
+    // Breaker breaker(bliss_group, &model, &assignment);
 
-    breaker.symsimp();
+    // breaker.symsimp();
 
-    std::string output = "/tmp/reduce-" +
-        std::string(basename(cnf_filename.c_str()));
-    CNFWriter::dump(output, model);
+    // std::string output = "/tmp/reduce-" +
+    //     std::string(basename(cnf_filename.c_str()));
+    // CNFWriter::dump(output, model);
 
-    LOG(INFO) << "Simplified CNF in written in " + output;
+    // LOG(INFO) << "Simplified CNF in written in " + output;
 
 
     // SymmetryFinder<SaucyAutomorphismFinder,
