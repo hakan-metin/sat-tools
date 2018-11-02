@@ -18,10 +18,12 @@
 #include "sattools/RangeIterator.h"
 #include "sattools/StreamBuffer.h"
 #include "sattools/SymmetryFinder.h"
+#include "sattools/Trail.h"
 #include "sattools/ColoredGraph.h"
 #include "sattools/BlissAutomorphismFinder.h"
 #include "sattools/SaucyAutomorphismFinder.h"
 #include "sattools/LiteralGraphNodeAdaptor.h"
+#include "sattools/Simplifier.h"
 
 using sat::Assignment;
 using sat::Breaker;
