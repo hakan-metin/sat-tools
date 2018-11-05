@@ -31,7 +31,7 @@ bool OrderManager::nextLiteral(const std::vector<bool>& actives,
         if (next->isNegative())
             *next = next->negated();
 
-        if(!_order->add(*next))
+        if (!_order->add(*next))
             continue;
 
         return true;

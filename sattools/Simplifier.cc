@@ -41,7 +41,6 @@ void Simplifier::simplify() {
 
         _breaker_manager->updateOrder(next);
         while (!is_model_unsat && _breaker_manager->generateSBPs(&injector)) {
-
             for (const std::vector<Literal>& clause : injector) {
                 CHECK_EQ(clause.size(), 2);
                 Literal a = clause[0];
