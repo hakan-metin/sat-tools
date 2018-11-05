@@ -14,11 +14,12 @@
 
 namespace sat {
 
-class BIG {
+class BinaryImplicationGraph {
  public:
-    explicit BIG(const CNFModel& model);
-    ~BIG();
+    explicit BinaryImplicationGraph(const CNFModel& model);
+    ~BinaryImplicationGraph();
 
+    void addBinaryClause(Literal a, Literal b);
     bool isUnitViaResolution(Literal a, Literal b,  Literal *unit) const;
 
     std::string debugString() const;
@@ -27,8 +28,12 @@ class BIG {
     std::unordered_map< Literal, std::unordered_set<Literal>> _big;
 };
 
+inline void BinaryImplicationGraph::addBinaryClause(Literal a, Literal b) {
+    _big[a].insert(b.negated());
+    _big[b].insert(a.negated());
+}
 
-inline BIG::BIG(const CNFModel& model) {
+inline BinaryImplicationGraph::BinaryImplicationGraph(const CNFModel& model) {
     for (const std::unique_ptr<Clause>& clause : model.binaryClauses()) {
         Literal a = clause->literals()[0];
         Literal b = clause->literals()[1];
@@ -38,11 +43,12 @@ inline BIG::BIG(const CNFModel& model) {
     }
 }
 
-inline BIG::~BIG() {
+inline BinaryImplicationGraph::~BinaryImplicationGraph() {
 }
 
 inline
-bool BIG::isUnitViaResolution(Literal a, Literal b,  Literal *unit) const {
+bool BinaryImplicationGraph::isUnitViaResolution(Literal a, Literal b,
+                                                 Literal *unit) const {
     if (_big.find(a) != _big.end() && _big.at(a).find(b) != _big.at(a).end()) {
         *unit = a;
         return true;
@@ -55,7 +61,7 @@ bool BIG::isUnitViaResolution(Literal a, Literal b,  Literal *unit) const {
 }
 
 
-inline std::string BIG::debugString() const {
+inline std::string BinaryImplicationGraph::debugString() const {
     std::stringstream ss;
     for (const auto &p : _big) {
         ss << "[" << p.first.debugString() << "]" << ":";

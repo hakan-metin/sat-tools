@@ -1,12 +1,11 @@
 // Copyright 2017 Hakan Metin - LIP6
 
 #ifndef SATTOOLS_BREAKERMANAGER_H_
-#define SATTOOLS_BREAKERMAANEGR_H_
+#define SATTOOLS_BREAKERMANAGER_H_
 
 #include <vector>
 #include <unordered_set>
 #include <unordered_map>
-
 #include <memory>
 #include <utility>
 #include <string>
@@ -18,8 +17,6 @@
 #include "sattools/ClauseInjector.h"
 #include "sattools/Group.h"
 #include "sattools/Literal.h"
-#include "sattools/Order.h"
-#include "sattools/OrderScoring.h"
 #include "sattools/Macros.h"
 
 namespace sat {
@@ -27,32 +24,22 @@ namespace sat {
 
 class BreakerManager {
  public:
-    BreakerManager(const Group& group, CNFModel* model, Assignment *assignment);
+    BreakerManager(const Group& group, const Assignment &assignment);
     virtual ~BreakerManager();
 
+    void updateOrder(Literal literal);
+    void updateAssignment(Literal literal);
+    bool generateSBPs(ClauseInjector *injector);
 
-    void symsimp();
-
-    bool updateOrder(Literal literal);
-    void generateSBPs();
+    void activeBreakers(std::vector<bool> *actives);
 
     std::string debugString() const;
 
  private:
     const Group& _group;
-    CNFModel *_model;
-    Assignment *_assignment;
-    ClauseInjector _injector;
+    const Assignment& _assignment;
+
     std::vector<std::unique_ptr<Breaker>> _breakers;
-
-    std::unique_ptr<OrderScoring> _order_generator;
-    std::unique_ptr<Order> _order;
-
-    bool updateAssignment(Literal literal);
-
-    bool addUnitInOrder(Literal unit);
-    bool fillOrderWithScore();
-    void addFullCycleInOrder(unsigned int perm, const Literal& literal);
 
     DISALLOW_COPY_AND_ASSIGN(BreakerManager);
 };

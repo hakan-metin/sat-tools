@@ -27,8 +27,9 @@ class Breaker {
     ~Breaker();
 
     void addLookupLiteral(Literal literal);
+    bool generateSBP(ClauseInjector *injector);
+
     void assignmentIsUpdated();
-    void generateSBP(ClauseInjector *injector);
 
     bool isStable() const;
     bool isActive() const;
@@ -42,7 +43,7 @@ class Breaker {
     std::unordered_set<Literal> _used;
     std::vector<Literal> _lookup;
     unsigned int _lookup_index;
-    bool _already_done;
+    bool _already_generated;
 
     DISALLOW_COPY_AND_ASSIGN(Breaker);
 };

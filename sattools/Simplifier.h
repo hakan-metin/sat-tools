@@ -4,10 +4,13 @@
 #define SATTOOLS_SIMPLIFIER_H_
 
 #include <memory>
+#include <vector>
 
 #include "sattools/Assignment.h"
 #include "sattools/BinaryImplicationGraph.h"
-#include "sattools/Breaker.h"
+#include "sattools/BreakerManager.h"
+#include "sattools/ClauseInjector.h"
+#include "sattools/OrderManager.h"
 #include "sattools/CNFModel.h"
 #include "sattools/Group.h"
 
@@ -18,13 +21,20 @@ class Simplifier {
     Simplifier(const Group &group, CNFModel *model);
     ~Simplifier();
 
+    void simplify();
+
  private:
     const Group &_group;
     CNFModel *_model;
     Assignment _assignment;
 
-    std::unique_ptr<Breaker> _breaker;
-    std::unique_ptr<BIG> _big;
+    std::unique_ptr<BreakerManager> _breaker_manager;
+    std::unique_ptr<OrderManager> _order_manager;
+
+    std::unique_ptr<BinaryImplicationGraph> _big;
+
+    bool addUnitClause(Literal unit);
+    void extendsOrder(const std::vector<bool>& actives, Literal unit);
 };
 
 

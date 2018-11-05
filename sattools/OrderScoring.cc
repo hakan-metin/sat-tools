@@ -6,13 +6,12 @@ namespace sat {
 
 OrderScoring::OrderScoring(const CNFModel& model, const Group& group)
     : _model(model), _group(group) {
-    compute_scoring();
 }
 
 OrderScoring::~OrderScoring() {
 }
 
-void OrderScoring::compute_scoring() {
+void OrderScoring::initialize() {
     std::vector<PermCycleInfo> targets;
     std::unordered_set<unsigned int> touched;
 
@@ -52,8 +51,7 @@ void OrderScoring::compute_scoring() {
 
     // Compute occurences for touched permutations
     for (unsigned int idx : touched) {
-  //    for (unsigned int idx = 0; idx < _group.numberOfPermutations(); idx++) {
-    const std::unique_ptr<Permutation>& perm = _group.permutation(idx);
+        const std::unique_ptr<Permutation>& perm = _group.permutation(idx);
         for (const Literal& literal : perm->support()) {
             _occurences[literal]++;
         }

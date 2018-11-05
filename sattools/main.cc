@@ -77,7 +77,14 @@ int main(int argc, char *argv[]) {
 
 
     Simplifier simplifier(bliss_group, &model);
+    simplifier.simplify();
 
+
+    std::string output = "/tmp/reduce-" +
+        std::string(basename(cnf_filename.c_str()));
+    CNFWriter::dump(output, model);
+
+    LOG(INFO) << "Simplified CNF in written in " + output;
 
 
     // LOG(INFO) << bliss_group.debugString();
@@ -87,11 +94,6 @@ int main(int argc, char *argv[]) {
 
     // breaker.symsimp();
 
-    // std::string output = "/tmp/reduce-" +
-    //     std::string(basename(cnf_filename.c_str()));
-    // CNFWriter::dump(output, model);
-
-    // LOG(INFO) << "Simplified CNF in written in " + output;
 
 
     // SymmetryFinder<SaucyAutomorphismFinder,

@@ -66,6 +66,8 @@ class OrderScoring {
     OrderScoring(const CNFModel& model, const Group& group);
     virtual ~OrderScoring();
 
+    void initialize();
+
     bool hasScore(unsigned int perm, unsigned int cycle) const {
         return _info_to_scores.at(PermCycleInfo(perm, cycle)) < 0;
     }
@@ -89,8 +91,6 @@ class OrderScoring {
     std::map<PermCycleInfo, double> _info_to_scores;
     std::multimap<double, PermCycleInfo> _scores_to_infos;
     std::map<Literal, int64> _occurences;
-
-    void compute_scoring();
 };
 
 
