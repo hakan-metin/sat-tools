@@ -5,7 +5,7 @@
 namespace sat {
 
 bool CNFWriter::dump(const std::string &filename, const CNFModel& model) {
-    StreamBuffer out(filename, kUncompressedWrite);
+    StreamBuffer out(filename, kCompressedWrite);
 
     out.write("p cnf ");
     out.writeInt(model.numberOfVariables());

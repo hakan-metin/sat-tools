@@ -18,7 +18,7 @@ namespace sat {
 
 class Simplifier {
  public:
-    Simplifier(const Group &group, CNFModel *model);
+    Simplifier(const Group &group, CNFModel *model, Order *order);
     ~Simplifier();
 
     void simplify();

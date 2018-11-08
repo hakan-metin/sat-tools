@@ -6,6 +6,8 @@
 #include <memory>
 #include <vector>
 #include <utility>
+#include <string>
+
 
 #include "sattools/Order.h"
 #include "sattools/OrderScoring.h"
@@ -15,18 +17,20 @@ namespace sat {
 
 class OrderManager {
  public:
-    OrderManager(const CNFModel& model, const Group &group);
+    OrderManager(const CNFModel& model, const Group &group, Order *order);
     ~OrderManager();
 
     void initialize();
     bool nextLiteral(const std::vector<bool>& active, Literal *next);
     bool suggestLiteralInOrder(Literal unit, Literal *next);
+    void completeOrder();
+    void exportOrder(const std::string filename);
 
  private:
     const CNFModel& _model;
     const Group &_group;
 
-    std::unique_ptr<Order> _order;
+    Order *_order;
     std::unique_ptr<OrderScoring> _order_scoring;
 
     DISALLOW_COPY_AND_ASSIGN(OrderManager);

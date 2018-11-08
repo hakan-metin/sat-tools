@@ -22,7 +22,15 @@ class Order {
     bool add(Literal x);
     bool contains(Literal x) const;
 
+    const std::vector<Literal>::const_iterator begin() const {
+        return _order.begin();
+    }
+    const std::vector<Literal>::const_iterator end() const {
+        return _order.end();
+    }
+
     std::string debugString() const;
+
  private:
     std::vector<Literal> _order;
     std::unordered_map<Literal, unsigned int> _indexes;

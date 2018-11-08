@@ -4,10 +4,11 @@
 
 namespace sat {
 
-OrderManager::OrderManager(const CNFModel& model, const Group &group) :
+OrderManager::OrderManager(const CNFModel& model, const Group &group,
+                           Order *order) :
     _model(model),
-    _group(group) {
-    _order = std::make_unique<Order>();
+    _group(group),
+    _order(order) {
     _order_scoring = std::make_unique<OrderScoring>(model, group);
 }
 
@@ -47,6 +48,11 @@ bool OrderManager::suggestLiteralInOrder(Literal unit, Literal *next) {
     *next = positive;
 
     return _order->add(positive);
+}
+
+void OrderManager::completeOrder() {
+    for (BooleanVariable var(0); var < _model.numberOfVariables(); ++var)
+        _order->add(Literal(var, true));
 }
 
 

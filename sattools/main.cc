@@ -14,6 +14,7 @@
 #include "sattools/IntegralTypes.h"
 #include "sattools/Logging.h"
 #include "sattools/Orbits.h"
+#include "sattools/Order.h"
 #include "sattools/OrderScoring.h"
 #include "sattools/RangeIterator.h"
 #include "sattools/StreamBuffer.h"
@@ -24,6 +25,8 @@
 #include "sattools/SaucyAutomorphismFinder.h"
 #include "sattools/LiteralGraphNodeAdaptor.h"
 #include "sattools/Simplifier.h"
+#include "sattools/OrderWriter.h"
+#include "sattools/Saucy1Writer.h"
 
 using sat::Assignment;
 using sat::Breaker;
@@ -38,12 +41,15 @@ using sat::SaucyAutomorphismFinder;
 using sat::Group;
 using sat::Literal;
 using sat::Orbits;
+using sat::Order;
 using sat::OrderScoring;
 using sat::SymmetryFinder;
 using sat::Simplifier;
 using sat::LiteralGraphNodeAdaptor;
 using sat::DoubleLiteralGraphNodeAdaptor;
 using sat::ConsecutiveLiteralGraphNodeAdaptor;
+using sat::OrderWriter;
+using sat::Saucy1Writer;
 
 int main(int argc, char *argv[]) {
     CNFReader reader;
@@ -75,17 +81,23 @@ int main(int argc, char *argv[]) {
                    DoubleLiteralGraphNodeAdaptor> bliss_finder;
     bliss_finder.findAutomorphisms(model, &bliss_group);
 
+    LOG(INFO) << bliss_group.debugString();
 
-    Simplifier simplifier(bliss_group, &model);
+
+    Order order;
+
+    Simplifier simplifier(bliss_group, &model, &order);
     simplifier.simplify();
 
 
     std::string output = "/tmp/reduce-" +
         std::string(basename(cnf_filename.c_str()));
     CNFWriter::dump(output, model);
+    OrderWriter::dump("/tmp/order", order);
 
     LOG(INFO) << "Simplified CNF in written in " + output;
 
+    Saucy1Writer::dump("/tmp/group.txt", bliss_group);
 
     // LOG(INFO) << bliss_group.debugString();
 

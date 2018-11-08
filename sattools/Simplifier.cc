@@ -4,12 +4,13 @@
 
 namespace sat {
 
-Simplifier::Simplifier(const Group &group, CNFModel *model) : _group(group),
-                                                              _model(model) {
+Simplifier::Simplifier(const Group &group, CNFModel *model, Order *order)
+    : _group(group),
+      _model(model) {
     const unsigned int num_vars = model->numberOfVariables();
 
     _assignment.resize(num_vars);
-    _order_manager = std::make_unique<OrderManager>(*_model, _group);
+    _order_manager = std::make_unique<OrderManager>(*_model, _group, order);
     _breaker_manager = std::make_unique<BreakerManager>(_group, _assignment);
 }
 
@@ -55,7 +56,6 @@ void Simplifier::simplify() {
                     break;
                 }
 
-                _breaker_manager->updateAssignment(unit);
                 _breaker_manager->activeBreakers(&actives);
                 extendsOrder(actives, unit);
             }
@@ -79,9 +79,11 @@ void Simplifier::simplify() {
             count++;
         }
     }
-    LOG(INFO) << "Simplifier produces " << count << " units";
-}
 
+    LOG(INFO) << "Simplifier produces " << count << " units";
+
+    _order_manager->completeOrder();
+}
 
 void Simplifier::extendsOrder(const std::vector<bool>& actives, Literal unit) {
     bool accepted;
@@ -112,6 +114,8 @@ bool Simplifier::addUnitClause(Literal unit) {
         return false;
     if (!_assignment.literalIsAssigned(unit))
         _assignment.assignFromTrueLiteral(unit);
+
+    _breaker_manager->updateAssignment(unit);
 
     return true;
 }
