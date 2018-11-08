@@ -62,8 +62,7 @@ void BlissAutomorphismFinder::addEdge(NodeIndex a, NodeIndex b) {
     _num_edges++;
 }
 
-void BlissAutomorphismFinder::setColor(NodeIndex node,
-                                               unsigned int color) {
+void BlissAutomorphismFinder::setColor(NodeIndex node, unsigned int color) {
     CHECK_LT(node, _num_nodes);
     _graph->change_color(node, color);
 }

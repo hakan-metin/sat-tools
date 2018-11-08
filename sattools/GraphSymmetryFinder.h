@@ -12,10 +12,6 @@
 #include "sattools/IntRange.h"
 #include "sattools/Logging.h"
 
-#ifdef USE_BLISS
-#include "bliss/graph.hh"
-#endif
-
 namespace sat {
 
 typedef int32 NodeIndex;
@@ -29,19 +25,6 @@ class ColoredGraphSymmetryFinder : public ColoredGraph {
     virtual void findAutomorphisms(Group *group) = 0
 };
 
-#ifdef USE_BLISS
-class BlissColoredGraphSymmetryFinder : public ColoredGraphSymmetryFinder {
- public:
-    BlissColoredGraphSymmetryFinder();
-    explicit BlissColoredGraphSymmetryFinder(unsigned int num_nodes);
-    virtual ~BlissColoredGraphSymmetryFinder();
-
-    void findAutomorphisms(Group *group);
-
- private:
-    std::unique_ptr<bliss::Graph> _graph;
-};
-#endif
 
 }  // namespace sat
 

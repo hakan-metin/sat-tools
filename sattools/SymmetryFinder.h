@@ -132,11 +132,16 @@ inline void SymmetryFinder<Graph, Adaptor>::buildGraph(const CNFModel& model) {
     for (clause_node = num_vars * 2; clause_node < num_nodes; clause_node++)
         _graph->setColor(clause_node, kClauseColor);
 
+    // Change color unused nodes
     int64 color = kClauseColor + 1;
-    for (unsigned int i = 0; i < seen.size(); i++)
-        if (!seen[i])
-            _graph->setColor(i, color++);
+    for (unsigned int i = 0; i < seen.size(); i++) {
+        if (seen[i])
+            continue;
 
+        Literal literal(BooleanVariable(i), true);
+        x =  _adaptor->literalToNode(literal) - 1;
+        _graph->setColor(x, color++);
+    }
     CHECK_LT(color, std::numeric_limits<int32>::max());
 }
 
