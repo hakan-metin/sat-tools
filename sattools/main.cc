@@ -89,34 +89,18 @@ int main(int argc, char *argv[]) {
     Simplifier simplifier(bliss_group, &model, &order);
     simplifier.simplify();
 
+    std::string base_name(basename(cnf_filename.c_str()));
+    std::string output_cnf = "/tmp/reduce-" + base_name;
+    std::string output_order = "/tmp/order-" + base_name;
+    std::string output_group = "/tmp/group-" + base_name;
 
-    std::string output = "/tmp/reduce-" +
-        std::string(basename(cnf_filename.c_str()));
-    CNFWriter::dump(output, model);
-    OrderWriter::dump("/tmp/order", order);
+    CNFWriter::dump(output_cnf, model);
+    OrderWriter::dump(output_order, order);
+    Saucy1Writer::dump(output_group, bliss_group);
 
-    LOG(INFO) << "Simplified CNF in written in " + output;
-
-    Saucy1Writer::dump("/tmp/group.txt", bliss_group);
-
-    // LOG(INFO) << bliss_group.debugString();
-
-    // Assignment assignment(model.numberOfVariables());
-    // Breaker breaker(bliss_group, &model, &assignment);
-
-    // breaker.symsimp();
-
-
-
-    // SymmetryFinder<SaucyAutomorphismFinder,
-    //                DoubleLiteralGraphNodeAdaptor> saucy_finder;
-    // saucy_finder.findAutomorphisms(model, &saucy_group);
-    // LOG(INFO) << std::endl << saucy_group.debugString() << std::endl;
-    // breaker.addUnits(model, saucy_group);
-
-    // Orbits orbits;
-    // orbits.assign(group);
-    // LOG(INFO) << "number of orbits " << orbits.numberOfOrbits();
+    LOG(INFO) << "CNF is written in " + output_cnf;
+    LOG(INFO) << "Order is written in " + output_order;
+    LOG(INFO) << "Group is written in " + output_group;
 
     return 0;
 }
