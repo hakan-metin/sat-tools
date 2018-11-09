@@ -33,8 +33,10 @@ class Simplifier {
 
     std::unique_ptr<BinaryImplicationGraph> _big;
 
-    bool addUnitClause(Literal unit);
-    void extendsOrder(const std::vector<bool>& actives, Literal unit);
+    bool addLiteralInOrderWithScore();
+    bool addLiteralInOrderWithUnit(Literal unit);
+    bool addUnitClause(Literal unit, bool extendsOrder);
+    bool resolution(ClauseInjector *injector);
 };
 
 

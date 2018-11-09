@@ -19,8 +19,8 @@ void OrderManager::initialize() {
     _order_scoring->initialize();
 }
 
-bool OrderManager::nextLiteral(const std::vector<bool>& actives,
-                               Literal *next) {
+bool
+OrderManager::nextLiteral(const std::vector<bool>& actives, Literal *next) {
     for (const std::pair<double, PermCycleInfo> & p : *_order_scoring) {
         PermCycleInfo info = p.second;
         unsigned int perm_index = info.perm;

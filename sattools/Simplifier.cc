@@ -19,52 +19,19 @@ Simplifier::~Simplifier() {
 
 
 void Simplifier::simplify() {
-    Literal next;
-    std::vector<bool> actives;
-    bool hasNext;
     ClauseInjector injector;
     bool is_model_unsat = false;
 
-    bool is_unit;
-    Literal unit;
 
     LOG(INFO) << "Simplifier start";
 
     _big = std::make_unique<BinaryImplicationGraph>(*_model);
     _order_manager->initialize();
 
-    while (true) {
-        _breaker_manager->activeBreakers(&actives);
-
-        hasNext = _order_manager->nextLiteral(actives, &next);
-        if (!hasNext)
-            break;
-
-        _breaker_manager->updateOrder(next);
-        while (!is_model_unsat && _breaker_manager->generateSBPs(&injector)) {
-            for (const std::vector<Literal>& clause : injector) {
-                CHECK_EQ(clause.size(), 2);
-                Literal a = clause[0];
-                Literal b = clause[1];
-
-                is_unit = _big->isUnitViaResolution(a, b, &unit);
-                if (!is_unit)
-                    continue;
-
-                if (!addUnitClause(unit)) {
-                    is_model_unsat = true;
-                    break;
-                }
-
-                _breaker_manager->activeBreakers(&actives);
-                extendsOrder(actives, unit);
-            }
-        }
-
-        if (is_model_unsat)
-            break;
+    while (!is_model_unsat && addLiteralInOrderWithScore()) {
+        while (_breaker_manager->generateSBPs(&injector))
+            resolution(&injector);
     }
-
     if (is_model_unsat) {
         LOG(INFO) << "MODEL IS UNSAT";
     }
@@ -81,45 +48,74 @@ void Simplifier::simplify() {
     }
 
     LOG(INFO) << "Simplifier produces " << count << " units";
-
     _order_manager->completeOrder();
 }
 
-void Simplifier::extendsOrder(const std::vector<bool>& actives, Literal unit) {
-    bool accepted;
+
+bool Simplifier::addUnitClause(Literal unit, bool extendsOrder) {
+    if (_assignment.literalIsTrue(unit.negated()))
+        return false;
+    if (_assignment.literalIsAssigned(unit))
+        return true;
+
+    _assignment.assignFromTrueLiteral(unit);
+    _breaker_manager->updateAssignment(unit);
+
+    if (extendsOrder)
+        addLiteralInOrderWithUnit(unit);
+    return true;
+}
+
+bool Simplifier::addLiteralInOrderWithScore() {
+    std::vector<bool> actives;
     Literal next;
 
+    _breaker_manager->activeBreakers(&actives);
+    if (!_order_manager->nextLiteral(actives, &next))
+        return false;
+
+    _breaker_manager->updateOrder(next);
+    return true;
+}
+
+bool Simplifier::addLiteralInOrderWithUnit(Literal unit) {
+    std::vector<bool> actives;
+    Literal next;
+    bool activated = false;
+
+    _breaker_manager->activeBreakers(&actives);
     for (unsigned int index : _group.watch(unit)) {
         if (!actives[index])
             continue;
 
-        accepted = _order_manager->suggestLiteralInOrder(unit, &next);
-        if (accepted)
-            _breaker_manager->updateOrder(next);
-
         const std::unique_ptr<Permutation>& perm = _group.permutation(index);
-        Literal image = perm->imageOf(unit);
-        while (image != unit) {
-            accepted = _order_manager->suggestLiteralInOrder(image, &next);
-            if (accepted)
-                _breaker_manager->updateOrder(next);
+        Literal image = unit;
 
+        do {
+            if (_order_manager->suggestLiteralInOrder(image, &next)) {
+                _breaker_manager->updateOrder(next);
+                addUnitClause(image, false);
+                activated = true;
+            }
             image = perm->imageOf(image);
+        } while (image != unit);
+    }
+
+    return activated;
+}
+
+bool Simplifier::resolution(ClauseInjector *injector) {
+    bool activated = false;
+    Literal unit;
+
+    for (const std::vector<Literal>& clause : *injector) {
+        if (_big->resolve(clause, &unit)) {
+            addUnitClause(unit, true);
+            activated = true;
         }
     }
+    return activated;
 }
-
-bool Simplifier::addUnitClause(Literal unit) {
-    if (_assignment.literalIsTrue(unit.negated()))
-        return false;
-    if (!_assignment.literalIsAssigned(unit))
-        _assignment.assignFromTrueLiteral(unit);
-
-    _breaker_manager->updateAssignment(unit);
-
-    return true;
-}
-
 
 }  // namespace sat
 /*
