@@ -48,7 +48,7 @@ void Simplifier::simplify() {
     }
 
     LOG(INFO) << "Simplifier produces " << count << " units";
-    _order_manager->completeOrder();
+    _order_manager->completeOrderWithOccurences(*_model);
 }
 
 

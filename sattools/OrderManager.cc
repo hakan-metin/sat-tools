@@ -2,6 +2,21 @@
 
 #include "sattools/OrderManager.h"
 
+
+
+namespace {
+struct OrderLt {
+    const std::vector<int64>& values;
+
+    bool operator() (int i, int j) {
+        if (values[i] != values[j])
+                return values[i] > values[j];
+        return i < j;
+    }
+    explicit OrderLt(const std::vector<int64>& v) :  values(v) {}
+};
+}  // namespace
+
 namespace sat {
 
 OrderManager::OrderManager(const CNFModel& model, const Group &group,
@@ -53,6 +68,19 @@ bool OrderManager::suggestLiteralInOrder(Literal unit, Literal *next) {
 void OrderManager::completeOrder() {
     for (BooleanVariable var(0); var < _model.numberOfVariables(); ++var)
         _order->add(Literal(var, true));
+}
+
+void OrderManager::completeOrderWithOccurences(const CNFModel& model) {
+    int64 num_vars = model.numberOfVariables();
+    std::vector<int64> indexes;
+    for (int64 i = 0; i < num_vars; ++i) {
+        indexes.push_back(i);
+    }
+
+    std::sort(indexes.begin(), indexes.end(), OrderLt(model.occurences()));
+
+    for (int64 i = 0; i < num_vars; ++i)
+        _order->add(Literal(BooleanVariable(indexes[i]), true));
 }
 
 

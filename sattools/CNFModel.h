@@ -41,6 +41,7 @@ class CNFModel {
     RangeIterator<std::unique_ptr<Clause>> largeClauses() const;
     RangeIterator<std::unique_ptr<Clause>> clauses() const;
 
+    const std::vector<int64>& occurences() const { return _occurences; }
 
  private:
     int64 _num_variables;
@@ -49,6 +50,7 @@ class CNFModel {
     std::vector<std::unique_ptr<Clause>> _binary_clauses;
     std::vector<std::unique_ptr<Clause>> _ternary_clauses;
     std::vector<std::unique_ptr<Clause>> _large_clauses;
+    std::vector<int64> _occurences;
 
     DISALLOW_COPY_AND_ASSIGN(CNFModel);
 };

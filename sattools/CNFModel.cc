@@ -1,3 +1,4 @@
+
 // Copyright 2017 Hakan Metin
 
 #include "sattools/CNFModel.h"
@@ -31,6 +32,14 @@ void CNFModel::addClause(std::vector<Literal>* literals) {
 
     std::unique_ptr<Clause> clause(Clause::create(*literals,
                                                   /* is_redundant= */ false));
+
+    const int64 num_vars = numberOfVariables();
+    for (const Literal &literal : *clause) {
+        const int64 index = literal.variable().value();
+        if (num_vars > index)
+            _occurences.resize(numberOfVariables());
+        _occurences[index]++;
+    }
 
     switch (clause->size()) {
     case 1:  _unary_clauses.emplace_back(clause.release());   break;

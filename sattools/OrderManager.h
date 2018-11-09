@@ -8,7 +8,7 @@
 #include <utility>
 #include <string>
 
-
+#include "sattools/CNFModel.h"
 #include "sattools/Order.h"
 #include "sattools/OrderScoring.h"
 
@@ -24,6 +24,7 @@ class OrderManager {
     bool nextLiteral(const std::vector<bool>& active, Literal *next);
     bool suggestLiteralInOrder(Literal unit, Literal *next);
     void completeOrder();
+    void completeOrderWithOccurences(const CNFModel& model);
     void exportOrder(const std::string filename);
 
  private:
