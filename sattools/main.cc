@@ -81,22 +81,20 @@ int main(int argc, char *argv[]) {
                    DoubleLiteralGraphNodeAdaptor> bliss_finder;
     bliss_finder.findAutomorphisms(model, &bliss_group);
 
-    LOG(INFO) << bliss_group.debugString();
-
+    // LOG(INFO) << bliss_group.debugString();
 
     Order order;
 
     Simplifier simplifier(bliss_group, &model, &order);
     simplifier.simplify();
 
-    LOG(INFO) << order.debugString();
 
     std::string base_name(basename(cnf_filename.c_str()));
     std::string output_cnf = "/tmp/reduce-" + base_name;
     std::string output_order = "/tmp/order-" + base_name;
     std::string output_group = "/tmp/group-" + base_name;
 
-    CNFWriter::dump(output_cnf, model);
+    CNFWriter::dump_order(output_cnf, model);
     OrderWriter::dump(output_order, order);
     Saucy1Writer::dump(output_group, bliss_group);
 

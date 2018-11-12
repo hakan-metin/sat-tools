@@ -43,6 +43,10 @@ class CNFModel {
 
     const std::vector<int64>& occurences() const { return _occurences; }
 
+    const std::vector<std::vector<Literal>>& ordered_clauses() const {
+        return _ordered_clauses;
+    }
+
  private:
     int64 _num_variables;
     int64 _num_trivial_clauses;
@@ -51,6 +55,8 @@ class CNFModel {
     std::vector<std::unique_ptr<Clause>> _ternary_clauses;
     std::vector<std::unique_ptr<Clause>> _large_clauses;
     std::vector<int64> _occurences;
+
+    std::vector<std::vector<Literal>> _ordered_clauses;
 
     DISALLOW_COPY_AND_ASSIGN(CNFModel);
 };

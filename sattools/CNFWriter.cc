@@ -5,7 +5,7 @@
 namespace sat {
 
 bool CNFWriter::dump(const std::string &filename, const CNFModel& model) {
-    StreamBuffer out(filename, kCompressedWrite);
+    StreamBuffer out(filename, kUncompressedWrite);
 
     out.write("p cnf ");
     out.writeInt(model.numberOfVariables());
@@ -34,6 +34,32 @@ bool CNFWriter::dump(const std::string &filename, const CNFModel& model) {
     return true;
 }
 
+
+bool CNFWriter::dump_order(const std::string &filename, const CNFModel& model) {
+    StreamBuffer out(filename, kUncompressedWrite);
+
+    const std::vector<std::vector<Literal>>& clauses =
+        model.ordered_clauses();
+
+    out.write("p cnf ");
+    out.writeInt(model.numberOfVariables());
+    out.write(" ");
+    out.writeInt(clauses.size());
+    out.write("\n");
+
+
+    for (const std::vector<Literal>& clause : clauses) {
+        for (const Literal& l : clause) {
+            out.writeInt(l.signedValue());
+            out.write(" ");
+        }
+        out.write("0 \n");
+    }
+
+    out.flush();
+
+    return true;
+}
 
 }  // namespace sat
 /*

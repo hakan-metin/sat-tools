@@ -14,6 +14,8 @@ CNFModel::~CNFModel() {
 void CNFModel::addClause(std::vector<Literal>* literals) {
     CHECK_GT(literals->size(), static_cast<unsigned int>(0));
 
+    _ordered_clauses.push_back(*literals);
+
     /* Remove duplicate literals in clause */
     std::sort(literals->begin(), literals->end());
     literals->erase(std::unique(literals->begin(), literals->end()),
