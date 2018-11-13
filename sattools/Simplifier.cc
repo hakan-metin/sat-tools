@@ -22,7 +22,6 @@ void Simplifier::simplify() {
     ClauseInjector injector;
     bool is_model_unsat = false;
 
-
     LOG(INFO) << "Simplifier start";
 
     _big = std::make_unique<BinaryImplicationGraph>(*_model);
@@ -43,12 +42,25 @@ void Simplifier::simplify() {
             std::vector<Literal> clause =
                 {_assignment.getTrueLiteralForAssignedVariable(var)};
             _model->addClause(&clause);
+            LOG(INFO) << clause[0].debugString();
             count++;
         }
     }
 
     LOG(INFO) << "Simplifier produces " << count << " units";
-    _order_manager->completeOrderWithOccurences(*_model);
+
+
+    std::vector<Literal> order;
+    _order_manager->completeOrderWithOccurences(*_model, &order);
+    for (Literal literal : order)
+        _breaker_manager->updateOrder(literal);
+
+    injector.clear();
+    _breaker_manager->generateAllStaticSBP(&injector);
+
+    for (std::vector<Literal>& clause : injector)
+        _model->addClause(&clause);
+
 }
 
 
@@ -60,6 +72,8 @@ bool Simplifier::addUnitClause(Literal unit, bool extendsOrder) {
 
     _assignment.assignFromTrueLiteral(unit);
     _breaker_manager->updateAssignment(unit);
+
+    LOG(INFO) << "FOUND UNIT " << unit.debugString();
 
     if (extendsOrder)
         addLiteralInOrderWithUnit(unit);
@@ -73,6 +87,8 @@ bool Simplifier::addLiteralInOrderWithScore() {
     _breaker_manager->activeBreakers(&actives);
     if (!_order_manager->nextLiteral(actives, &next))
         return false;
+
+    LOG(INFO) << "Add with SCORE " << next.debugString();
 
     _breaker_manager->updateOrder(next);
     return true;
@@ -93,6 +109,8 @@ bool Simplifier::addLiteralInOrderWithUnit(Literal unit) {
 
         do {
             if (_order_manager->suggestLiteralInOrder(image, &next)) {
+                LOG(INFO) << "Add with UNIT " << next.debugString();
+
                 _breaker_manager->updateOrder(next);
                 addUnitClause(image, false);
                 activated = true;

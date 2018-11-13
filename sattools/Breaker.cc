@@ -76,6 +76,43 @@ bool Breaker::generateSBP(ClauseInjector *injector) {
     return true;
 }
 
+bool Breaker::generateStaticSBP(ClauseInjector *injector) {
+    CHECK_GT(_lookup.size(), 0);
+
+    LOG(INFO) << _permutation->debugString();
+
+    for (const Literal& lookup : _lookup) {
+        if (_assignment.literalIsFalse(lookup))  // Because T < F
+            continue;
+        else if (_assignment.literalIsTrue(lookup))  // Always minimal
+            break;
+
+        // Generate Base
+        std::vector<Literal> sbp;
+        unsigned int index = 0;
+        while (_lookup[index] != lookup)
+            sbp.push_back(_lookup[index++]);
+        sbp.push_back(lookup);
+
+        Literal negate = lookup.negated();
+        Literal image = _permutation->imageOf(negate);
+
+        while (image != negate) {
+            sbp.push_back(image);
+            for (Literal lit : sbp)
+                std::cout << lit.debugString() << " ";
+            std::cout << std::endl;
+
+            injector->addClause(sbp);
+            image = _permutation->imageOf(image);
+        }
+
+    }
+
+    return false;
+}
+
+
 std::string Breaker::debugString() const {
     std::stringstream ss;
 

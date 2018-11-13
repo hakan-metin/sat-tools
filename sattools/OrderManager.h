@@ -24,7 +24,8 @@ class OrderManager {
     bool nextLiteral(const std::vector<bool>& active, Literal *next);
     bool suggestLiteralInOrder(Literal unit, Literal *next);
     void completeOrder();
-    void completeOrderWithOccurences(const CNFModel& model);
+    void completeOrderWithOccurences(const CNFModel& model,
+                                     std::vector<Literal>* order);
     void exportOrder(const std::string filename);
 
  private:

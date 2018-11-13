@@ -46,6 +46,11 @@ bool BreakerManager::generateSBPs(ClauseInjector *injector) {
     return added;
 }
 
+void BreakerManager::generateAllStaticSBP(ClauseInjector *injector) {
+    for (const std::unique_ptr<Breaker> & breaker : _breakers)
+        breaker->generateStaticSBP(injector);
+}
+
 void BreakerManager::activeBreakers(std::vector<bool> *actives) {
     actives->clear();
     for (const std::unique_ptr<Breaker>& breaker : _breakers)

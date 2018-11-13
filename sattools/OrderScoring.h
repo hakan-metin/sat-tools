@@ -94,6 +94,17 @@ class OrderScoring {
 };
 
 
+class OrderScoringGroup {
+    OrderScoringGroup(const CNFModel& model, const Group& group);
+    virtual ~OrderScoringGroup();
+
+    void initialize();
+
+ private:
+
+};
+
+
 }  // namespace sat
 #endif  // SATTOOLS_ORDERSCORING_H_
 /*

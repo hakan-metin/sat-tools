@@ -30,6 +30,7 @@ class BreakerManager {
     void updateOrder(Literal literal);
     void updateAssignment(Literal literal);
     bool generateSBPs(ClauseInjector *injector);
+    void generateAllStaticSBP(ClauseInjector *injector);
 
     void activeBreakers(std::vector<bool> *actives);
 

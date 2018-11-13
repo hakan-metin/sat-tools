@@ -61,17 +61,17 @@ void OrderScoring::initialize() {
     for (const auto& pair : _info_to_scores)
         infos.push_back(pair.first);
 
-    for (const PermCycleInfo info : infos) {
-        int sum = 0;
-        unsigned int idx = info.perm;
-        unsigned int c = info.cycle;
+    // for (const PermCycleInfo info : infos) {
+    //     int sum = 0;
+    //     unsigned int idx = info.perm;
+    //     unsigned int c = info.cycle;
 
-        const std::unique_ptr<Permutation>& perm = _group.permutation(idx);
-        for (Literal literal : perm->cycle(c))
-            sum += _occurences[literal];
+    //     const std::unique_ptr<Permutation>& perm = _group.permutation(idx);
+    //     for (Literal literal : perm->cycle(c))
+    //         sum += _occurences[literal];
 
-        _info_to_scores[info] += sum / 1000.0;
-    }
+    //     _info_to_scores[info] += sum / 1000.0;
+    // }
 
     _scores_to_infos = flip_map(_info_to_scores);
 }

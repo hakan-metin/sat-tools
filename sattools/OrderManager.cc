@@ -32,6 +32,7 @@ OrderManager::~OrderManager() {
 
 void OrderManager::initialize() {
     _order_scoring->initialize();
+    LOG(INFO) << _order_scoring->debugString();
 }
 
 bool
@@ -70,7 +71,10 @@ void OrderManager::completeOrder() {
         _order->add(Literal(var, true));
 }
 
-void OrderManager::completeOrderWithOccurences(const CNFModel& model) {
+void OrderManager::completeOrderWithOccurences(const CNFModel& model,
+                                               std::vector<Literal>* order) {
+
+    LOG(INFO) << _order->debugString();
     int64 num_vars = model.numberOfVariables();
     std::vector<int64> indexes;
     for (int64 i = 0; i < num_vars; ++i) {
@@ -79,8 +83,11 @@ void OrderManager::completeOrderWithOccurences(const CNFModel& model) {
 
     std::sort(indexes.begin(), indexes.end(), OrderLt(model.occurences()));
 
-    for (int64 i = 0; i < num_vars; ++i)
-        _order->add(Literal(BooleanVariable(indexes[i]), true));
+    for (int64 i = 0; i < num_vars; ++i) {
+        Literal literal(BooleanVariable(indexes[i]), true);
+        if (_order->add(literal))
+            order->push_back(literal);
+    }
 }
 
 

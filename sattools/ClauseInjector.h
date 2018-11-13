@@ -24,19 +24,28 @@ class ClauseInjector {
     ClauseInjector() {}
     ~ClauseInjector() {}
 
-    void addClause(std::vector<Literal> && literals) {
-        _clauses.emplace_back(literals);
+    void addClause(std::vector<Literal> literals) {
+        _clauses.push_back(literals);
     }
 
     void clear() {
         _clauses.clear();
     }
 
-    std::vector<std::vector<Literal> >::const_iterator begin() {
+    std::vector<std::vector<Literal> >::const_iterator begin() const {
         return _clauses.begin();
     }
 
-    std::vector<std::vector<Literal> >::const_iterator end() {
+    std::vector<std::vector<Literal> >::const_iterator end() const {
+        return _clauses.end();
+    }
+
+
+    std::vector<std::vector<Literal> >::iterator begin() {
+        return _clauses.begin();
+    }
+
+    std::vector<std::vector<Literal> >::iterator end() {
         return _clauses.end();
     }
 

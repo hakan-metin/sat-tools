@@ -28,6 +28,7 @@ class Breaker {
 
     void addLookupLiteral(Literal literal);
     bool generateSBP(ClauseInjector *injector);
+    bool generateStaticSBP(ClauseInjector *injector);
 
     void assignmentIsUpdated();
 
