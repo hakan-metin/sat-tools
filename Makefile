@@ -29,7 +29,6 @@ else
   endif
 endif
 
-
 ifeq ($(mode),mixed)
 
   %:
@@ -62,6 +61,12 @@ tags:
 MODULES :=
 
 include $(MAKEFILES_DIR)Build.mk
+include $(MAKEFILES_DIR)Examples.mk
+
+ifneq (,$(findstring test,$(MAKECMDGOALS)))
+$(info thtjk)
+include $(MAKEFILES_DIR)Build.mk
+endif
 
 # Recipe-only rules
 
@@ -92,9 +97,7 @@ ifeq ($(mode),build)
   -include .depends
 endif
 
-
 endif
-
 
 .SUFFIXES:
 .SECONDARY:

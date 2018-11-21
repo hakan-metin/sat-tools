@@ -1,16 +1,20 @@
 exec := sat
 
-sources := $(wildcard $(SRC)*.cc)
-headers := $(wildcard $(SRC)*.h)
+sources := $(wildcard $(SRC)base/*.cc)   \
+	   $(wildcard $(SRC)io/*.cc)     \
+           $(wildcard $(SRC)sat/*.cc)    \
+           $(wildcard $(SRC)utils/*.cc)  \
+           $(wildcard $(SRC)sym/*.cc)
+
+headers := $(wildcard $(SRC)base/*.h)   \
+	   $(wildcard $(SRC)io/*.h)     \
+           $(wildcard $(SRC)sat/*.h)    \
+           $(wildcard $(SRC)utils/*.h)  \
+           $(wildcard $(SRC)sym/*.h)
 
 objects         := $(patsubst %.cc, $(OBJ)%.o, $(sources))
 release_objects := $(patsubst %.cc, $(OBJ)release/%.o, $(sources))
 debug_objects   := $(patsubst %.cc, $(OBJ)debug/%.o, $(sources))
-
-tests := $(wildcard tests/units/*.test.cc)
-tests_objects := $(patsubst %.cc, $(OBJ)%.o, $(tests))
-tests_objects += $(debug_objects)
-tests_objects := $(filter-out %main.o, $(tests_objects))
 
 $(call REQUIRE-DIR, $(objects))
 $(call REQUIRE-DIR, $(BIN)$(exec))
@@ -19,13 +23,11 @@ $(call REQUIRE-DIR, $(release_objects))
 $(call REQUIRE-DIR, $(BIN)$(exec)_release)
 
 $(call REQUIRE-DIR, $(debug_objects))
-$(call REQUIRE-DIR, $(BIN)$(exec)_debug)
-
-$(call REQUIRE-DIR, $(tests_objects))
-$(call REQUIRE-DIR, $(BIN)test)
+$(call REQUIRE-DIR, $(LIB)/libsattools.a)
+$(call REQUIRE-DIR, $(LIB)/libsattools_release.a)
+$(call REQUIRE-DIR, $(LIB)/libsattools_debug.a)
 
 $(call REQUIRE-DEP, $(sources))
-$(call REQUIRE-DEP, $(tests))
 
 
 $(BIN)$(exec): $(objects)
@@ -33,32 +35,18 @@ $(BIN)$(exec)_release: $(release_objects)
 $(BIN)$(exec)_debug: $(debug_objects)
 
 CFLAGS += -I. -I$(SRC) -DUSE_GLOG
-LDFLAGS += -lbliss -lsaucy -lglog
+LDFLAGS += -lbliss -lsaucy -lglog -lz
 
-default: CFLAGS += -O3 -fPIC -Wall -Wextra
-default: $(BIN)$(exec)
+default: release
 
 release: CFLAGS += -O3 -fPIC -Wall -Wextra -DNDEBUG
-release: $(BIN)$(exec)_release
+release: $(LIB)/libsattools_release.a
 
-debug: CFLAGS += -O0 -fPIC -Wall -Wextra -g  -DDEBUG
-debug: $(BIN)$(exec)_debug
+debug: CFLAGS += -O0 -fPIC -Wall -Wextra -g -DDEBUG
+debug: $(LIB)/libsattools_debug.a
 
-.PHONY: default release debug
+.PHONY: default release debug test
 
-
-################################################################################
-# TESTS
-
-test: CFLAGS +=  -O0 --coverage -fPIC
-test: LDFLAGS += -lgtest -lgtest_main -lpthread -lgcov
-test: $(BIN)test
-run-test: test
-	$(call 	cmd-call, ./$(BIN)test)
-run-test-valgrind: test
-	$(call 	cmd-valgrind,  ./$(BIN)test)
-run-test-gdb: test
-	$(call 	cmd-gdb, ./$(BIN)test)
 
 check-style: $(sources) $(headers)
 	$(call cmd-call, ./tests/sanity/cpplint.py, $^)
@@ -67,25 +55,16 @@ check-style: $(sources) $(headers)
 
 # Generic rules
 
-$(BIN)$(exec): $(objects)
-	$(call cmd-ld, $@, $^)
+$(LIB)/libsattools_release.a: $(release_objects)
+	$(call cmd-ar, $@, $^)
+	$(call cmd-ln, $(notdir $@), $(LIB)/libsattools.a)
 
-$(BIN)$(exec)_release: $(release_objects)
-	$(call cmd-ld, $@, $^)
-
-$(BIN)$(exec)_debug: $(debug_objects)
-	$(call cmd-ld, $@, $^)
+$(LIB)/libsattools_debug.a: $(debug_objects)
+	$(call cmd-ar, $@, $^)
+	$(call cmd-ln, $(notdir $@), $(LIB)/libsattools.a)
 
 $(OBJ)release/%.o: %.cc
 	$(call cmd-cxx, $@, $<, $(CFLAGS))
 
 $(OBJ)debug/%.o: %.cc
 	$(call cmd-cxx, $@, $<, $(CFLAGS))
-
-##
-
-$(OBJ)%.test.o: %.test.cc
-	$(call cmd-cxx, $@, $<, $(CFLAGS))
-
-$(BIN)test: $(tests_objects)
-	$(call cmd-ld, $@, $^, $(LDFLAGS))

@@ -76,13 +76,11 @@ define cmd-tags
 endef
 
 
-
-
 # Standard compilation commands
 # Here are defined the commands for C, C++, assembly compilation, objects
 # archiving and linking
 
-COMMON-FLAGS :=  -Wall -Wextra
+COMMON-FLAGS :=  -Wall -Wextra -std=c++17
 
 # Link several .a in a .elf
 # Arg1 = target (.elf)
@@ -93,12 +91,18 @@ define cmd-ld
   $(Q)$(CXX) -o $(1) $(2) -lz $(3) $(LDFLAGS)
 endef
 
+
+define cmd-cxx-bin
+  $(call cmd-echo, CCXXBIN  $(strip $(call cmd-format, $(1))))
+  $(Q)g++ $(COMMON-FLAGS) $(CFLAGS) $(2) -o $(1) $(3)
+endef
+
 # Create a compiled archive (static linking) from several .o in a .a
 # Arg1 = target (.a)
 # Arg2 = compiled objects (.o)
 define cmd-ar
   $(call cmd-echo,  AR      $(strip $(call cmd-format, $(1))))
-  $(Q)$(AR) cr $(1) $(2)
+  $(Q)$(AR) scr $(1) $(2)
 endef
 
 # Compile a C++ source file into on object file (.o)
@@ -108,7 +112,7 @@ endef
 # Arg4 = addition flags
 define cmd-cxx
   $(call cmd-echo,  CCXX    $(strip $(call cmd-format, $(1))))
-  $(Q)$(CXX) $(COMMON-FLAGS) -std=c++17 -c $(2) -o $(1) $(3)
+  $(Q)$(CXX) $(COMMON-FLAGS) -c $(2) -o $(1) $(3)
 endef
 
 # Compile a C source file into on object file (.o)
@@ -132,7 +136,11 @@ endef
 
 
 
-
+define cmd-ln
+  $(call cmd-info,   LN     $(strip $(call cmd-format, $(1))))
+  $(Q)rm -f $(2)
+  $(Q)ln -s $(1) $(2)
+endef
 
 
 # File hierarchy commands
@@ -150,7 +158,7 @@ endef
 
 define cmd-depcxx
   $(call cmd-info,  DEPCXX  $(strip $(call cmd-format, $(1))))
-  $(Q)$(CXX) $(COMMON-FLAGS) -std=gnu++17 $(2) -MM -o $(1) -MT $(3) $(CFLAGS)
+  $(Q)$(CXX) $(COMMON-FLAGS) $(2) -MM -o $(1) -MT $(3) $(CFLAGS)
 endef
 
 define cmd-depc

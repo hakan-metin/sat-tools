@@ -1,8 +1,8 @@
 #include <gtest/gtest.h>
 
-#include "sattools/StreamBuffer.h"
+#include "sattools/io/StreamBuffer.h"
 
-namespace sat {
+namespace sattools {
 
 TEST(StreamBuffer, file_not_exists) {
     ASSERT_DEATH(StreamBuffer stream("file_not_exists", kRead),
@@ -73,4 +73,4 @@ TEST(StreamBuffer, read_int) {
     ASSERT_EQ(*stream, ' '); ++stream;
 }
 
-}  // namespace core
+}  // namespace sattools
