@@ -10,7 +10,10 @@ void BinaryImplicationGraph::addBinaryClause(Literal a, Literal b) {
 }
 
 BinaryImplicationGraph::BinaryImplicationGraph(const CNFModel& model) {
-    for (const std::unique_ptr<Clause>& clause : model.binaryClauses()) {
+    for (Clause *clause : model.clauses()) {
+        if (clause->size() != 2)
+            continue;
+
         Literal a = clause->literals()[0];
         Literal b = clause->literals()[1];
 

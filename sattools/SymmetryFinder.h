@@ -37,9 +37,8 @@ template<typename Graph, typename Adaptor>
 inline void SymmetryFinder<Graph, Adaptor>::buildGraph(const CNFModel& model) {
     const bool verbose = false;
     const unsigned int num_vars = model.numberOfVariables();
-    const unsigned int num_nodes = num_vars * 2 +
-        model.numberOfUnaryClauses() +  model.numberOfTernaryClauses() +
-        model.numberOfLargeClauses();
+    const unsigned int num_nodes = num_vars * 2 + model.numberOfClauses() -
+        model.numberOfBinaryClauses();
     unsigned int clause_node = num_vars * 2;
     unsigned int x, y;
 
@@ -60,71 +59,37 @@ inline void SymmetryFinder<Graph, Adaptor>::buildGraph(const CNFModel& model) {
         _graph->addEdge(x, y);
     }
 
-    // Graph edges for unary clauses
-    for (const std::unique_ptr<Clause>& clause : model.unaryClauses()) {
-        const Literal first = clause->literals()[0];
-        x = _adaptor->literalToNode(first) - 1;
+    for (Clause *clause : model.clauses()) {
+        if (clause->size() == 2) {
+            const Literal first = clause->literals()[0];
+            const Literal second = clause->literals()[1];
 
-        if (verbose)
-            LOG(INFO) << x << " " << clause_node;
-
-        _graph->addEdge(x, clause_node++);  // must be post increment
-
-        x = first.variable().value();
-        seen[x] = true;
-    }
-
-    // Graph edges for binary clauses
-    // Note this is an optimization for the graph but when automorphism is
-    // computed you MUST check if the permutation is spurious with
-    // permutation->isSpurious() method
-    // TODO(Hakan)  add reference Handbook of Satisfiability - Shatter
-    for (const std::unique_ptr<Clause>& clause : model.binaryClauses()) {
-        const Literal first = clause->literals()[0];
-        const Literal second = clause->literals()[1];
-
-        x = _adaptor->literalToNode(first) - 1;
-        y = _adaptor->literalToNode(second) - 1;
-        if (verbose)
-            LOG(INFO) << x << " " << y;
-        _graph->addEdge(x, y);
-
-        x = first.variable().value();
-        y = second.variable().value();
-
-        seen[x] = true;
-        seen[y] = true;
-    }
-
-    // Graph edges for ternary clauses
-    for (const std::unique_ptr<Clause>& clause : model.ternaryClauses()) {
-        for (const Literal& literal : *clause) {
-            x =  _adaptor->literalToNode(literal) - 1;
-
+            x = _adaptor->literalToNode(first) - 1;
+            y = _adaptor->literalToNode(second) - 1;
             if (verbose)
-                LOG(INFO) << x << " " << clause_node;
-            _graph->addEdge(x, clause_node);
+                LOG(INFO) << x << " " << y;
+            _graph->addEdge(x, y);
 
-            x = literal.variable().value();
+            x = first.variable().value();
+            y = second.variable().value();
+
             seen[x] = true;
+            seen[y] = true;
+        } else {
+            for (const Literal& literal : *clause) {
+                x =  _adaptor->literalToNode(literal) - 1;
+
+                if (verbose)
+                    LOG(INFO) << x << " " << clause_node;
+                _graph->addEdge(x, clause_node);
+
+                x = literal.variable().value();
+                seen[x] = true;
+            }
+            clause_node++;
         }
-        clause_node++;
     }
 
-    // Graph edges for large clauses
-    for (const std::unique_ptr<Clause>& clause : model.largeClauses()) {
-        for (const Literal& literal : *clause) {
-            x =  _adaptor->literalToNode(literal) - 1;
-
-            if (verbose)
-                LOG(INFO) << x << " " << clause_node;
-            _graph->addEdge(x, clause_node);
-
-            x = literal.variable().value();
-            seen[x] = true;
-        }
-        clause_node++;
-    }
     CHECK_EQ(clause_node, num_nodes);
 
     // Change color of clauses

@@ -8,6 +8,8 @@
 #include <vector>
 #include <utility>
 #include <string>
+#include <unordered_map>
+#include <limits>
 
 #include "sattools/CNFModel.h"
 #include "sattools/Order.h"

@@ -15,10 +15,12 @@ void OrderScoring::initialize() {
     std::vector<PermCycleInfo> targets;
     std::unordered_set<unsigned int> touched;
 
-    for (const std::unique_ptr<Clause>& clause : _model.binaryClauses()) {
+    for (Clause *clause : _model.clauses()) {
+        if (clause->size() != 2)
+            continue;
+
         Literal first = clause->literals()[0];
         Literal second = clause->literals()[1];
-
 
         targets.clear();
         for (int idx : _group.watch(first)) {

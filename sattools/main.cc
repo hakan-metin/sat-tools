@@ -93,7 +93,7 @@ int main(int argc, char *argv[]) {
     std::string output_order = "/tmp/order-" + base_name;
     std::string output_group = "/tmp/group-" + base_name;
 
-    CNFWriter::dump_order(output_cnf, model);
+    CNFWriter::dump(output_cnf, model);
     OrderWriter::dump(output_order, order);
     Saucy1Writer::dump(output_group, bliss_group);
 

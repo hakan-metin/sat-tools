@@ -7,7 +7,6 @@
 namespace {
 struct OrderLt {
     const std::vector<int64>& values;
-
     bool operator() (int i, int j) {
         if (values[i] != values[j])
                 return values[i] > values[j];
@@ -86,7 +85,6 @@ void OrderManager::completeOrderWithOccurences(const CNFModel& model) {
         _order->add(Literal(BooleanVariable(indexes[i]), true));
 
     // LOG(INFO) << "Complete Occurence Done " << _order->debugString();
-
 }
 
 
