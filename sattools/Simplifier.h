@@ -5,6 +5,7 @@
 
 #include <memory>
 #include <vector>
+#include <string>
 
 #include "sattools/Assignment.h"
 #include "sattools/BinaryImplicationGraph.h"
@@ -13,6 +14,7 @@
 #include "sattools/OrderManager.h"
 #include "sattools/CNFModel.h"
 #include "sattools/Group.h"
+#include "sattools/Watcher.h"
 
 namespace sat {
 

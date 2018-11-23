@@ -93,13 +93,21 @@ Literal OrderScoring::minimalOccurence(const PermCycleInfo& info) {
 std::string OrderScoring::debugString() const {
     std::stringstream output;
 
+    output << std::endl << "== SCORES" << std::endl;
     for (const auto& p : _scores_to_infos) {
         double score = p.first;
         const PermCycleInfo& info = p.second;
 
-        output << score << " : " << info.perm << "  " << info.cycle
-               << std::endl;
+        output << score << " : " << info.perm << "  " << info.cycle << " ( ";
+        // Display also cycle
+        unsigned int index = info.perm;
+        const std::unique_ptr<Permutation>& perm = _group.permutation(index);
+        for (Literal l : perm->cycle(info.cycle))
+            output << l.debugString() << " ";
+        output << ")" << std::endl;
     }
+
+    output << std::endl << "== OCCURENCES" << std::endl;
 
     // Occurences
     for (const auto& pair : _occurences) {
@@ -111,6 +119,5 @@ std::string OrderScoring::debugString() const {
 
     return output.str();
 }
-
 
 }  // namespace sat

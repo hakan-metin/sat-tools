@@ -14,6 +14,7 @@ CNFModel::~CNFModel() {
 void CNFModel::addClause(std::vector<Literal>* literals) {
     CHECK_GT(literals->size(), static_cast<unsigned int>(0));
 
+    const int64 clause_index = _ordered_clauses.size();
     _ordered_clauses.push_back(*literals);
 
     /* Remove duplicate literals in clause */
@@ -37,10 +38,13 @@ void CNFModel::addClause(std::vector<Literal>* literals) {
 
     const int64 num_vars = numberOfVariables();
     for (const Literal &literal : *clause) {
-        const int64 index = literal.variable().value();
-        if (num_vars > index)
+        const int64 literal_index = literal.variable().value();
+        // Register each literal to associate clause
+        _watchers.store(literal_index, clause_index);
+
+        if (num_vars > literal_index)
             _occurences.resize(numberOfVariables());
-        _occurences[index]++;
+        _occurences[literal_index]++;
     }
 
     switch (clause->size()) {
@@ -100,6 +104,8 @@ RangeIterator<std::unique_ptr<Clause>> CNFModel::largeClauses() const {
 RangeIterator<std::unique_ptr<Clause>> CNFModel::clauses() const {
     return { &_binary_clauses, &_ternary_clauses, &_large_clauses };
 }
+
+
 
 
 }  // namespace sat

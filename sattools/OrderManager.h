@@ -3,6 +3,7 @@
 #ifndef SATTOOLS_ORDERMANAGER_H_
 #define SATTOOLS_ORDERMANAGER_H_
 
+#include <algorithm>
 #include <memory>
 #include <vector>
 #include <utility>
@@ -11,6 +12,7 @@
 #include "sattools/CNFModel.h"
 #include "sattools/Order.h"
 #include "sattools/OrderScoring.h"
+#include "sattools/Orbits.h"
 
 
 namespace sat {
@@ -24,6 +26,7 @@ class OrderManager {
     bool nextLiteral(const std::vector<bool>& active, Literal *next);
     bool suggestLiteralInOrder(Literal unit, Literal *next);
     void completeOrder();
+    void completeOrderWithOrbits();
     void completeOrderWithOccurences(const CNFModel& model);
     void exportOrder(const std::string filename);
 

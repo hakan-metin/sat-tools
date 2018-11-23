@@ -22,6 +22,8 @@ void Simplifier::simplify() {
     ClauseInjector injector;
     bool is_model_unsat = false;
 
+    if (_group.numberOfPermutations() == 0)
+        return;
 
     LOG(INFO) << "Simplifier start";
 
@@ -38,16 +40,18 @@ void Simplifier::simplify() {
 
     unsigned int num_vars = _assignment.numberOfVariables();
     unsigned int count = 0;
+    std::string units_str;
     for (BooleanVariable var(0); var < num_vars; ++var) {
         if (_assignment.variableIsAssigned(var)) {
             std::vector<Literal> clause =
                 {_assignment.getTrueLiteralForAssignedVariable(var)};
+            units_str += clause[0].debugString() + " ";
             _model->addClause(&clause);
             count++;
         }
     }
 
-    LOG(INFO) << "Simplifier produces " << count << " units";
+    LOG(INFO) << "Simplifier produces " << count << " units: " << units_str;
     _order_manager->completeOrderWithOccurences(*_model);
 }
 
@@ -61,6 +65,8 @@ bool Simplifier::addUnitClause(Literal unit, bool extendsOrder) {
     _assignment.assignFromTrueLiteral(unit);
     _breaker_manager->updateAssignment(unit);
 
+    // LOG(INFO) << "UNITS " << unit.debugString();
+
     if (extendsOrder)
         addLiteralInOrderWithUnit(unit);
     return true;
@@ -73,6 +79,8 @@ bool Simplifier::addLiteralInOrderWithScore() {
     _breaker_manager->activeBreakers(&actives);
     if (!_order_manager->nextLiteral(actives, &next))
         return false;
+
+    // LOG(INFO) << "Next with score " << next.debugString();
 
     _breaker_manager->updateOrder(next);
     return true;
@@ -89,12 +97,12 @@ bool Simplifier::addLiteralInOrderWithUnit(Literal unit) {
             continue;
 
         const std::unique_ptr<Permutation>& perm = _group.permutation(index);
-        Literal image = unit;
-
+        Literal image = perm->imageOf(unit);
         do {
             if (_order_manager->suggestLiteralInOrder(image, &next)) {
                 _breaker_manager->updateOrder(next);
                 addUnitClause(image, false);
+
                 activated = true;
             }
             image = perm->imageOf(image);

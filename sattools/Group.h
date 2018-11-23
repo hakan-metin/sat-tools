@@ -11,6 +11,7 @@
 #include "sattools/Macros.h"
 #include "sattools/Permutation.h"
 #include "sattools/Logging.h"
+#include "sattools/Watcher.h"
 
 namespace sat {
 
@@ -20,9 +21,9 @@ class Group {
     ~Group();
 
     bool addPermutation(std::unique_ptr<Permutation>&& permutation);
-    struct Iterator;
-    Iterator watch(BooleanVariable var) const;
-    Iterator watch(Literal literal) const;
+
+    Watcher<int, int>::Iterator watch(Literal literal) const;
+    Watcher<int, int>::Iterator watch(BooleanVariable var) const;
 
     const std::vector< std::unique_ptr<Permutation> >& permutations() const {
         return _permutations;
@@ -41,26 +42,9 @@ class Group {
     std::vector< std::unique_ptr<Permutation> > _permutations;
     std::unordered_set<BooleanVariable> _symmetric;
     std::unordered_set<BooleanVariable> _inverting;
-    std::vector< std::vector<int> > _watchers;
+    Watcher<int, int> _watchers;
 
     DISALLOW_COPY_AND_ASSIGN(Group);
-};
-
-struct Group::Iterator {
-    typedef int value_type;
-    typedef std::vector<int>::const_iterator const_iterator;
-
-    Iterator() {}
-    Iterator(const std::vector<int>::const_iterator& b,
-             const std::vector<int>::const_iterator& e) :
-        _begin(b), _end(e) {}
-
-    std::vector<int>::const_iterator begin() const { return _begin; }
-    std::vector<int>::const_iterator end() const { return _end; }
-    const std::vector<int>::const_iterator _begin;
-    const std::vector<int>::const_iterator _end;
-
-    int size() const { return std::distance(_begin, _end); }
 };
 
 }  // namespace sat

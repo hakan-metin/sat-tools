@@ -11,6 +11,7 @@
 #include "sattools/Literal.h"
 #include "sattools/Logging.h"
 #include "sattools/RangeIterator.h"
+#include "sattools/Watcher.h"
 
 namespace sat {
 
@@ -41,10 +42,18 @@ class CNFModel {
     RangeIterator<std::unique_ptr<Clause>> largeClauses() const;
     RangeIterator<std::unique_ptr<Clause>> clauses() const;
 
+
+    Watcher<int, int>::Iterator watch(Literal literal) const;
+
     const std::vector<int64>& occurences() const { return _occurences; }
 
     const std::vector<std::vector<Literal>>& ordered_clauses() const {
         return _ordered_clauses;
+    }
+
+    Watcher<int, int>::Iterator watch(Literal negated);
+    const std::vector<Literal>& clause(unsigned int clause_index) {
+        return _ordered_clauses[clause_index];
     }
 
  private:
@@ -57,6 +66,7 @@ class CNFModel {
     std::vector<int64> _occurences;
 
     std::vector<std::vector<Literal>> _ordered_clauses;
+    Watcher<int, int> _watchers;
 
     DISALLOW_COPY_AND_ASSIGN(CNFModel);
 };

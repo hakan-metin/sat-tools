@@ -22,16 +22,13 @@ bool Group::addPermutation(std::unique_ptr<Permutation>&& permutation) {
     if (permutation->isSpurious())
         return false;
 
-    if (permutation->size() > _watchers.size())
-        _watchers.resize(permutation->size());
-
     for (unsigned int c = 0; c < num_cycles; ++c) {
         Literal element = permutation->lastElementInCycle(c);
 
         for (const Literal& image : permutation->cycle(c)) {
             if (image.isPositive()) {
                 const int index = image.variable().value();
-                _watchers[index].push_back(permutation_index);
+                _watchers.store(index, permutation_index);
             }
             const BooleanVariable variable = image.variable();
             _symmetric.insert(variable);
@@ -48,13 +45,15 @@ bool Group::addPermutation(std::unique_ptr<Permutation>&& permutation) {
     return true;
 }
 
-Group::Iterator Group::watch(BooleanVariable variable) const {
-    const int index = variable.value();
-    return Iterator(_watchers[index].begin(), _watchers[index].end());
-}
-Group::Iterator Group::watch(Literal literal) const {
+
+Watcher<int, int>::Iterator Group::watch(Literal literal) const {
     const int index = literal.variable().value();
-    return Iterator(_watchers[index].begin(), _watchers[index].end());
+    return _watchers.watch(index);
+}
+
+Watcher<int, int>::Iterator Group::watch(BooleanVariable var) const {
+    const int index = var.value();
+    return _watchers.watch(index);
 }
 
 std::string Group::debugString() const {

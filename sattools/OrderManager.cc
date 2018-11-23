@@ -32,6 +32,7 @@ OrderManager::~OrderManager() {
 
 void OrderManager::initialize() {
     _order_scoring->initialize();
+    // LOG(INFO) << _order_scoring->debugString();
 }
 
 bool
@@ -71,6 +72,8 @@ void OrderManager::completeOrder() {
 }
 
 void OrderManager::completeOrderWithOccurences(const CNFModel& model) {
+    // LOG(INFO) << "Before Complete Occurence: " << _order->debugString();
+
     int64 num_vars = model.numberOfVariables();
     std::vector<int64> indexes;
     for (int64 i = 0; i < num_vars; ++i) {
@@ -81,7 +84,74 @@ void OrderManager::completeOrderWithOccurences(const CNFModel& model) {
 
     for (int64 i = 0; i < num_vars; ++i)
         _order->add(Literal(BooleanVariable(indexes[i]), true));
+
+    // LOG(INFO) << "Complete Occurence Done " << _order->debugString();
+
 }
 
+
+
+void OrderManager::completeOrderWithOrbits() {
+    std::vector<Permutation*> Q, filter;
+    std::unordered_map<BooleanVariable, int64> occurence_generators;
+    Orbits orbits;
+    unsigned int largestOrbit;
+    BooleanVariable next;
+
+    LOG(INFO) << "Orbits " << _order->debugString();
+
+    for (const std::unique_ptr<Permutation>& perm : _group.permutations())
+        Q.push_back(perm.get());
+
+    while (Q.size() > 0) {
+        // Compute occurence in remain generators
+        occurence_generators.clear();
+        for (const Permutation* permutation : Q) {
+            for (const Literal& literal : permutation->support())
+                if (literal.isPositive())
+                    occurence_generators[literal.variable()]++;
+        }
+        occurence_generators[kNoBooleanVariable] =
+            std::numeric_limits<int>::max();
+
+        // Find next variable with less occurences in the largest orbit
+        orbits.assign(Q);
+
+        largestOrbit = 0;
+        next = kNoBooleanVariable;
+
+        for (const std::vector<BooleanVariable>& orbit : orbits) {
+            if (orbit.size() < largestOrbit)
+                continue;
+            for (const BooleanVariable& variable : orbit) {
+                if (occurence_generators[variable] == 0)
+                    continue;
+                const int occ_v = occurence_generators[variable];
+                const int occ_n = occurence_generators[next];
+                if (next == kNoBooleanVariable ||
+                    occ_v < occ_n || (occ_v == occ_n && variable < next)) {
+                    next = variable;
+                    largestOrbit = orbit.size();
+                }
+            }
+        }
+
+        if (next == kNoBooleanVariable) {
+            LOG(ERROR) << "Problem with generators ??";
+            break;
+        }
+
+        _order->add(Literal(next, true));
+
+        // Remove permutation contains next
+        filter.clear();
+        const Literal next_literal = Literal(next, true);
+        for (Permutation* permutation : Q)
+            if (permutation->isTrivialImage(next_literal))
+                filter.push_back(permutation);
+
+        Q = filter;
+    }
+}
 
 }  // namespace sat

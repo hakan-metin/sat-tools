@@ -88,7 +88,6 @@ int main(int argc, char *argv[]) {
     Simplifier simplifier(bliss_group, &model, &order);
     simplifier.simplify();
 
-
     std::string base_name(basename(cnf_filename.c_str()));
     std::string output_cnf = "/tmp/reduce-" + base_name;
     std::string output_order = "/tmp/order-" + base_name;
