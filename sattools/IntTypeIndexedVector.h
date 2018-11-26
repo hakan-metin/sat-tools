@@ -63,6 +63,8 @@
 #include <stddef.h>
 #include <string>
 #include <vector>
+#include <memory>
+#include <utility>
 
 #include "sattools/IntType.h"
 #include "sattools/Macros.h"

@@ -3,6 +3,8 @@
 #ifndef SATTOOLS_PROPAGATOR_H_
 #define SATTOOLS_PROPAGATOR_H_
 
+#include <vector>
+
 #include "sattools/Literal.h"
 #include "sattools/Clause.h"
 #include "sattools/Trail.h"
@@ -34,14 +36,13 @@ class Propagator {
 
     void attachOnFalse(Literal literal, Literal blocking, Clause *clause);
     bool propagateOnFalse(Literal false_literal, Trail *trail);
-
 };
 
 
 }  // namespace sat
 
 
-#endif  // SATTOOLS_WATCHER_H_
+#endif  // SATTOOLS_PROPAGATOR_H_
 /*
  * Local Variables:
  * mode: c++

@@ -44,7 +44,6 @@ bool Propagator::propagate(Trail *trail) {
 
 
 bool Propagator::propagateOnFalse(Literal false_literal, Trail *trail) {
-
     return true;
 }
 
