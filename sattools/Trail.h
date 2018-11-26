@@ -24,11 +24,17 @@ class Trail {
     Trail();
     ~Trail();
 
+
     void enqueue(Literal literal);
     void dequeue();
     void cancelUntil(unsigned int target_level);
     void newDecisionLevel();
     unsigned int currentDecisionLevel() const;
+
+    unsigned int index() const { return _current_info.trail_index; }
+    const Literal operator[](int index) const { return _trail[index]; }
+
+    const Assignment& assignment() const { return _assignment; }
 
  private:
     Assignment _assignment;

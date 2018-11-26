@@ -22,8 +22,8 @@ class Clause {
     }
 
     // Allows for range based iteration: for (Literal literal : clause) {}.
-    const Literal*  begin() const { return &(_literals[0]); }
-    const Literal*  end() const { return &(_literals[_size]); }
+    const Literal* begin() const { return &(_literals[0]); }
+    const Literal* end() const { return &(_literals[_size]); }
     Literal* literals() { return &(_literals[0]); }
 
     int  size()         const { return _size;        }

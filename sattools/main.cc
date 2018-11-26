@@ -27,6 +27,7 @@
 #include "sattools/Simplifier.h"
 #include "sattools/OrderWriter.h"
 #include "sattools/Saucy1Writer.h"
+#include "sattools/Propagator.h"
 
 using sat::Assignment;
 using sat::Breaker;
