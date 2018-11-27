@@ -51,6 +51,8 @@ using sat::DoubleLiteralGraphNodeAdaptor;
 using sat::ConsecutiveLiteralGraphNodeAdaptor;
 using sat::OrderWriter;
 using sat::Saucy1Writer;
+using sat::Trail;
+using sat::Propagator;
 
 int main(int argc, char *argv[]) {
     CNFReader reader;
@@ -70,6 +72,37 @@ int main(int argc, char *argv[]) {
 
     if (!reader.load(cnf_filename, &model))
         LOG(FATAL) << "Cannot load CNF file: " << cnf_filename;
+
+
+
+    Trail trail;
+
+    Propagator propagator;
+
+    Clause *clause = model.clauses()[0];
+
+    trail.resize(model.numberOfVariables());
+    propagator.resize(model.numberOfVariables());
+
+    propagator.attachClause(clause, &trail);
+
+
+    LOG(INFO) << clause->debugString();
+
+
+    trail.enqueue(-5);
+
+    //trail.enqueue(-1);
+    trail.enqueue(-2);
+    trail.enqueue(-3);
+    trail.enqueue(-4);
+
+
+    propagator.propagate(&trail);
+
+    LOG(INFO) << trail.debugString();
+
+    return 0;
 
     // LOG(INFO) << "Vars: " << model.numberOfVariables() <<
     //     " Clauses: " << model.numberOfClauses();

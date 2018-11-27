@@ -4,6 +4,14 @@
 
 namespace sat {
 
+
+
+void Trail::resize(unsigned int num_vars) {
+    _assignment.resize(num_vars << 2);
+    _infos.resize(num_vars);
+    _trail.resize(num_vars);
+}
+
 void Trail::enqueue(Literal literal) {
     DCHECK(!_assignment.literalIsAssigned(literal));
     _assignment.assignFromTrueLiteral(literal);
@@ -29,6 +37,17 @@ void Trail::newDecisionLevel() {
 
 unsigned int Trail::currentDecisionLevel() const {
     return _current_info.level;
+}
+
+
+std::string Trail::debugString() const {
+    std::string result;
+    for (int i = 0; i < _current_info.trail_index; ++i) {
+        if (!result.empty())
+            result += " ";
+        result += _trail[i].debugString();
+    }
+return result;
 }
 
 }  // namespace sat

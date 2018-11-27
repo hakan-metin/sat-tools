@@ -4,7 +4,7 @@
 #define SATTOOLS_TRAIL_H_
 
 #include <vector>
-
+#include <sstream>
 
 #include "sattools/Assignment.h"
 #include "sattools/Literal.h"
@@ -21,9 +21,10 @@ struct AssignmentInfo {
 
 class Trail {
  public:
-    Trail();
-    ~Trail();
+    Trail() {}
+    virtual ~Trail() {}
 
+    void resize(unsigned int num_vars);
 
     void enqueue(Literal literal);
     void dequeue();
@@ -35,6 +36,8 @@ class Trail {
     const Literal operator[](int index) const { return _trail[index]; }
 
     const Assignment& assignment() const { return _assignment; }
+
+    std::string debugString() const;
 
  private:
     Assignment _assignment;
