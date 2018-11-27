@@ -4,7 +4,7 @@
 #define SATTOOLS_TRAIL_H_
 
 #include <vector>
-#include <sstream>
+#include <string>
 
 #include "sattools/Assignment.h"
 #include "sattools/Literal.h"

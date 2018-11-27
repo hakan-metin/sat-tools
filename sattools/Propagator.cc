@@ -83,9 +83,9 @@ bool Propagator::propagateOnFalse(Literal false_literal, Trail *trail) {
 
             if (k != literals_end) {
                 const Literal lit = *k;
-                if (assignment.literalIsTrue(lit))
+                if (assignment.literalIsTrue(lit)) {
                     j[-1].blocking_literal = lit;
-                else {
+                } else {
                     literals[1] = lit;
                     *k = false_literal;
                     attachOnFalse(lit, other, watch.clause);
