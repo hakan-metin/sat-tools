@@ -15,6 +15,9 @@
 #include "sattools/CNFModel.h"
 #include "sattools/Group.h"
 #include "sattools/Watcher.h"
+#include "sattools/Propagator.h"
+#include "sattools/Trail.h"
+#include "sattools/Orbits.h"
 
 namespace sat {
 
@@ -23,17 +26,22 @@ class Simplifier {
     Simplifier(const Group &group, CNFModel *model, Order *order);
     ~Simplifier();
 
+    void init();
     void simplify();
 
  private:
     const Group &_group;
     CNFModel *_model;
-    Assignment _assignment;
+    Trail _trail;
+    Propagator _propagator;
 
+    Orbits _orbits;
     std::unique_ptr<BreakerManager> _breaker_manager;
     std::unique_ptr<OrderManager> _order_manager;
 
     std::unique_ptr<BinaryImplicationGraph> _big;
+
+    std::unordered_map<Literal, std::vector<Clause*>> _clauses_map;
 
     bool addLiteralInOrderWithScore();
     bool addLiteralInOrderWithUnit(Literal unit);

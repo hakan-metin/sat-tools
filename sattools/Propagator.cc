@@ -8,6 +8,8 @@ Propagator::Propagator() : _propgation_trail_index(0) {
 }
 
 Propagator::~Propagator() {
+    for (Clause *clause : _clauses)
+        delete clause;
 }
 
 
@@ -15,6 +17,64 @@ void Propagator::resize(unsigned int num_vars) {
     _watchers.resize(num_vars << 2);
     _reasons.resize(num_vars);
 }
+
+bool Propagator::addClause(const std::vector<Literal>& literals, Trail *trail) {
+    Clause* clause = Clause::create(literals, false);
+    if (!addClause(clause, trail))
+        return false;
+    _clauses.push_back(clause);
+    return true;
+}
+
+bool Propagator::addLearntClause(const std::vector<Literal>& literals,
+                                 Trail *trail) {
+    Clause* clause = Clause::create(literals, true);
+    if (!addClause(clause, trail))
+        return false;
+    _clauses.push_back(clause);
+    return true;
+}
+
+bool Propagator::addClause(Clause *clause, Trail *trail) {
+    const int size = clause->size();
+    Literal *literals = clause->literals();
+
+    int num_literal_not_false = 0;
+    for (int i = 0; i < size; ++i) {
+        if (!trail->assignment().literalIsFalse(literals[i])) {
+            std::swap(literals[i], literals[num_literal_not_false]);
+            ++num_literal_not_false;
+            if (num_literal_not_false == 2) {
+                break;
+            }
+        }
+    }
+
+    if (num_literal_not_false == 0)
+        return false;
+
+    if (num_literal_not_false == 1) {
+        // maintain literal 1 as highest decision level to assure 2-watch algo
+        int max_level = trail->info(literals[1].variable()).level;
+        for (int i = 2; i < size; ++i) {
+            const int level = trail->info(literals[i].variable()).level;
+            if (level > max_level) {
+                max_level = level;
+                std::swap(literals[1], literals[i]);
+            }
+        }
+        // Propagates literals[0] if it is unassigned.
+        if (!trail->assignment().literalIsTrue(literals[0])) {
+            _reasons[trail->index()] = clause;
+            trail->enqueueWithAssertiveReason(literals[0]);
+        }
+    }
+    attachOnFalse(literals[0], literals[1], clause);
+    attachOnFalse(literals[1], literals[0], clause);
+
+    return true;
+}
+
 
 void Propagator::attachClause(Clause *clause, Trail *trail) {
     Literal* literals = clause->literals();
@@ -57,10 +117,8 @@ bool Propagator::propagateOnFalse(Literal false_literal, Trail *trail) {
 
     const auto end = watchers.end();
 
-    LOG(INFO) << "PROP START";
-
     while (i != end) {
-        const Watch watch = *j++ = *i++;
+        const Watch& watch = *j++ = *i++;
 
         if (assignment.literalIsTrue(watch.blocking_literal))
             continue;
@@ -91,15 +149,13 @@ bool Propagator::propagateOnFalse(Literal false_literal, Trail *trail) {
                     attachOnFalse(lit, other, watch.clause);
                     j--;   // drop this watch
                 }
-            } else {
+            } else {  // end
                 if (assignment.literalIsFalse(other)) {
                     conflict = watch.clause;
                     break;
                 } else {  // Found unit clause
-                    LOG(INFO) << "UNIT " << other.debugString();
-
                     _reasons[trail->index()] = watch.clause;
-                    trail->enqueue(other);
+                    trail->enqueueWithAssertiveReason(other);
                 }
             }
         }
@@ -110,6 +166,9 @@ bool Propagator::propagateOnFalse(Literal false_literal, Trail *trail) {
             *j++ = *i++;
         watchers.resize(j - watchers.begin());
     }
+
+    if (conflict != nullptr)
+        LOG(INFO) << "CONFLICT";
 
     return conflict == nullptr;
 }

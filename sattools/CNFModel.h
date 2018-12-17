@@ -23,7 +23,6 @@ class CNFModel {
     void addClause(std::vector<Literal>* literals);
 
 
-
     int64 numberOfVariables() const { return _num_variables + 1; }
     int64 numberOfClauses() const { return _clauses.size(); }
 

@@ -37,6 +37,11 @@ void BreakerManager::updateAssignment(Literal literal) {
     }
 }
 
+void BreakerManager::updateAssignmentForAll() {
+    for (const std::unique_ptr<Breaker> & breaker : _breakers)
+        breaker->assignmentIsUpdated();
+}
+
 bool BreakerManager::generateSBPs(ClauseInjector *injector) {
     bool added = false;
     for (const std::unique_ptr<Breaker> & breaker : _breakers) {

@@ -28,6 +28,7 @@
 #include "sattools/OrderWriter.h"
 #include "sattools/Saucy1Writer.h"
 #include "sattools/Propagator.h"
+#include "sattools/Solver.h"
 
 using sat::Assignment;
 using sat::Breaker;
@@ -53,9 +54,13 @@ using sat::OrderWriter;
 using sat::Saucy1Writer;
 using sat::Trail;
 using sat::Propagator;
+using sat::Solver;
 
 int main(int argc, char *argv[]) {
-    CNFReader reader;
+    CNFReader<CNFModel> reader;
+    CNFReader<Solver> solver_reader;
+    Solver solver;
+
     CNFModel model;
     Group bliss_group, saucy_group;
 
@@ -70,39 +75,36 @@ int main(int argc, char *argv[]) {
     std::string cnf_filename(argv[1]);
     std::string symmetry_filename = cnf_filename + ".txt";
 
+    if (!solver_reader.load(cnf_filename, &solver))
+        LOG(FATAL) << "Cannot load CNF file: " << cnf_filename;
+
     if (!reader.load(cnf_filename, &model))
         LOG(FATAL) << "Cannot load CNF file: " << cnf_filename;
 
 
+    // Trail trail;
+    // Propagator propagator;
 
-    Trail trail;
-
-    Propagator propagator;
-
-    Clause *clause = model.clauses()[0];
-
-    trail.resize(model.numberOfVariables());
-    propagator.resize(model.numberOfVariables());
-
-    propagator.attachClause(clause, &trail);
+    // trail.resize(model.numberOfVariables());
+    // propagator.resize(model.numberOfVariables());
 
 
-    LOG(INFO) << clause->debugString();
+    // for (Clause *clause : model.clauses())
+    //     propagator.attachClause(clause, &trail);
+
+    // trail.newDecisionLevel();
+    // trail.enqueue(1);
+    // trail.newDecisionLevel();
+    // trail.enqueue(6);
+    // trail.enqueue(3);
+    // // trail.enqueue(-4);
 
 
-    trail.enqueue(-5);
+    // propagator.propagate(&trail);
 
-    //  trail.enqueue(-1);
-    trail.enqueue(-2);
-    trail.enqueue(-3);
-    trail.enqueue(-4);
+    // LOG(INFO) << trail.debugString();
 
-
-    propagator.propagate(&trail);
-
-    LOG(INFO) << trail.debugString();
-
-    return 0;
+    // return 0;
 
     // LOG(INFO) << "Vars: " << model.numberOfVariables() <<
     //     " Clauses: " << model.numberOfClauses();
@@ -117,8 +119,10 @@ int main(int argc, char *argv[]) {
 
     // LOG(INFO) << bliss_group.debugString();
 
-    Order order;
+    Orbits orbits;
+    orbits.assign(bliss_group);
 
+    Order order;
     Simplifier simplifier(bliss_group, &model, &order);
     simplifier.simplify();
 

@@ -21,15 +21,21 @@ class Propagator {
 
     void resize(unsigned int num_vars);
 
+    bool addClause(Clause *clause, Trail *trail);
+    bool addClause(const std::vector<Literal>& literals, Trail *trail);
+    bool addLearntClause(const std::vector<Literal>& literals, Trail *trail);
+    // bool addSBPClause(const std::vector<Literal>& literals, Trail *trail);
+
     bool propagate(Trail *trail);
 
     void attachClause(Clause *clause, Trail *trail);
     void detachClause(Clause *clause);
 
-
     std::string debugString() const;
 
  private:
+    std::vector<Clause*> _clauses;
+
     unsigned int _propgation_trail_index;
 
     struct Watch {

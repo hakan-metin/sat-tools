@@ -5,80 +5,125 @@
 namespace sat {
 
 Simplifier::Simplifier(const Group &group, CNFModel *model, Order *order)
-    : _group(group),
-      _model(model) {
+    : _group(group),  _model(model) {
     const unsigned int num_vars = model->numberOfVariables();
 
-    _assignment.resize(num_vars);
+    _propagator.resize(num_vars);
+    _trail.resize(num_vars);
+
     _order_manager = std::make_unique<OrderManager>(*_model, _group, order);
-    _breaker_manager = std::make_unique<BreakerManager>(_group, _assignment);
+    _breaker_manager = std::make_unique<BreakerManager>(_group,
+                                                        _trail.assignment());
+
 }
 
 Simplifier::~Simplifier() {
 }
 
 
-void Simplifier::simplify() {
-    ClauseInjector injector;
-    bool is_model_unsat = false;
+void Simplifier::init() {
 
-    if (_group.numberOfPermutations() == 0)
-        return;
+    for (Clause* clause : _model->clauses()) {
+        if (clause->size() == 1) {
+            addUnitClause(clause->literals()[0], false);
+            continue;
+        }
+        _propagator.addClause(clause, &_trail);
 
-    LOG(INFO) << "Simplifier start";
+        for (Literal literal : *clause)
+            _clauses_map[literal].push_back(clause);
+    }
+
+    _orbits.assign(_group);
+    // LOG(INFO) << _orbits.debugString();
 
     _big = std::make_unique<BinaryImplicationGraph>(*_model);
     _order_manager->initialize();
 
-    while (!is_model_unsat && addLiteralInOrderWithScore()) {
+}
+
+void Simplifier::simplify() {
+    ClauseInjector injector;
+    Orbits orbits;
+
+    if (_group.numberOfPermutations() == 0)
+        return;
+
+    init();
+
+    _propagator.propagate(&_trail);
+    _breaker_manager->updateAssignmentForAll();
+
+
+    LOG(INFO) << "Simplifier start";
+
+    while (addLiteralInOrderWithScore()) {
         while (_breaker_manager->generateSBPs(&injector))
             resolution(&injector);
     }
-    if (is_model_unsat) {
-        LOG(INFO) << "MODEL IS UNSAT";
+
+    for (unsigned int i=0; i<_trail.index(); i++) {
+        std::vector<Literal> clause = {_trail[i]};
+        _model->addClause(&clause);
     }
 
-    unsigned int num_vars = _assignment.numberOfVariables();
-    unsigned int count = 0;
-    std::string units_str;
-    for (BooleanVariable var(0); var < num_vars; ++var) {
-        if (_assignment.variableIsAssigned(var)) {
-            std::vector<Literal> clause =
-                {_assignment.getTrueLiteralForAssignedVariable(var)};
-            units_str += clause[0].debugString() + " ";
-            _model->addClause(&clause);
-            count++;
-        }
-    }
+    LOG(INFO) << "Simplifier produces " << _trail.index() <<
+        " units (including unit propagation): ";
+    // LOG(INFO) << _trail.debugString();
 
-    LOG(INFO) << "Simplifier produces " << count << " units: " << units_str;
+    // LOG(INFO) << _group.debugString();
+    // LOG(INFO) << _breaker_manager->debugString();
+
     _order_manager->completeOrderWithOccurences(*_model);
 }
 
 
 bool Simplifier::addUnitClause(Literal unit, bool extendsOrder) {
-    if (_assignment.literalIsTrue(unit.negated()))
+    const Assignment &assignment = _trail.assignment();
+
+    if (assignment.literalIsTrue(unit.negated()))
         return false;
-    if (_assignment.literalIsAssigned(unit))
+    if (assignment.literalIsAssigned(unit))
         return true;
 
-    _assignment.assignFromTrueLiteral(unit);
-    _breaker_manager->updateAssignment(unit);
+    _trail.enqueueWithUnitReason(unit);
+    if (!_propagator.propagate(&_trail))
+        return false;
 
-    // LOG(INFO) << "UNITS " << unit.debugString();
+    _breaker_manager->updateAssignmentForAll();
 
     if (extendsOrder)
         addLiteralInOrderWithUnit(unit);
     return true;
 }
 
+
 bool Simplifier::addLiteralInOrderWithScore() {
     std::vector<bool> actives;
     Literal next;
+    bool allSameOrbit;
 
     _breaker_manager->activeBreakers(&actives);
     if (!_order_manager->nextLiteral(actives, &next))
         return false;
+
+    for (Clause *clause : _clauses_map[next]) {
+        allSameOrbit = true;
+        // Check if all literals in clause is in orbit of next => next is unit
+        for (Literal literal : *clause) {
+            if (_trail.assignment().literalIsTrue(literal) ||
+                !_orbits.isInSameOrbit(next, literal)) {
+                allSameOrbit = false;
+                break;
+            }
+        }
+        if (allSameOrbit) {
+            addUnitClause(next, false);
+            break;
+        }
+    }
+
+
 
     // LOG(INFO) << "Next with score " << next.debugString();
 
@@ -113,16 +158,15 @@ bool Simplifier::addLiteralInOrderWithUnit(Literal unit) {
 }
 
 bool Simplifier::resolution(ClauseInjector *injector) {
-    bool activated = false;
     Literal unit;
 
     for (const std::vector<Literal>& clause : *injector) {
         if (_big->resolve(clause, &unit)) {
-            addUnitClause(unit, true);
-            activated = true;
+            if (!addUnitClause(unit, true))
+                return false;
         }
     }
-    return activated;
+    return true;
 }
 
 }  // namespace sat

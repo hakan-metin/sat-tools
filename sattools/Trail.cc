@@ -12,11 +12,25 @@ void Trail::resize(unsigned int num_vars) {
     _trail.resize(num_vars);
 }
 
-void Trail::enqueue(Literal literal) {
+
+
+void Trail::enqueueWithUnitReason(Literal literal) {
+    enqueue(literal, AssignmentType::kUnitReason);
+}
+void Trail::enqueueSearchDecision(Literal literal) {
+    enqueue(literal, AssignmentType::kSearchDecision);
+}
+void Trail::enqueueWithAssertiveReason(Literal literal) {
+    enqueue(literal, AssignmentType::kAssertiveReason);
+}
+
+
+void Trail::enqueue(Literal literal, unsigned int type) {
     DCHECK(!_assignment.literalIsAssigned(literal));
     _assignment.assignFromTrueLiteral(literal);
     _trail[_current_info.trail_index] = literal;
     _current_info.last_polarity = literal.isPositive();
+    _current_info.type = type;
     _infos[literal.variable().value()] = _current_info;
     _current_info.trail_index++;
 }
@@ -42,7 +56,7 @@ unsigned int Trail::currentDecisionLevel() const {
 
 std::string Trail::debugString() const {
     std::string result;
-    for (int i = 0; i < _current_info.trail_index; ++i) {
+    for (unsigned int i = 0; i < _current_info.trail_index; ++i) {
         if (!result.empty())
             result += " ";
         result += _trail[i].debugString();

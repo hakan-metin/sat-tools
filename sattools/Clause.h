@@ -26,6 +26,7 @@ class Clause {
     const Literal* end() const { return &(_literals[_size]); }
     Literal* literals() { return &(_literals[0]); }
 
+    // Getters
     int  size()         const { return _size;        }
     bool is_redundant() const { return _is_redundant; }
 
@@ -33,8 +34,8 @@ class Clause {
 
  private:
     // Packed data, use 32 bits
-    bool _is_redundant : 1;
-    unsigned int _size : 31;
+    bool _is_redundant : 2;  // true => leanrt, false => problem clause
+    unsigned int _size : 30;
 
     // This class store the literals inline, and literals_ mark the starts of
     // the variable length portion.

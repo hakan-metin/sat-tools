@@ -17,6 +17,10 @@ class Watcher {
     void store(Key key, Value value) { _watchers[key].push_back(value);  }
     struct Iterator;
     Iterator watch(Key key) const {
+        if (_watchers.find(key) == _watchers.end()) {
+            auto it = _watchers.begin()->second.end();
+            return Iterator(it, it);
+        }
         return Iterator(_watchers.at(key).begin(), _watchers.at(key).end());
     }
 

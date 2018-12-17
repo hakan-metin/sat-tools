@@ -37,7 +37,6 @@ void CNFModel::addClause(std::vector<Literal>* literals) {
     BooleanVariable var = literals->back().variable();
     _num_variables = std::max<int>(_num_variables, var.value());
 
-
     Clause *clause = Clause::create(*literals, /* is_redundant= */ false);
 
     _clauses.push_back(clause);

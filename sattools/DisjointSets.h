@@ -13,32 +13,33 @@ namespace sat {
 
 class DisjointSets {
  public:
-        DisjointSets() : _num_elements(0), _num_sets(0) {}
-        virtual ~DisjointSets() {}
+    DisjointSets() : _num_elements(0), _num_sets(0) {}
+    virtual ~DisjointSets() {}
 
-        void Add(unsigned int element);
-        void Union(int set1, int set2);
-        int  Find(int element);
+    void Add(unsigned int element);
+    void Union(int set1, int set2);
+    int  Find(int element);
+    void Clear();
 
         unsigned int num_elements() const { return _num_elements; }
-        unsigned int num_sets() const { return _num_sets; }
+    unsigned int num_sets() const { return _num_sets; }
 
-        void debugPrint();
+    void debugPrint();
 
  private:
-        struct Node {
-                explicit Node(unsigned int n) :
-                    parent(nullptr),
-                    index(n),
-                    rank(0) {}
-                Node *parent;
-                unsigned int index;
-                int rank;
-        };
+    struct Node {
+        explicit Node(unsigned int n) :
+            parent(nullptr),
+            index(n),
+            rank(0) {}
+        Node *parent;
+        unsigned int index;
+        int rank;
+    };
 
-        std::vector< std::unique_ptr<Node> > _nodes;
-        unsigned int _num_elements;
-        unsigned int _num_sets;
+    std::vector< std::unique_ptr<Node> > _nodes;
+    unsigned int _num_elements;
+    unsigned int _num_sets;
 };
 
 inline void DisjointSets::Add(unsigned int element) {
@@ -95,6 +96,12 @@ inline int DisjointSets::Find(int element) {
     }
 
     return root->index;
+}
+
+inline void DisjointSets::Clear() {
+    _nodes.clear();
+    _num_elements = 0;
+    _num_sets = 0;
 }
 
 inline void DisjointSets::debugPrint() {
