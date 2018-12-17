@@ -79,7 +79,7 @@ void Orbits::assign(const Group& group) {
 bool Orbits::isInSameOrbit(Literal a, Literal b) {
     int ra = _disjointSets.Find(a.index().value());
     int rb = _disjointSets.Find(b.index().value());
-    return ra == rb;
+    return ra > 0 && ra == rb;
 }
 
 

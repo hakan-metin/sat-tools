@@ -58,7 +58,6 @@ using sat::Solver;
 
 int main(int argc, char *argv[]) {
     CNFReader<CNFModel> reader;
-    CNFReader<Solver> solver_reader;
     Solver solver;
 
     CNFModel model;
@@ -75,8 +74,6 @@ int main(int argc, char *argv[]) {
     std::string cnf_filename(argv[1]);
     std::string symmetry_filename = cnf_filename + ".txt";
 
-    if (!solver_reader.load(cnf_filename, &solver))
-        LOG(FATAL) << "Cannot load CNF file: " << cnf_filename;
 
     if (!reader.load(cnf_filename, &model))
         LOG(FATAL) << "Cannot load CNF file: " << cnf_filename;

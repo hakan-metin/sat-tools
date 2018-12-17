@@ -83,6 +83,9 @@ inline int DisjointSets::Find(int element) {
     Node *root = _nodes[element].get();
     Node *set = nullptr, *parent = nullptr;
 
+    if (root == nullptr)
+        return -1;
+
     while (root->parent != nullptr) {
         root = root->parent;
     }
