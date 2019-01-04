@@ -6,6 +6,7 @@
 #include <vector>
 #include <sstream>
 #include <string>
+#include <utility>
 
 #include "sattools/Literal.h"
 #include "sattools/Clause.h"

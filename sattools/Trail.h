@@ -70,7 +70,6 @@ class Trail {
     std::vector<Literal> _trail;
 
     void enqueue(Literal literal, unsigned int type);
-
 };
 
 }  // namespace sat

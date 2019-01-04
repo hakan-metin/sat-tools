@@ -36,7 +36,7 @@ void CNFModel::addClause(std::vector<Literal>* literals) {
     _num_variables = std::max<int>(_num_variables, var.value());
 
 
-    // TODO REMOVE
+    // NEED REMOVE
     const int64 clause_index = _clauses.size();
     Clause *clause = Clause::create(*literals, /* is_redundant= */ false);
 

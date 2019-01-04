@@ -14,7 +14,6 @@ Simplifier::Simplifier(const Group &group, CNFModel *model, Order *order)
     _order_manager = std::make_unique<OrderManager>(*_model, _group, order);
     _breaker_manager = std::make_unique<BreakerManager>(_group,
                                                         _trail.assignment());
-
 }
 
 Simplifier::~Simplifier() {
@@ -22,7 +21,6 @@ Simplifier::~Simplifier() {
 
 
 void Simplifier::init() {
-
     for (Clause* clause : _model->clauses()) {
         if (clause->size() == 1) {
             addUnitClause(clause->literals()[0], false);
@@ -39,7 +37,6 @@ void Simplifier::init() {
 
     _big = std::make_unique<BinaryImplicationGraph>(*_model);
     _order_manager->initialize();
-
 }
 
 void Simplifier::simplify() {
@@ -62,7 +59,7 @@ void Simplifier::simplify() {
             resolution(&injector);
     }
 
-    for (unsigned int i=0; i<_trail.index(); i++) {
+    for (unsigned int i = 0; i < _trail.index(); i++) {
         std::vector<Literal> clause = {_trail[i]};
         _model->addClause(&clause);
     }
