@@ -12,11 +12,14 @@
 #include "sattools/Logging.h"
 #include "sattools/RangeIterator.h"
 #include "sattools/Watcher.h"
+#include "sattools/IntTypeIndexedVector.h"
 
 namespace sat {
 
 class CNFModel {
  public:
+    typedef int32 ClauseIndex;
+
     CNFModel();
     ~CNFModel();
 
@@ -44,6 +47,14 @@ class CNFModel {
     int64 _num_variables;
     int64 _num_trivial_clauses;
     int64 _num_binary_clauses;
+    int64 _num_ternary_clauses;
+
+    // The set of all clauses.
+    std::vector<std::vector<Literal>> _clausess;
+
+    // Occurence list. For each literal, contains the ClauseIndex of the clause
+    // that contains it (ordered by clause index).
+    ITIVector<LiteralIndex, std::vector<ClauseIndex>> _literal_to_clauses;
 
     std::vector<Clause*> _clauses;
 
