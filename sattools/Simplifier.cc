@@ -21,22 +21,22 @@ Simplifier::~Simplifier() {
 
 
 void Simplifier::init() {
-    for (Clause* clause : _model->clauses()) {
-        if (clause->size() == 1) {
-            addUnitClause(clause->literals()[0], false);
-            continue;
-        }
-        _propagator.addClause(clause, &_trail);
+    // for (Clause* clause : _model->clauses()) {
+    //     if (clause->size() == 1) {
+    //         addUnitClause(clause->literals()[0], false);
+    //         continue;
+    //     }
+    //     _propagator.addClause(clause, &_trail);
 
-        for (Literal literal : *clause)
-            _clauses_map[literal].push_back(clause);
-    }
+    //     for (Literal literal : *clause)
+    //         _clauses_map[literal].push_back(clause);
+    // }
 
-    _orbits.assign(_group);
-    // LOG(INFO) << _orbits.debugString();
+    // _orbits.assign(_group);
+    // // LOG(INFO) << _orbits.debugString();
 
-    _big = std::make_unique<BinaryImplicationGraph>(*_model);
-    _order_manager->initialize();
+    // _big = std::make_unique<BinaryImplicationGraph>(*_model);
+    // _order_manager->initialize();
 }
 
 void Simplifier::simplify() {

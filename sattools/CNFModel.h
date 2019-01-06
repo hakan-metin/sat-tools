@@ -30,18 +30,17 @@ class CNFModel {
     int64 numberOfClauses() const { return _clauses.size(); }
 
     int64 numberOfBinaryClauses() const { return _num_binary_clauses;  }
+    int64 numberOfTernaryClauses() const { return _num_ternary_clauses;  }
 
-    const std::vector<Clause*>& clauses() const { return _clauses; }
+    const std::vector<std::vector<Literal>>& clauses() const {
+        return _clauses;
+    }
 
     Watcher<int, int>::Iterator watch(Literal literal) const;
-
     const std::vector<int64>& occurences() const { return _occurences; }
 
 
     Watcher<int, int>::Iterator watch(Literal negated);
-    const Clause* clause(unsigned int clause_index) const {
-        return _clauses[clause_index];
-    }
 
  private:
     int64 _num_variables;
@@ -50,15 +49,15 @@ class CNFModel {
     int64 _num_ternary_clauses;
 
     // The set of all clauses.
-    std::vector<std::vector<Literal>> _clausess;
+    std::vector<std::vector<Literal>> _clauses;
 
     // Occurence list. For each literal, contains the ClauseIndex of the clause
     // that contains it (ordered by clause index).
-    ITIVector<LiteralIndex, std::vector<ClauseIndex>> _literal_to_clauses;
+    // ITIVector<LiteralIndex, std::vector<ClauseIndex>> _literal_to_clauses;
 
-    std::vector<Clause*> _clauses;
+    // std::vector<Clause*> _clauses;
 
-    Watcher<int, int> _watchers;
+    // Watcher<int, int> _watchers;
     std::vector<int64> _occurences;
 
     DISALLOW_COPY_AND_ASSIGN(CNFModel);

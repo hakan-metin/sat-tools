@@ -35,35 +35,21 @@ void CNFModel::addClause(std::vector<Literal>* literals) {
     BooleanVariable var = literals->back().variable();
     _num_variables = std::max<int>(_num_variables, var.value());
 
-
-    // NEED REMOVE
-    const int64 clause_index = _clauses.size();
-    Clause *clause = Clause::create(*literals, /* is_redundant= */ false);
-
-    _clauses.push_back(clause);
-
-    if (clause->size() == 2)
-        _num_binary_clauses++;
-
-    const int64 num_vars = numberOfVariables();
-    for (const Literal &literal : *clause) {
+    // OLD NEED FOR SIMPLIFIER => DELETE AFTER
+    for (const Literal &literal : *literals) {
         const int64 literal_index = literal.variable().value();
-        // Register each literal to associate clause
-        _watchers.store(literal_index, clause_index);
-
-        if (num_vars > literal_index)
+        if (numberOfVariables() > literal_index)
             _occurences.resize(numberOfVariables());
         _occurences[literal_index]++;
     }
-    return;
-    /*
-    // Resize internal structure.
+
+    /*// Resize internal structure.
     const unsigned int required_size = numberOfVariables();
     if (required_size > _literal_to_clauses.size())
         _literal_to_clauses.resize(required_size);
+    */
 
     // Add clause.
-    const ClauseIndex clause_index = _clauses.size();
     _clauses.push_back(std::vector<Literal>());
     _clauses.back().swap(*literals);
 
@@ -74,10 +60,11 @@ void CNFModel::addClause(std::vector<Literal>* literals) {
     default: break;
     }
 
+    /*
     // Update occurence list.
     for (Literal l : _clauses.back()) {
-        _literal_to_clauses[l.index()].push_back(clause_index);
-        }*/
+    _literal_to_clauses[l.index()].push_back(clause_index);
+    }*/
 }
 
 }  // namespace sat
