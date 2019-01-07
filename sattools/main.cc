@@ -24,7 +24,7 @@
 #include "sattools/BlissAutomorphismFinder.h"
 #include "sattools/SaucyAutomorphismFinder.h"
 #include "sattools/LiteralGraphNodeAdaptor.h"
-#include "sattools/Simplifier.h"
+#include "sattools/SymmetrySimplifier.h"
 #include "sattools/OrderWriter.h"
 #include "sattools/Saucy1Writer.h"
 #include "sattools/Propagator.h"
@@ -46,7 +46,7 @@ using sat::Orbits;
 using sat::Order;
 using sat::OrderScoring;
 using sat::SymmetryFinder;
-using sat::Simplifier;
+using sat::SymmetrySimplifier;
 using sat::LiteralGraphNodeAdaptor;
 using sat::DoubleLiteralGraphNodeAdaptor;
 using sat::ConsecutiveLiteralGraphNodeAdaptor;
@@ -119,7 +119,7 @@ int main(int argc, char *argv[]) {
     orbits.assign(bliss_group);
 
     Order order;
-    Simplifier simplifier(bliss_group, &model, &order);
+    SymmetrySimplifier simplifier(bliss_group, &model, &order);
     simplifier.simplify();
 
     std::string base_name(basename(cnf_filename.c_str()));
