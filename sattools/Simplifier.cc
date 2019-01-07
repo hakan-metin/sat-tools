@@ -35,7 +35,6 @@ bool Simplifier::processAllClauses() {
 }
 
 bool Simplifier::processClauseToSimplifiy(Clause *clause) {
-
     LiteralIndex opposite_literal;
     Literal literal = _model->findLiteralWithShortestOccurenceList(clause);
 
@@ -48,20 +47,18 @@ bool Simplifier::processClauseToSimplifiy(Clause *clause) {
                 continue;
 
             if (opposite_literal == kNoLiteralIndex) {  // subsumed
-                LOG(INFO) << c->debugString() << " subsumed by " <<
-                    clause->debugString();
-
                 c->lazyDetach();
                 continue;
             }
 
+            if (clause->size() == 0)  // UNSAT model
+                return false;
+
             _clauses_to_process.insert(c);
 
-            // auto it = std::find(_model->occurenceListOf(literal).begin(),
-
-
-            LOG(INFO) << "delete " << Literal(opposite_literal).debugString() <<
-                " from " << c->debugString();
+            // Clause c not contains opposite_literal anymore so remove it from
+            // occurence list.
+            _model->removeOcccurenceListOf(opposite_literal, c);
         }
     }
 
@@ -73,10 +70,19 @@ bool Simplifier::processClauseToSimplifiy(Clause *clause) {
             if (clause == c || !simplifyClause(clause, c, &opposite_literal))
                 continue;
 
+            if (opposite_literal == kNoLiteralIndex) {  // subsumed
+                c->lazyDetach();
+                continue;
+            }
+
+            if (clause->size() == 0)  // UNSAT model
+                return false;
+
             _clauses_to_process.insert(c);
 
-            LOG(INFO) << "delete " << Literal(opposite_literal).debugString() <<
-                " from " << c->debugString();
+            // Clause c not contains opposite_literal anymore so remove it from
+            // occurence list.
+            _model->removeOcccurenceListOf(opposite_literal, c);
         }
     }
 

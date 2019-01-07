@@ -16,8 +16,6 @@ namespace sat {
 
 class CNFModel {
  public:
-    typedef int32 ClauseIndex;
-
     CNFModel();
     ~CNFModel();
 
@@ -32,7 +30,9 @@ class CNFModel {
     const std::vector<Clause*>& clauses() const { return _clauses; }
     std::vector<Clause*>& clauses() { return _clauses; }
 
+    void removeOcccurenceListOf(LiteralIndex lit_index, Clause *clause);
     const std::vector<Clause*> occurenceListOf(Literal lit) const;
+
     Literal findLiteralWithShortestOccurenceList(Clause *clause) const;
 
  private:

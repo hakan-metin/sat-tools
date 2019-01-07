@@ -55,7 +55,13 @@ void CNFModel::addClause(std::vector<Literal>* literals) {
     for (Literal l : *clause) {
         _literal_to_clauses[l.index()].push_back(clause);
     }
+}
 
+
+void CNFModel::removeOcccurenceListOf(LiteralIndex lit_index, Clause *clause) {
+    auto it = std::find(_literal_to_clauses[lit_index].begin(),
+                        _literal_to_clauses[lit_index].end(), clause);
+    _literal_to_clauses[lit_index].erase(it);
 }
 
 const std::vector<Clause*> CNFModel::occurenceListOf(Literal lit) const {
