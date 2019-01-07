@@ -79,7 +79,7 @@ void OrderManager::completeOrderWithOccurences(const CNFModel& model) {
         indexes.push_back(i);
     }
 
-    std::sort(indexes.begin(), indexes.end(), OrderLt(model.occurences()));
+    // std::sort(indexes.begin(), indexes.end(), OrderLt(model.occurences()));
 
     for (int64 i = 0; i < num_vars; ++i)
         _order->add(Literal(BooleanVariable(indexes[i]), true));

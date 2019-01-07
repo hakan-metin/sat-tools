@@ -10,16 +10,11 @@
 #include "sattools/Clause.h"
 #include "sattools/Literal.h"
 #include "sattools/Logging.h"
-#include "sattools/RangeIterator.h"
-#include "sattools/Watcher.h"
-#include "sattools/IntTypeIndexedVector.h"
 
 namespace sat {
 
 class CNFModel {
  public:
-    typedef int32 ClauseIndex;
-
     CNFModel();
     ~CNFModel();
 
@@ -36,12 +31,6 @@ class CNFModel {
         return _clauses;
     }
 
-    Watcher<int, int>::Iterator watch(Literal literal) const;
-    const std::vector<int64>& occurences() const { return _occurences; }
-
-
-    Watcher<int, int>::Iterator watch(Literal negated);
-
  private:
     int64 _num_variables;
     int64 _num_trivial_clauses;
@@ -50,15 +39,6 @@ class CNFModel {
 
     // The set of all clauses.
     std::vector<std::vector<Literal>> _clauses;
-
-    // Occurence list. For each literal, contains the ClauseIndex of the clause
-    // that contains it (ordered by clause index).
-    // ITIVector<LiteralIndex, std::vector<ClauseIndex>> _literal_to_clauses;
-
-    // std::vector<Clause*> _clauses;
-
-    // Watcher<int, int> _watchers;
-    std::vector<int64> _occurences;
 
     DISALLOW_COPY_AND_ASSIGN(CNFModel);
 };

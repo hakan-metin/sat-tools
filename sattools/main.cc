@@ -74,7 +74,6 @@ int main(int argc, char *argv[]) {
     std::string cnf_filename(argv[1]);
     std::string symmetry_filename = cnf_filename + ".txt";
 
-
     if (!reader.load(cnf_filename, &model))
         LOG(FATAL) << "Cannot load CNF file: " << cnf_filename;
 

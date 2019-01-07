@@ -35,19 +35,6 @@ void CNFModel::addClause(std::vector<Literal>* literals) {
     BooleanVariable var = literals->back().variable();
     _num_variables = std::max<int>(_num_variables, var.value());
 
-    // OLD NEED FOR SIMPLIFIER => DELETE AFTER
-    for (const Literal &literal : *literals) {
-        const int64 literal_index = literal.variable().value();
-        if (numberOfVariables() > literal_index)
-            _occurences.resize(numberOfVariables());
-        _occurences[literal_index]++;
-    }
-
-    /*// Resize internal structure.
-    const unsigned int required_size = numberOfVariables();
-    if (required_size > _literal_to_clauses.size())
-        _literal_to_clauses.resize(required_size);
-    */
 
     // Add clause.
     _clauses.push_back(std::vector<Literal>());
@@ -59,6 +46,12 @@ void CNFModel::addClause(std::vector<Literal>* literals) {
     case 3: _num_ternary_clauses++; break;
     default: break;
     }
+
+    /*// Resize internal structure.
+    const unsigned int required_size = numberOfVariables();
+    if (required_size > _literal_to_clauses.size())
+        _literal_to_clauses.resize(required_size);
+    */
 
     /*
     // Update occurence list.
