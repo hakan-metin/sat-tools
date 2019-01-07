@@ -20,6 +20,13 @@ Clause* Clause::create(const std::vector<Literal>& literals,
     return clause;
 }
 
+void Clause::removeLiteral(Literal *to_remove) {
+    Literal *next = to_remove;
+    while (++to_remove != end())
+        *next++ = *to_remove;
+    _size--;
+}
+
 std::string Clause::debugString() const {
     std::string str;
     for (const Literal& literal : *this) {

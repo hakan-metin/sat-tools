@@ -26,9 +26,15 @@ class Clause {
     const Literal* end() const { return &(_literals[_size]); }
     Literal* literals() { return &(_literals[0]); }
 
+    //
+    void removeLiteral(Literal *to_remove);
+
     // Getters
     int  size()         const { return _size;        }
     bool is_redundant() const { return _is_redundant; }
+
+    // Clause is no more usable after.
+    void lazyDetach() { _size = 0; }
 
     std::string debugString() const;
 
@@ -37,7 +43,7 @@ class Clause {
     bool _is_redundant : 2;  // true => leanrt, false => problem clause
     unsigned int _size : 30;
 
-    // This class store the literals inline, and literals_ mark the starts of
+    // This class store the literals inline, and _literals mark the starts of
     // the variable length portion.
     Literal _literals[0];
 

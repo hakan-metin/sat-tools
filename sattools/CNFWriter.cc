@@ -13,8 +13,9 @@ bool CNFWriter::dump(const std::string &filename, const CNFModel& model) {
     out.writeInt(model.numberOfClauses());
     out.write("\n");
 
-    for (const std::vector<Literal>& clause : model.clauses()) {
-        for (Literal l : clause) {
+
+    for (Clause *clause : model.clauses()) {
+        for (Literal l : *clause) {
             out.writeInt(l.signedValue());
             out.write(" ");
         }

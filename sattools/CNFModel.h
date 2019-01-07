@@ -10,16 +10,18 @@
 #include "sattools/Clause.h"
 #include "sattools/Literal.h"
 #include "sattools/Logging.h"
+#include "sattools/IntTypeIndexedVector.h"
 
 namespace sat {
 
 class CNFModel {
  public:
+    typedef int32 ClauseIndex;
+
     CNFModel();
     ~CNFModel();
 
     void addClause(std::vector<Literal>* literals);
-
 
     int64 numberOfVariables() const { return _num_variables + 1; }
     int64 numberOfClauses() const { return _clauses.size(); }
@@ -27,9 +29,11 @@ class CNFModel {
     int64 numberOfBinaryClauses() const { return _num_binary_clauses;  }
     int64 numberOfTernaryClauses() const { return _num_ternary_clauses;  }
 
-    const std::vector<std::vector<Literal>>& clauses() const {
-        return _clauses;
-    }
+    const std::vector<Clause*>& clauses() const { return _clauses; }
+    std::vector<Clause*>& clauses() { return _clauses; }
+
+    const std::vector<Clause*> occurenceListOf(Literal lit) const;
+    Literal findLiteralWithShortestOccurenceList(Clause *clause) const;
 
  private:
     int64 _num_variables;
@@ -38,7 +42,12 @@ class CNFModel {
     int64 _num_ternary_clauses;
 
     // The set of all clauses.
-    std::vector<std::vector<Literal>> _clauses;
+    std::vector<Clause*> _clauses;
+
+    // Occurence list. For each literal, contains the ClauseIndex of the clause
+    // that contains it (ordered by clause index).
+    ITIVector<LiteralIndex, std::vector<Clause*>> _literal_to_clauses;
+
 
     DISALLOW_COPY_AND_ASSIGN(CNFModel);
 };

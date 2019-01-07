@@ -35,11 +35,6 @@ void CNFModel::addClause(std::vector<Literal>* literals) {
     BooleanVariable var = literals->back().variable();
     _num_variables = std::max<int>(_num_variables, var.value());
 
-
-    // Add clause.
-    _clauses.push_back(std::vector<Literal>());
-    _clauses.back().swap(*literals);
-
     // Update statistics.
     switch (literals->size()) {
     case 2: _num_binary_clauses++;  break;
@@ -47,18 +42,36 @@ void CNFModel::addClause(std::vector<Literal>* literals) {
     default: break;
     }
 
-    /*// Resize internal structure.
-    const unsigned int required_size = numberOfVariables();
+    // Add clause.
+    Clause *clause = Clause::create(*literals, false);
+    _clauses.push_back(clause);
+
+    // Resize internal structure.
+    const unsigned int required_size = numberOfVariables() << 2;
     if (required_size > _literal_to_clauses.size())
         _literal_to_clauses.resize(required_size);
-    */
 
-    /*
     // Update occurence list.
-    for (Literal l : _clauses.back()) {
-    _literal_to_clauses[l.index()].push_back(clause_index);
-    }*/
+    for (Literal l : *clause) {
+        _literal_to_clauses[l.index()].push_back(clause);
+    }
+
 }
+
+const std::vector<Clause*> CNFModel::occurenceListOf(Literal lit) const {
+    return _literal_to_clauses[lit.index()];
+}
+
+Literal CNFModel::findLiteralWithShortestOccurenceList(Clause *clause) const {
+    Literal result = clause->literals()[0];
+
+    for (const Literal &literal : *clause)
+        if (_literal_to_clauses[literal.index()].size() <
+            _literal_to_clauses[result.index()].size())
+            result = literal;
+    return result;
+}
+
 
 }  // namespace sat
 

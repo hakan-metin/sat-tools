@@ -78,62 +78,34 @@ int main(int argc, char *argv[]) {
         LOG(FATAL) << "Cannot load CNF file: " << cnf_filename;
 
 
-    // Trail trail;
-    // Propagator propagator;
-
-    // trail.resize(model.numberOfVariables());
-    // propagator.resize(model.numberOfVariables());
+    // SymmetryFinder<BlissAutomorphismFinder,
+    //                DoubleLiteralGraphNodeAdaptor> bliss_finder;
+    // bliss_finder.findAutomorphisms(model, &bliss_group);
 
 
-    // for (Clause *clause : model.clauses())
-    //     propagator.attachClause(clause, &trail);
-
-    // trail.newDecisionLevel();
-    // trail.enqueue(1);
-    // trail.newDecisionLevel();
-    // trail.enqueue(6);
-    // trail.enqueue(3);
-    // // trail.enqueue(-4);
-
-
-    // propagator.propagate(&trail);
-
-    // LOG(INFO) << trail.debugString();
-
-    // return 0;
-
-    // LOG(INFO) << "Vars: " << model.numberOfVariables() <<
-    //     " Clauses: " << model.numberOfClauses();
-
-    // for (const std::unique_ptr<Clause>& clause : model.clauses())
-    //     std::cout << clause->debugString() << std::endl;
-
-
-    SymmetryFinder<BlissAutomorphismFinder,
-                   DoubleLiteralGraphNodeAdaptor> bliss_finder;
-    bliss_finder.findAutomorphisms(model, &bliss_group);
+    solver.assign(&model);
 
     // LOG(INFO) << bliss_group.debugString();
 
-    Orbits orbits;
-    orbits.assign(bliss_group);
+    // Orbits orbits;
+    // orbits.assign(bliss_group);
 
-    Order order;
-    SymmetrySimplifier simplifier(bliss_group, &model, &order);
-    simplifier.simplify();
+    // Order order;
+    // SymmetrySimplifier simplifier(bliss_group, &model, &order);
+    // simplifier.simplify();
 
-    std::string base_name(basename(cnf_filename.c_str()));
-    std::string output_cnf = "/tmp/reduce-" + base_name;
-    std::string output_order = "/tmp/order-" + base_name;
-    std::string output_group = "/tmp/group-" + base_name;
+    // std::string base_name(basename(cnf_filename.c_str()));
+    // std::string output_cnf = "/tmp/reduce-" + base_name;
+    // std::string output_order = "/tmp/order-" + base_name;
+    // std::string output_group = "/tmp/group-" + base_name;
 
-    CNFWriter::dump(output_cnf, model);
-    OrderWriter::dump(output_order, order);
-    Saucy1Writer::dump(output_group, bliss_group);
+    // CNFWriter::dump(output_cnf, model);
+    // OrderWriter::dump(output_order, order);
+    // Saucy1Writer::dump(output_group, bliss_group);
 
-    LOG(INFO) << "CNF is written in " + output_cnf;
-    LOG(INFO) << "Order is written in " + output_order;
-    LOG(INFO) << "Group is written in " + output_group;
+    // LOG(INFO) << "CNF is written in " + output_cnf;
+    // LOG(INFO) << "Order is written in " + output_order;
+    // LOG(INFO) << "Group is written in " + output_group;
 
     return 0;
 }

@@ -59,10 +59,10 @@ inline void SymmetryFinder<Graph, Adaptor>::buildGraph(const CNFModel& model) {
         _graph->addEdge(x, y);
     }
 
-    for (const std::vector<Literal>& clause : model.clauses()) {
-        if (clause.size() == 2) {
-            const Literal first = clause[0];
-            const Literal second = clause[1];
+    for (Clause *clause : model.clauses()) {
+        if (clause->size() == 2) {
+            const Literal first = clause->literals()[0];
+            const Literal second = clause->literals()[1];
 
             x = _adaptor->literalToNode(first) - 1;
             y = _adaptor->literalToNode(second) - 1;
@@ -76,7 +76,7 @@ inline void SymmetryFinder<Graph, Adaptor>::buildGraph(const CNFModel& model) {
             seen[x] = true;
             seen[y] = true;
         } else {
-            for (const Literal& literal : clause) {
+            for (const Literal& literal : *clause) {
                 x =  _adaptor->literalToNode(literal) - 1;
 
                 if (verbose)
