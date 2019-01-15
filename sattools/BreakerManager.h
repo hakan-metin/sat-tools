@@ -28,6 +28,7 @@ class BreakerManager {
     virtual ~BreakerManager();
 
     void updateOrder(Literal literal);
+
     void updateAssignment(Literal literal);
     void updateAssignmentForAll();
     bool generateSBPs(ClauseInjector *injector);

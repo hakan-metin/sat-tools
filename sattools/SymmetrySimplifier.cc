@@ -4,98 +4,53 @@
 
 namespace sat {
 
-SymmetrySimplifier::SymmetrySimplifier(const Group &group, CNFModel *model, Order *order)
-    : _group(group),  _model(model) {
-    const unsigned int num_vars = model->numberOfVariables();
-
-    _propagator.resize(num_vars);
-    _trail.resize(num_vars);
-
-    _order_manager = std::make_unique<OrderManager>(*_model, _group, order);
-    _breaker_manager = std::make_unique<BreakerManager>(_group,
-                                                        _trail.assignment());
+SymmetrySimplifier::SymmetrySimplifier(const CNFModel &model,
+                                       const Group &group,
+                                       const Assignment& assignment)
+    : _model(model), _group(group), _assignment(assignment) {
+    _orbits.assign(group);
+    _order_manager = std::make_unique<OrderManager>(_model, _group, &_order);
+    _breaker_manager = std::make_unique<BreakerManager>(_group, _assignment);
 }
 
 SymmetrySimplifier::~SymmetrySimplifier() {
 }
 
-
-void SymmetrySimplifier::init() {
-    // for (Clause* clause : _model->clauses()) {
-    //     if (clause->size() == 1) {
-    //         addUnitClause(clause->literals()[0], false);
-    //         continue;
-    //     }
-    //     _propagator.addClause(clause, &_trail);
-
-    //     for (Literal literal : *clause)
-    //         _clauses_map[literal].push_back(clause);
-    // }
-
-    // _orbits.assign(_group);
-    // // LOG(INFO) << _orbits.debugString();
-
-    // _big = std::make_unique<BinaryImplicationGraph>(*_model);
-    // _order_manager->initialize();
-}
-
-void SymmetrySimplifier::simplify() {
-    ClauseInjector injector;
-    Orbits orbits;
+void SymmetrySimplifier::simplify(ClauseInjector *injector) {
+    DCHECK_EQ(injector->size(), 0);
 
     if (_group.numberOfPermutations() == 0)
         return;
 
-    init();
-
-    _propagator.propagate(&_trail);
     _breaker_manager->updateAssignmentForAll();
+    if (addLiteralInOrderWithScore(injector))
+        _breaker_manager->generateSBPs(injector);
 
 
-    LOG(INFO) << "SymmetrySimplifier start";
-
-    while (addLiteralInOrderWithScore()) {
-        while (_breaker_manager->generateSBPs(&injector))
-            resolution(&injector);
+    if (injector->size() == 0 && _order.size() != _model.numberOfVariables()) {
+        addLiteralInOrderWithOccurence();
+        _breaker_manager->updateAssignmentForAll();
+        _breaker_manager->generateSBPs(injector);
     }
-
-    for (unsigned int i = 0; i < _trail.index(); i++) {
-        std::vector<Literal> clause = {_trail[i]};
-        _model->addClause(&clause);
-    }
-
-    LOG(INFO) << "SymmetrySimplifier produces " << _trail.index() <<
-        " units (including unit propagation): ";
-    // LOG(INFO) << _trail.debugString();
-
-    // LOG(INFO) << _group.debugString();
-    // LOG(INFO) << _breaker_manager->debugString();
-
-    _order_manager->completeOrderWithOccurences(*_model);
 }
 
-
-bool SymmetrySimplifier::addUnitClause(Literal unit, bool extendsOrder) {
-    const Assignment &assignment = _trail.assignment();
-
-    if (assignment.literalIsTrue(unit.negated()))
-        return false;
-    if (assignment.literalIsAssigned(unit))
-        return true;
-
-    _trail.enqueueWithUnitReason(unit);
-    if (!_propagator.propagate(&_trail))
-        return false;
-
+void SymmetrySimplifier::notifyUnit(Literal unit, ClauseInjector *injector) {
     _breaker_manager->updateAssignmentForAll();
+    addLiteralInOrderWithUnit(unit, injector);
+}
 
-    if (extendsOrder)
-        addLiteralInOrderWithUnit(unit);
+bool SymmetrySimplifier::addLiteralInOrderWithOccurence() {
+    Literal next;
+
+    while (_order_manager->suggestLiteralWithOcc(&next)) {
+        _breaker_manager->updateOrder(next);
+        LOG(INFO) << "OCc " << next.debugString();
+    }
+
     return true;
 }
 
-
-bool SymmetrySimplifier::addLiteralInOrderWithScore() {
+bool SymmetrySimplifier::addLiteralInOrderWithScore(ClauseInjector *injector) {
     std::vector<bool> actives;
     Literal next;
     bool allSameOrbit;
@@ -103,32 +58,33 @@ bool SymmetrySimplifier::addLiteralInOrderWithScore() {
     _breaker_manager->activeBreakers(&actives);
     if (!_order_manager->nextLiteral(actives, &next))
         return false;
+    _breaker_manager->updateOrder(next);
 
-    for (Clause *clause : _clauses_map[next]) {
+    LOG(INFO) << "Next with score " << next.debugString() << std::endl <<
+        _breaker_manager->debugString();
+
+    // An optimization to add more unit
+    for (Clause *clause : _model.occurenceListOf(next)) {
         allSameOrbit = true;
         // Check if all literals in clause is in orbit of next => next is unit
         for (Literal literal : *clause) {
-            if (_trail.assignment().literalIsTrue(literal) ||
+            if (_assignment.literalIsTrue(literal) ||
                 !_orbits.isInSameOrbit(next, literal)) {
                 allSameOrbit = false;
                 break;
             }
         }
         if (allSameOrbit) {
-            addUnitClause(next, false);
+            injector->addClause({next});
             break;
         }
     }
 
-
-
-    // LOG(INFO) << "Next with score " << next.debugString();
-
-    _breaker_manager->updateOrder(next);
     return true;
 }
 
-bool SymmetrySimplifier::addLiteralInOrderWithUnit(Literal unit) {
+bool SymmetrySimplifier::addLiteralInOrderWithUnit(Literal unit,
+                                                   ClauseInjector *injector) {
     std::vector<bool> actives;
     Literal next;
     bool activated = false;
@@ -143,7 +99,7 @@ bool SymmetrySimplifier::addLiteralInOrderWithUnit(Literal unit) {
         do {
             if (_order_manager->suggestLiteralInOrder(image, &next)) {
                 _breaker_manager->updateOrder(next);
-                addUnitClause(image, false);
+                injector->addClause({image});
 
                 activated = true;
             }
@@ -154,16 +110,12 @@ bool SymmetrySimplifier::addLiteralInOrderWithUnit(Literal unit) {
     return activated;
 }
 
-bool SymmetrySimplifier::resolution(ClauseInjector *injector) {
-    Literal unit;
-
-    for (const std::vector<Literal>& clause : *injector) {
-        if (_big->resolve(clause, &unit)) {
-            if (!addUnitClause(unit, true))
-                return false;
-        }
-    }
-    return true;
+void SymmetrySimplifier::finalize() {
+    // int index = _order.size();
+    //LOG(INFO) << "Index " << index;
+    // _order_manager->completeOrderWithOccurences(_model);
+    // LOG(INFO) << _order_manager->debugString();
+    LOG(INFO) << _breaker_manager->debugString();
 }
 
 }  // namespace sat

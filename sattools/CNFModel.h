@@ -19,7 +19,8 @@ class CNFModel {
     CNFModel();
     ~CNFModel();
 
-    void addClause(std::vector<Literal>* literals);
+    bool addClause(std::vector<Literal>* literals);
+    void addClause(Clause *clause);
 
     int64 numberOfVariables() const { return _num_variables + 1; }
     int64 numberOfClauses() const { return _clauses.size(); }
@@ -30,9 +31,10 @@ class CNFModel {
     const std::vector<Clause*>& clauses() const { return _clauses; }
     std::vector<Clause*>& clauses() { return _clauses; }
 
+    void clearDetachedClauses();
+
     void removeOcccurenceListOf(LiteralIndex lit_index, Clause *clause);
     const std::vector<Clause*> occurenceListOf(Literal lit) const;
-
     Literal findLiteralWithShortestOccurenceList(Clause *clause) const;
 
  private:

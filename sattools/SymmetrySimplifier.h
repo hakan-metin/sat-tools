@@ -11,7 +11,6 @@
 #include "sattools/Assignment.h"
 #include "sattools/BinaryImplicationGraph.h"
 #include "sattools/BreakerManager.h"
-#include "sattools/ClauseInjector.h"
 #include "sattools/OrderManager.h"
 #include "sattools/CNFModel.h"
 #include "sattools/Group.h"
@@ -24,30 +23,31 @@ namespace sat {
 
 class SymmetrySimplifier {
  public:
-    SymmetrySimplifier(const Group &group, CNFModel *model, Order *order);
+    SymmetrySimplifier(const CNFModel &model, const Group &group,
+                       const Assignment& assignment);
     ~SymmetrySimplifier();
 
-    void init();
-    void simplify();
+    void simplify(ClauseInjector *injector);
+    void notifyUnit(Literal unit, ClauseInjector *injector);
+
+    void finalize();
+
+    const Order& order() { return _order; }
 
  private:
+    const CNFModel &_model;
     const Group &_group;
-    CNFModel *_model;
-    Trail _trail;
-    Propagator _propagator;
+    const Assignment& _assignment;
 
     Orbits _orbits;
+    Order _order;
+
     std::unique_ptr<BreakerManager> _breaker_manager;
     std::unique_ptr<OrderManager> _order_manager;
 
-    std::unique_ptr<BinaryImplicationGraph> _big;
-
-    std::unordered_map<Literal, std::vector<Clause*>> _clauses_map;
-
-    bool addLiteralInOrderWithScore();
-    bool addLiteralInOrderWithUnit(Literal unit);
-    bool addUnitClause(Literal unit, bool extendsOrder);
-    bool resolution(ClauseInjector *injector);
+    bool addLiteralInOrderWithScore(ClauseInjector *injector);
+    bool addLiteralInOrderWithUnit(Literal unit, ClauseInjector *injector);
+    bool addLiteralInOrderWithOccurence();
 };
 
 

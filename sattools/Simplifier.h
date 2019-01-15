@@ -8,23 +8,24 @@
 
 #include "sattools/CNFModel.h"
 #include "sattools/Propagator.h"
+#include "sattools/Trail.h"
 
 namespace sat {
 
 class Simplifier {
  public:
-    Simplifier(Propagator *propagator, CNFModel *model);
+    explicit Simplifier(CNFModel *model);
     virtual ~Simplifier();
 
-    bool simplify();
+    void addClauseToProcess(Clause *clause);
+    bool simplify(Trail *trail);
 
  private:
-    Propagator *_propagator;
     CNFModel *_model;
 
     std::unordered_set<Clause*> _clauses_to_process;
 
-    bool processAllClauses();
+    bool processAllClauses(Trail *trail);
     bool processClauseToSimplifiy(Clause *clause);
     bool simplifyClause(Clause *a, Clause *b, LiteralIndex *opposite_literal);
 };

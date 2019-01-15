@@ -2,17 +2,16 @@
 
 #include "sattools/OrderManager.h"
 
-
-
 namespace {
-struct OrderLt {
+struct OccLt {
     const std::vector<int64>& values;
     bool operator() (int i, int j) {
+        LOG(INFO) << i << " " << j;
         if (values[i] != values[j])
                 return values[i] > values[j];
         return i < j;
     }
-    explicit OrderLt(const std::vector<int64>& v) :  values(v) {}
+    explicit OccLt(const std::vector<int64>& v) :  values(v) {}
 };
 }  // namespace
 
@@ -23,19 +22,35 @@ OrderManager::OrderManager(const CNFModel& model, const Group &group,
     _model(model),
     _group(group),
     _order(order) {
+    // Order Score
     _order_scoring = std::make_unique<OrderScoring>(model, group);
+    _order_scoring->initialize();
+
+    // Order Occurence
+    int64 num_vars = model.numberOfVariables();
+    std::vector<int64> occurences(num_vars);
+
+    for (Clause *clause : model.clauses()) {
+        for (Literal literal : *clause) {
+            int64 index = literal.variable().value();
+            occurences[index]++;
+        }
+    }
+    for (int64 i = 0; i < num_vars; ++i) {
+        _occurence_indexes.push_back(i);
+    }
+    std::sort(_occurence_indexes.begin(),
+              _occurence_indexes.end(), OccLt(occurences));
 }
 
 OrderManager::~OrderManager() {
 }
 
-void OrderManager::initialize() {
-    _order_scoring->initialize();
-    // LOG(INFO) << _order_scoring->debugString();
-}
 
 bool
 OrderManager::nextLiteral(const std::vector<bool>& actives, Literal *next) {
+    // Try to add with heuristic scoring
+
     for (const std::pair<double, PermCycleInfo> & p : *_order_scoring) {
         PermCycleInfo info = p.second;
         unsigned int perm_index = info.perm;
@@ -52,6 +67,7 @@ OrderManager::nextLiteral(const std::vector<bool>& actives, Literal *next) {
 
         return true;
     }
+
     return false;
 }
 
@@ -62,31 +78,21 @@ bool OrderManager::suggestLiteralInOrder(Literal unit, Literal *next) {
 
     *next = positive;
 
-    return _order->add(positive);
+    return _order->add(*next);
 }
 
-void OrderManager::completeOrder() {
-    for (BooleanVariable var(0); var < _model.numberOfVariables(); ++var)
-        _order->add(Literal(var, true));
-}
-
-void OrderManager::completeOrderWithOccurences(const CNFModel& model) {
-    // LOG(INFO) << "Before Complete Occurence: " << _order->debugString();
-
-    int64 num_vars = model.numberOfVariables();
-    std::vector<int64> indexes;
+bool OrderManager::suggestLiteralWithOcc(Literal *next) {
+    // Complete with occurences
+    // Really not optimized
+    int64 num_vars = _model.numberOfVariables();
     for (int64 i = 0; i < num_vars; ++i) {
-        indexes.push_back(i);
+        *next = Literal(BooleanVariable(_occurence_indexes[i]), true);
+        if (_order->add(*next)) {
+            return true;
+        }
     }
-
-    // std::sort(indexes.begin(), indexes.end(), OrderLt(model.occurences()));
-
-    for (int64 i = 0; i < num_vars; ++i)
-        _order->add(Literal(BooleanVariable(indexes[i]), true));
-
-    // LOG(INFO) << "Complete Occurence Done " << _order->debugString();
+    return false;
 }
-
 
 
 }  // namespace sat

@@ -29,6 +29,8 @@ class Order {
         return _order.end();
     }
 
+    int size() const { return _order.size(); }
+
     std::string debugString() const;
 
  private:

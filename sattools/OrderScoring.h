@@ -13,7 +13,6 @@
 #include <string>
 #include <sstream>
 
-
 #include "sattools/CNFModel.h"
 #include "sattools/Group.h"
 #include "sattools/Literal.h"

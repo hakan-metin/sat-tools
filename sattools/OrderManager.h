@@ -23,11 +23,10 @@ class OrderManager {
     OrderManager(const CNFModel& model, const Group &group, Order *order);
     ~OrderManager();
 
-    void initialize();
     bool nextLiteral(const std::vector<bool>& active, Literal *next);
     bool suggestLiteralInOrder(Literal unit, Literal *next);
-    void completeOrder();
-    void completeOrderWithOccurences(const CNFModel& model);
+    bool suggestLiteralWithOcc(Literal *next);
+
     void exportOrder(const std::string filename);
 
  private:
@@ -36,6 +35,9 @@ class OrderManager {
 
     Order *_order;
     std::unique_ptr<OrderScoring> _order_scoring;
+
+    std::vector<int64> _occurence_indexes;
+
 
     DISALLOW_COPY_AND_ASSIGN(OrderManager);
 };

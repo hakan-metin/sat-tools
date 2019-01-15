@@ -110,7 +110,7 @@ inline void SymmetryFinder<Graph, Adaptor>::buildGraph(const CNFModel& model) {
     CHECK_LT(color, std::numeric_limits<int32>::max());
 }
 
-template<typename Graph, typename Adaptor>
+template<typename Graph, typename Adaptor> inline
 void SymmetryFinder<Graph, Adaptor>::findAutomorphisms(const CNFModel& model,
                                                        Group *group) {
     buildGraph(model);

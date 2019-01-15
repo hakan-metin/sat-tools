@@ -8,8 +8,6 @@ Propagator::Propagator() : _propgation_trail_index(0) {
 }
 
 Propagator::~Propagator() {
-    for (Clause *clause : _clauses)
-        delete clause;
 }
 
 
@@ -22,7 +20,6 @@ bool Propagator::addClause(const std::vector<Literal>& literals, Trail *trail) {
     Clause* clause = Clause::create(literals, false);
     if (!addClause(clause, trail))
         return false;
-    _clauses.push_back(clause);
     return true;
 }
 
@@ -31,13 +28,26 @@ bool Propagator::addLearntClause(const std::vector<Literal>& literals,
     Clause* clause = Clause::create(literals, true);
     if (!addClause(clause, trail))
         return false;
-    _clauses.push_back(clause);
     return true;
 }
 
 bool Propagator::addClause(Clause *clause, Trail *trail) {
     const int size = clause->size();
     Literal *literals = clause->literals();
+
+    if (size == 1) {
+        Literal unit = literals[0];
+        const Assignment &assignment = trail->assignment();
+
+        if (assignment.literalIsFalse(unit))     return false;
+        if (assignment.literalIsAssigned(unit))  return true;
+
+        trail->enqueueWithUnitReason(unit);
+        if (!propagate(trail))
+            return false;
+
+        return true;
+    }
 
     int num_literal_not_false = 0;
     for (int i = 0; i < size; ++i) {

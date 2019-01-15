@@ -6,7 +6,9 @@ namespace sat {
 
 Solver::Solver() :
     _num_variables(0),
-    _is_model_unsat(false)
+    _is_model_unsat(false),
+    _simplifier(nullptr),
+    _sym_simplifier(nullptr)
 {
 }
 
@@ -15,41 +17,29 @@ Solver::~Solver() {
 }
 
 void Solver::assign(CNFModel *model) {
+    _model = model;
     setNumberOfVariables(model->numberOfVariables());
 
-    _simplifier = std::make_unique<Simplifier>(&_propagator, model);
-    _simplifier->simplify();
-
-    auto i = model->clauses().begin();
-    auto j = model->clauses().begin();
-    const auto end = model->clauses().end();
-
-    LOG(INFO) << model->numberOfClauses();
-
-    // Add clauses and clean lazyDetach and satisfied clauses
-    while (i != end) {
-        Clause *clause = *j++ = *i++;
-        if (isClauseSatisfied(clause) || clause->size() == 0)
-            j--;
-
-        if (!_propagator.addClause(clause, &_trail))
-            setModelUnsat();
-    }
-
-    if (j < i) {
-        while (i != end)
-            *j++ = *i++;
-        model->clauses().resize(j - model->clauses().begin());
-    }
-
-    LOG(INFO) << model->numberOfClauses();
+    _simplifier = std::make_unique<Simplifier>(model);
+    activeSymmetries();
 }
+
+
+void Solver::activeSymmetries() {
+    // Search symmetries
+    SymmetryFinder<BlissAutomorphismFinder,
+                   DoubleLiteralGraphNodeAdaptor> bliss_finder;
+    bliss_finder.findAutomorphisms(*_model, &_group);
+    _sym_simplifier = std::make_unique<SymmetrySimplifier>(*_model, _group,
+                                                           _trail.assignment());
+
+    LOG(INFO) << _group.debugString();
+}
+
 
 void Solver::setNumberOfVariables(unsigned int num_variables) {
-    _propagator.resize(num_variables);
     _trail.resize(num_variables);
 }
-
 
 bool Solver::isClauseSatisfied(Clause *clause) const {
     for (const Literal &literal : *clause)
@@ -64,6 +54,102 @@ bool Solver::isClauseSatisfied(const std::vector<Literal>& literals) const {
     return false;
 }
 
+void Solver::detactSatisfiedClauses() {
+    for (Clause *clause : _model->clauses())
+        if (isClauseSatisfied(clause))
+            clause->lazyDetach();
+}
+
+Solver::Status Solver::solve() {
+    ClauseInjector injector;
+
+    LOG(INFO) << "Number of clauses initial: " << _model->numberOfClauses();
+    simplifyInitialProblem();
+    LOG(INFO) << "Number of clauses after initial simplification: "
+              << _model->numberOfClauses();
+
+    if (_is_model_unsat)
+        return UNSAT;
+
+
+    simplifyWithSBP();
+
+    //    LOG(INFO) << "TRAIL : " << _trail.debugString();
+
+    if (_is_model_unsat)
+        return UNSAT;
+
+    detactSatisfiedClauses();
+    _model->clearDetachedClauses();
+
+    for (unsigned int i = 0; i < _trail.index(); i++) {
+        std::vector<Literal> literals = { _trail[i] };
+        _model->addClause(&literals);
+    }
+    LOG(INFO) << "Number of clauses after SBP simplification: "
+              << _model->numberOfClauses();
+
+
+    return UNKNOWN;
+}
+
+bool Solver::simplifyInitialProblem() {
+    if (_simplifier == nullptr)
+        return true;
+
+    for (Clause *clause : _model->clauses())
+        _simplifier->addClauseToProcess(clause);
+
+    if (!_simplifier->simplify(&_trail))
+        return setModelUnsat();
+
+    return true;
+}
+
+bool Solver::simplifyWithSBP() {
+    if (_sym_simplifier == nullptr)
+        return true;
+
+    ClauseInjector injector;
+    unsigned int last_trail_index = 0;
+
+    while (true) {
+        _sym_simplifier->simplify(&injector);
+        if (injector.size() == 0)
+            break;
+
+        addSBPIntoModel(&injector);
+
+        if (!_simplifier->simplify(&_trail))
+            return setModelUnsat();
+
+        // Unit prolongation
+        while (last_trail_index < _trail.index()) {
+            for (; last_trail_index < _trail.index(); last_trail_index++)
+                _sym_simplifier->notifyUnit(_trail[last_trail_index],
+                                            &injector);
+
+            addSBPIntoModel(&injector);
+            if (!_simplifier->simplify(&_trail))
+                return setModelUnsat();
+        }
+    }
+
+    _sym_simplifier->finalize();
+
+    return true;
+}
+
+void Solver::addSBPIntoModel(ClauseInjector *injector) {
+    for (std::vector<Literal>& literals : *injector) {
+        if (!_model->addClause(&literals))
+            continue;
+        if (_simplifier != nullptr)
+            _simplifier->addClauseToProcess(_model->clauses().back());
+    }
+
+    injector->clear();
+}
 
 
 // void Solver::enqueue(Literal true_literal) {
@@ -75,16 +161,6 @@ bool Solver::isClauseSatisfied(const std::vector<Literal>& literals) const {
 // }
 
 
-// Solver::Status Solver::solve() {
-
-
-
-
-//     return UNSAT;
-// }
-
-
-
 }  // namespace sat
 /*
  * Local Variables:
@@ -92,40 +168,3 @@ bool Solver::isClauseSatisfied(const std::vector<Literal>& literals) const {
  * indent-tabs-mode: nil
  * End:
  */
-
-
-
-
-// bool Solver::addClause(Clause *clause) {
-//     const int size = clause->size();
-//     Literal *literals = clause->literals();
-
-//     if (size == 1) {
-//         const Literal unit = literals[0];
-//         if (_trail.assignment().literalIsFalse(unit)) return setModelUnsat();
-//         if (_trail.assignment().literalIsTrue(unit))  return true;
-//         _trail.enqueueWithUnitReason(unit);
-//     } else {
-//         int num_literal_not_false = 0;
-
-//         for (int i = 0; i < size; ++i) {
-//             if (!_trail.assignment().literalIsFalse(literals[i])) {
-//                 std::swap(literals[i), literals[num_literal_not_false]);
-//                 ++num_literal_not_false;
-//                 if (num_literal_not_false == 2) {
-//                     break;
-//                 }
-//             }
-//         }
-
-//         if (num_literal_not_false == 1) {
-//             if (!_trail.assignment().literalIsTrue(literals[0]))
-//                 _trail.enqueueWithAssertiveReason(literals[0]);
-//         } else {
-//             if (!_propagator.addClause(clause, &_trail))
-//                 return setModelUnsat();
-//         }
-//     }
-
-//     return true;
-// }

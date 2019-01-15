@@ -4,29 +4,38 @@
 
 namespace sat {
 
-Simplifier::Simplifier(Propagator *propagator, CNFModel *model) :
-    _propagator(propagator),
-    _model(model)
-{
+Simplifier::Simplifier(CNFModel *model) : _model(model) {
 }
 
 Simplifier::~Simplifier() {
 }
 
-bool Simplifier::simplify() {
-    return processAllClauses();
+bool Simplifier::simplify(Trail *trail) {
+    return processAllClauses(trail);
 }
 
 
-bool Simplifier::processAllClauses() {
-    _clauses_to_process.insert(_model->clauses().begin(),
-                               _model->clauses().end());
+void Simplifier::addClauseToProcess(Clause *clause) {
+    _clauses_to_process.insert(clause);
+
+}
+bool Simplifier::processAllClauses(Trail *trail) {
     while (_clauses_to_process.size() > 0) {
         Clause *clause = *_clauses_to_process.begin();
         _clauses_to_process.erase(_clauses_to_process.begin());
 
         if (clause->size() == 0)  // Detached
             continue;
+        if (clause->size() == 1) {
+            Literal unit = clause->literals()[0];
+            if (trail->assignment().literalIsFalse(unit)) {
+                LOG(INFO) << "CONTRADICTION";
+                return false;
+            }
+            if (!trail->assignment().literalIsAssigned(unit))
+                trail->enqueueWithUnitReason(unit);
+        }
+
         if (!processClauseToSimplifiy(clause))
             return false;
     }
@@ -51,7 +60,7 @@ bool Simplifier::processClauseToSimplifiy(Clause *clause) {
                 continue;
             }
 
-            if (clause->size() == 0)  // UNSAT model
+            if (c->size() == 0)   // UNSAT model
                 return false;
 
             _clauses_to_process.insert(c);
@@ -75,7 +84,7 @@ bool Simplifier::processClauseToSimplifiy(Clause *clause) {
                 continue;
             }
 
-            if (clause->size() == 0)  // UNSAT model
+            if (c->size() == 0)   // UNSAT model
                 return false;
 
             _clauses_to_process.insert(c);

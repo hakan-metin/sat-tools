@@ -28,14 +28,17 @@ class SaucyAutomorphismFinder :
                            Group *group) override;
 };
 
+inline
 SaucyAutomorphismFinder::SaucyAutomorphismFinder() :
     AdjacencyColoredGraph(), AutomorphismFinder() {
 }
 
+inline
 SaucyAutomorphismFinder::SaucyAutomorphismFinder(unsigned int num_nodes) :
     AdjacencyColoredGraph(num_nodes), AutomorphismFinder() {
 }
 
+inline
 SaucyAutomorphismFinder::~SaucyAutomorphismFinder() {
 }
 
@@ -75,7 +78,7 @@ on_saucy_automorphism(int n, const int *aut, int k ATTRIBUTE_UNUSED,
     return 1;  // Always continue to search
 }
 
-void
+inline void
 SaucyAutomorphismFinder::findAutomorphisms(unsigned int num_vars,
                                            const Adaptor& adaptor,
                                            Group *group) {

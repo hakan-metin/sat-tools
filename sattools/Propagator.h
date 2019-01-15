@@ -35,8 +35,6 @@ class Propagator {
     std::string debugString() const;
 
  private:
-    std::vector<Clause*> _clauses;
-
     unsigned int _propgation_trail_index;
 
     struct Watch {

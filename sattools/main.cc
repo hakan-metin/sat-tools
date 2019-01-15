@@ -72,40 +72,31 @@ int main(int argc, char *argv[]) {
 #endif
 
     std::string cnf_filename(argv[1]);
-    std::string symmetry_filename = cnf_filename + ".txt";
+    // std::string symmetry_filename = cnf_filename + ".txt";
 
     if (!reader.load(cnf_filename, &model))
         LOG(FATAL) << "Cannot load CNF file: " << cnf_filename;
 
 
-    // SymmetryFinder<BlissAutomorphismFinder,
-    //                DoubleLiteralGraphNodeAdaptor> bliss_finder;
-    // bliss_finder.findAutomorphisms(model, &bliss_group);
-
-
     solver.assign(&model);
+    if (solver.solve() == Solver::Status::UNSAT) {
+        LOG(INFO) << "Solved by simplification";
+        std::cout << "s UNSATISFIABLE" << std::endl;
+        return 20;
+    }
 
-    // LOG(INFO) << bliss_group.debugString();
+    std::string base_name(basename(cnf_filename.c_str()));
+    std::string output_cnf = "/tmp/reduce-" + base_name;
+    std::string output_order = "/tmp/order-" + base_name;
+    std::string output_group = "/tmp/group-" + base_name;
 
-    // Orbits orbits;
-    // orbits.assign(bliss_group);
+    CNFWriter::dump(output_cnf, model);
+    OrderWriter::dump(output_order, solver.order());
+    Saucy1Writer::dump(output_group, solver.group());
 
-    // Order order;
-    // SymmetrySimplifier simplifier(bliss_group, &model, &order);
-    // simplifier.simplify();
-
-    // std::string base_name(basename(cnf_filename.c_str()));
-    // std::string output_cnf = "/tmp/reduce-" + base_name;
-    // std::string output_order = "/tmp/order-" + base_name;
-    // std::string output_group = "/tmp/group-" + base_name;
-
-    // CNFWriter::dump(output_cnf, model);
-    // OrderWriter::dump(output_order, order);
-    // Saucy1Writer::dump(output_group, bliss_group);
-
-    // LOG(INFO) << "CNF is written in " + output_cnf;
-    // LOG(INFO) << "Order is written in " + output_order;
-    // LOG(INFO) << "Group is written in " + output_group;
+    LOG(INFO) << "CNF is written in " + output_cnf;
+    LOG(INFO) << "Order is written in " + output_order;
+    LOG(INFO) << "Group is written in " + output_group;
 
     return 0;
 }

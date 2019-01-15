@@ -13,9 +13,11 @@ CNFModel::CNFModel() :
 }
 
 CNFModel::~CNFModel() {
+    for (Clause *clause : _clauses)
+        delete clause;
 }
 
-void CNFModel::addClause(std::vector<Literal>* literals) {
+bool CNFModel::addClause(std::vector<Literal>* literals) {
     CHECK_GT(literals->size(), static_cast<unsigned int>(0));
 
     // Remove duplicate literals in clause.
@@ -27,7 +29,7 @@ void CNFModel::addClause(std::vector<Literal>* literals) {
     for (unsigned int i = 1; i < literals->size(); i++) {
         if (literals->at(i) == literals->at(i - 1).negated()) {
             _num_trivial_clauses++;
-            return;
+            return false;
         }
     }
 
@@ -44,6 +46,12 @@ void CNFModel::addClause(std::vector<Literal>* literals) {
 
     // Add clause.
     Clause *clause = Clause::create(*literals, false);
+    addClause(clause);
+
+    return true;
+}
+
+void CNFModel::addClause(Clause *clause) {
     _clauses.push_back(clause);
 
     // Resize internal structure.
@@ -57,6 +65,27 @@ void CNFModel::addClause(std::vector<Literal>* literals) {
     }
 }
 
+
+void CNFModel::clearDetachedClauses() {
+    auto i = _clauses.begin();
+    auto j = _clauses.begin();
+    const auto end = _clauses.end();
+
+    // Add clauses and clean lazyDetach and satisfied clauses
+    while (i != end) {
+        Clause *clause = *j++ = *i++;
+        if (clause->size() == 0) {
+            delete clause;
+            j--;
+        }
+    }
+
+    if (j < i) {
+        while (i != end)
+            *j++ = *i++;
+        _clauses.resize(j - _clauses.begin());
+    }
+}
 
 void CNFModel::removeOcccurenceListOf(LiteralIndex lit_index, Clause *clause) {
     auto it = std::find(_literal_to_clauses[lit_index].begin(),

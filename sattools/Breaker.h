@@ -26,6 +26,8 @@ class Breaker {
                 const Assignment& assignment);
     ~Breaker();
 
+
+    // Add only the FIRST element of each cycle
     void addLookupLiteral(Literal literal);
     bool generateSBP(ClauseInjector *injector);
 

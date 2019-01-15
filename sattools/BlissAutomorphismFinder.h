@@ -35,19 +35,22 @@ class BlissAutomorphismFinder : public ColoredGraph, AutomorphismFinder {
     std::unique_ptr<bliss::Graph> _graph;
 };
 
+inline
 BlissAutomorphismFinder::BlissAutomorphismFinder() :
     ColoredGraph() {
     _graph = std::make_unique<bliss::Graph>();
 }
-
+inline
 BlissAutomorphismFinder::BlissAutomorphismFinder(unsigned int num_nodes) :
     ColoredGraph(num_nodes) {
     _graph = std::make_unique<bliss::Graph>(num_nodes);
 }
 
+inline
 BlissAutomorphismFinder::~BlissAutomorphismFinder() {
 }
 
+inline
 void BlissAutomorphismFinder::addNode(NodeIndex node) {
     unsigned int n;
     while (_num_nodes <= node) {
@@ -57,11 +60,13 @@ void BlissAutomorphismFinder::addNode(NodeIndex node) {
     }
 }
 
+inline
 void BlissAutomorphismFinder::addEdge(NodeIndex a, NodeIndex b) {
     _graph->add_edge(a, b);
     _num_edges++;
 }
 
+inline
 void BlissAutomorphismFinder::setColor(NodeIndex node, unsigned int color) {
     CHECK_LT(node, _num_nodes);
     _graph->change_color(node, color);
@@ -100,7 +105,7 @@ on_bliss_automorphim(void* arg, const unsigned int n, const unsigned int* aut) {
     group->addPermutation(std::move(permutation));
 }
 
-void
+inline void
 BlissAutomorphismFinder::findAutomorphisms(unsigned int num_vars,
                                            const Adaptor& adaptor,
                                            Group *group) {
