@@ -32,8 +32,9 @@ bool Simplifier::processAllClauses(Trail *trail) {
                 LOG(INFO) << "CONTRADICTION";
                 return false;
             }
-            if (!trail->assignment().literalIsAssigned(unit))
-                trail->enqueueWithUnitReason(unit);
+            if (trail->assignment().literalIsAssigned(unit))
+                continue;
+            trail->enqueueWithUnitReason(unit);
         }
 
         if (!processClauseToSimplifiy(clause))
@@ -55,7 +56,7 @@ bool Simplifier::processClauseToSimplifiy(Clause *clause) {
             if (clause == c || !simplifyClause(clause, c, &opposite_literal))
                 continue;
 
-            if (opposite_literal == kNoLiteralIndex) {  // subsumed
+            if (opposite_literal == kNoLiteralIndex) { // subsumed
                 c->lazyDetach();
                 continue;
             }
@@ -79,7 +80,7 @@ bool Simplifier::processClauseToSimplifiy(Clause *clause) {
             if (clause == c || !simplifyClause(clause, c, &opposite_literal))
                 continue;
 
-            if (opposite_literal == kNoLiteralIndex) {  // subsumed
+            if (opposite_literal == kNoLiteralIndex) {
                 c->lazyDetach();
                 continue;
             }
@@ -124,7 +125,7 @@ bool Simplifier::simplifyClause(Clause *a, Clause *b,
             ++ia;
             ++ib;
         } else if (*ia == ib->negated()) {  // opposite literal
-            if (num_diff++ > 1)
+            if (++num_diff > 1)
                 return false;
             to_remove = ib;
             ++ia;

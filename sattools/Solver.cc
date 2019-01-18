@@ -33,7 +33,7 @@ void Solver::activeSymmetries() {
     _sym_simplifier = std::make_unique<SymmetrySimplifier>(*_model, _group,
                                                            _trail.assignment());
 
-    LOG(INFO) << _group.debugString();
+    // LOG(INFO) << _group.debugString();
 }
 
 
@@ -54,7 +54,7 @@ bool Solver::isClauseSatisfied(const std::vector<Literal>& literals) const {
     return false;
 }
 
-void Solver::detactSatisfiedClauses() {
+void Solver::detachSatisfiedClauses() {
     for (Clause *clause : _model->clauses())
         if (isClauseSatisfied(clause))
             clause->lazyDetach();
@@ -71,22 +71,27 @@ Solver::Status Solver::solve() {
     if (_is_model_unsat)
         return UNSAT;
 
+    // LOG(INFO) << "TRAIL : " << _trail.debugString();
 
     simplifyWithSBP();
 
-    //    LOG(INFO) << "TRAIL : " << _trail.debugString();
 
     if (_is_model_unsat)
         return UNSAT;
 
-    detactSatisfiedClauses();
+    LOG(INFO) << "Number of clauses after SBP simplification: "
+              << _model->numberOfClauses();
+
+    // LOG(INFO) << "TRAIL : " << _trail.debugString();
+
+    detachSatisfiedClauses();
     _model->clearDetachedClauses();
 
     for (unsigned int i = 0; i < _trail.index(); i++) {
         std::vector<Literal> literals = { _trail[i] };
         _model->addClause(&literals);
     }
-    LOG(INFO) << "Number of clauses after SBP simplification: "
+    LOG(INFO) << "Number of clauses after SBP simplification and trail: "
               << _model->numberOfClauses();
 
 
@@ -97,8 +102,18 @@ bool Solver::simplifyInitialProblem() {
     if (_simplifier == nullptr)
         return true;
 
-    for (Clause *clause : _model->clauses())
+    for (Clause *clause : _model->clauses()) {
+        if (clause->size() == 1) {
+            Literal unit = clause->literals()[0];
+            if (_trail.assignment().literalIsFalse(unit)) {
+                LOG(INFO) << "CONTRADICTION";
+                return setModelUnsat();
+            }
+            if (!_trail.assignment().literalIsAssigned(unit))
+                _trail.enqueueWithUnitReason(unit);
+        }
         _simplifier->addClauseToProcess(clause);
+    }
 
     if (!_simplifier->simplify(&_trail))
         return setModelUnsat();
@@ -144,6 +159,7 @@ void Solver::addSBPIntoModel(ClauseInjector *injector) {
     for (std::vector<Literal>& literals : *injector) {
         if (!_model->addClause(&literals))
             continue;
+
         if (_simplifier != nullptr)
             _simplifier->addClauseToProcess(_model->clauses().back());
     }

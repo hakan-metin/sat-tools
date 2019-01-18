@@ -26,12 +26,15 @@ void SymmetrySimplifier::simplify(ClauseInjector *injector) {
     if (addLiteralInOrderWithScore(injector))
         _breaker_manager->generateSBPs(injector);
 
+    if (injector->size() > 0)
+        return;
 
-    if (injector->size() == 0 && _order.size() != _model.numberOfVariables()) {
+    if (_order.size() != _model.numberOfVariables())
         addLiteralInOrderWithOccurence();
-        _breaker_manager->updateAssignmentForAll();
-        _breaker_manager->generateSBPs(injector);
-    }
+
+
+    _breaker_manager->updateAssignmentForAll();
+    _breaker_manager->generateSBPs(injector);
 }
 
 void SymmetrySimplifier::notifyUnit(Literal unit, ClauseInjector *injector) {
@@ -42,10 +45,8 @@ void SymmetrySimplifier::notifyUnit(Literal unit, ClauseInjector *injector) {
 bool SymmetrySimplifier::addLiteralInOrderWithOccurence() {
     Literal next;
 
-    while (_order_manager->suggestLiteralWithOcc(&next)) {
+    while (_order_manager->suggestLiteralWithOcc(&next))
         _breaker_manager->updateOrder(next);
-        LOG(INFO) << "OCc " << next.debugString();
-    }
 
     return true;
 }
@@ -60,8 +61,8 @@ bool SymmetrySimplifier::addLiteralInOrderWithScore(ClauseInjector *injector) {
         return false;
     _breaker_manager->updateOrder(next);
 
-    LOG(INFO) << "Next with score " << next.debugString() << std::endl <<
-        _breaker_manager->debugString();
+    // LOG(INFO) << "Next with score " << next.debugString() << std::endl <<
+    //     _breaker_manager->debugString();
 
     // An optimization to add more unit
     for (Clause *clause : _model.occurenceListOf(next)) {
@@ -115,7 +116,7 @@ void SymmetrySimplifier::finalize() {
     //LOG(INFO) << "Index " << index;
     // _order_manager->completeOrderWithOccurences(_model);
     // LOG(INFO) << _order_manager->debugString();
-    LOG(INFO) << _breaker_manager->debugString();
+    // LOG(INFO) << _breaker_manager->debugString();
 }
 
 }  // namespace sat

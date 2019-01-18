@@ -6,7 +6,6 @@ namespace {
 struct OccLt {
     const std::vector<int64>& values;
     bool operator() (int i, int j) {
-        LOG(INFO) << i << " " << j;
         if (values[i] != values[j])
                 return values[i] > values[j];
         return i < j;

@@ -68,7 +68,7 @@ class Solver {
     std::unique_ptr<SymmetrySimplifier> _sym_simplifier;
 
     bool setModelUnsat() { _is_model_unsat = true; return false; }
-    void detactSatisfiedClauses();
+    void detachSatisfiedClauses();
 
 };
 
