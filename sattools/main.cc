@@ -77,8 +77,8 @@ int main(int argc, char *argv[]) {
     if (!reader.load(cnf_filename, &model))
         LOG(FATAL) << "Cannot load CNF file: " << cnf_filename;
 
-
     solver.assign(&model);
+
     if (solver.solve() == Solver::Status::UNSAT) {
         LOG(INFO) << "Solved by simplification";
         std::cout << "s UNSATISFIABLE" << std::endl;

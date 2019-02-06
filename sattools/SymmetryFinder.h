@@ -7,6 +7,8 @@
 #include <string>
 #include <vector>
 #include <limits>
+#include <sstream>
+#include <string>
 
 #include "sattools/CNFModel.h"
 #include "sattools/LiteralGraphNodeAdaptor.h"
@@ -36,17 +38,28 @@ class SymmetryFinder : private Graph {
 template<typename Graph, typename Adaptor>
 inline void SymmetryFinder<Graph, Adaptor>::buildGraph(const CNFModel& model) {
     const bool verbose = false;
+    const bool dump = false;
+    const bool dump_no_opt = true;
+
+    std::stringstream ss;
+
     const unsigned int num_vars = model.numberOfVariables();
-    const unsigned int num_nodes = num_vars * 2 + model.numberOfClauses() -
+    unsigned int num_nodes = num_vars * 2 + model.numberOfClauses() -
         model.numberOfBinaryClauses();
     unsigned int clause_node = num_vars * 2;
     unsigned int x, y;
+
+    if (dump_no_opt)
+        num_nodes += model.numberOfBinaryClauses();
 
     _num_vars = num_vars;
     _graph = std::make_unique<Graph>(num_nodes);
     _adaptor = std::make_unique<Adaptor>(num_vars);
 
     std::vector<bool> seen(num_vars, false);
+
+    if (dump)
+        ss << "strict graph symmetry_graph {" << std::endl;
 
     // Boolean consistency
     for (BooleanVariable var(0); var < num_vars; ++var) {
@@ -56,11 +69,16 @@ inline void SymmetryFinder<Graph, Adaptor>::buildGraph(const CNFModel& model) {
 
         if (verbose)
             LOG(INFO) << x << " " << y;
+
+        if (dump)
+            ss << l.debugString() << " -- " << l.negated().debugString()
+               << ";" << std::endl;
+
         _graph->addEdge(x, y);
     }
 
     for (Clause *clause : model.clauses()) {
-        if (clause->size() == 2) {
+        if (clause->size() == 2 && !dump_no_opt) {
             const Literal first = clause->literals()[0];
             const Literal second = clause->literals()[1];
 
@@ -68,6 +86,11 @@ inline void SymmetryFinder<Graph, Adaptor>::buildGraph(const CNFModel& model) {
             y = _adaptor->literalToNode(second) - 1;
             if (verbose)
                 LOG(INFO) << x << " " << y;
+
+            if (dump)
+                ss << first.debugString() << " -- " << second.debugString()
+                   << ";" << std::endl;
+
             _graph->addEdge(x, y);
 
             x = first.variable().value();
@@ -81,6 +104,10 @@ inline void SymmetryFinder<Graph, Adaptor>::buildGraph(const CNFModel& model) {
 
                 if (verbose)
                     LOG(INFO) << x << " " << clause_node;
+                if (dump)
+                    ss << literal.debugString() << " -- " << clause_node
+                       << ";" << std::endl;
+
                 _graph->addEdge(x, clause_node);
 
                 x = literal.variable().value();
@@ -94,9 +121,14 @@ inline void SymmetryFinder<Graph, Adaptor>::buildGraph(const CNFModel& model) {
 
     // Change color of clauses
     const unsigned int kClauseColor = 1;
-    for (clause_node = num_vars * 2; clause_node < num_nodes; clause_node++)
+    for (clause_node = num_vars * 2; clause_node < num_nodes; clause_node++) {
         _graph->setColor(clause_node, kClauseColor);
 
+        if (dump)
+            ss << clause_node <<
+                "[shape=square, color=blue, label=<&#969;<SUB>"
+               << (clause_node+1 - (num_vars * 2)) << "</SUB>>];" << std::endl;
+    }
     // Change color unused nodes
     int64 color = kClauseColor + 1;
     for (unsigned int i = 0; i < seen.size(); i++) {
@@ -108,6 +140,12 @@ inline void SymmetryFinder<Graph, Adaptor>::buildGraph(const CNFModel& model) {
         _graph->setColor(x, color++);
     }
     CHECK_LT(color, std::numeric_limits<int32>::max());
+
+    if (dump) {
+        ss << "}" << std::endl;
+        std::cout << ss.str();
+        // exit(0);
+    }
 }
 
 template<typename Graph, typename Adaptor> inline

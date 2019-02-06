@@ -33,7 +33,8 @@ void Solver::activeSymmetries() {
     _sym_simplifier = std::make_unique<SymmetrySimplifier>(*_model, _group,
                                                            _trail.assignment());
 
-    // LOG(INFO) << _group.debugString();
+    LOG(INFO) << std::endl << _group.debugString();
+    exit(0);
 }
 
 
@@ -64,9 +65,9 @@ Solver::Status Solver::solve() {
     ClauseInjector injector;
 
     LOG(INFO) << "Number of clauses initial: " << _model->numberOfClauses();
-    simplifyInitialProblem();
-    LOG(INFO) << "Number of clauses after initial simplification: "
-              << _model->numberOfClauses();
+    // simplifyInitialProblem();
+    // LOG(INFO) << "Number of clauses after initial simplification: "
+    //           << _model->numberOfClauses();
 
     if (_is_model_unsat)
         return UNSAT;
@@ -86,6 +87,10 @@ Solver::Status Solver::solve() {
 
     detachSatisfiedClauses();
     _model->clearDetachedClauses();
+
+    if (_model->numberOfClauses() == 0) {
+        LOG(INFO) << "Solved by simplification SAT";
+    }
 
     for (unsigned int i = 0; i < _trail.index(); i++) {
         std::vector<Literal> literals = { _trail[i] };

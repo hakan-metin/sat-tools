@@ -35,6 +35,17 @@ bool Simplifier::processAllClauses(Trail *trail) {
             if (trail->assignment().literalIsAssigned(unit))
                 continue;
             trail->enqueueWithUnitReason(unit);
+        } else {
+            bool satisfied = false;
+            for (Literal l : *clause)
+                if (trail->assignment().literalIsTrue(l)) {
+                    satisfied = true;
+                    break;
+                }
+            if (satisfied) {
+                clause->lazyDetach();
+                continue;
+            }
         }
 
         if (!processClauseToSimplifiy(clause))
@@ -130,7 +141,7 @@ bool Simplifier::simplifyClause(Clause *a, Clause *b,
             to_remove = ib;
             ++ia;
             ++ib;
-        } else if (*ia < *ib) {
+        }  else if (*ia < *ib) {
             return false;  // A literal of a is not in b. (quit because sorted)
         } else {  // *ia > *ib
             ++ib;
@@ -148,5 +159,6 @@ bool Simplifier::simplifyClause(Clause *a, Clause *b,
 
     return true;
 }
+
 
 }  // namespace sat
