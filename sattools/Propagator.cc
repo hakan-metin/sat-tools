@@ -106,10 +106,9 @@ void Propagator::detachClause(Clause *clause) {
 }
 
 bool Propagator::propagate(Trail *trail) {
-    const unsigned int index = trail->index();
-
-    while (_propgation_trail_index < index) {
+    while (_propgation_trail_index < trail->index()) {
         const Literal literal = (*trail)[_propgation_trail_index++];
+        LOG(INFO) << "propagate " << literal.debugString();
         if (!propagateOnFalse(literal.negated(), trail))
             return false;
     }
@@ -120,7 +119,8 @@ bool Propagator::propagate(Trail *trail) {
 bool Propagator::propagateOnFalse(Literal false_literal, Trail *trail) {
     const Assignment& assignment = trail->assignment();
     std::vector<Watch>& watchers = _watchers[false_literal.index()];
-    Clause *conflict = nullptr;
+
+    _conflict = nullptr;
 
     auto i = watchers.begin();
     auto j = watchers.begin();
@@ -161,7 +161,7 @@ bool Propagator::propagateOnFalse(Literal false_literal, Trail *trail) {
                 }
             } else {  // end
                 if (assignment.literalIsFalse(other)) {
-                    conflict = watch.clause;
+                    _conflict = watch.clause;
                     break;
                 } else {  // Found unit clause
                     _reasons[trail->index()] = watch.clause;
@@ -177,10 +177,7 @@ bool Propagator::propagateOnFalse(Literal false_literal, Trail *trail) {
         watchers.resize(j - watchers.begin());
     }
 
-    if (conflict != nullptr)
-        LOG(INFO) << "CONFLICT";
-
-    return conflict == nullptr;
+    return _conflict == nullptr;
 }
 
 

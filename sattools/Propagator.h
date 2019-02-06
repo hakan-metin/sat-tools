@@ -32,10 +32,14 @@ class Propagator {
     void attachClause(Clause *clause, Trail *trail);
     void detachClause(Clause *clause);
 
+    Clause *conflictClause() const { return _conflict; }
+    Clause *reasonClause(unsigned int index) const { return _reasons[index]; }
+
     std::string debugString() const;
 
  private:
     unsigned int _propgation_trail_index;
+    Clause *_conflict;
 
     struct Watch {
         Watch() {}

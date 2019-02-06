@@ -26,6 +26,8 @@ void Trail::enqueueWithAssertiveReason(Literal literal) {
 
 
 void Trail::enqueue(Literal literal, unsigned int type) {
+    LOG(INFO) << "enqueue " << literal.debugString();
+
     DCHECK(!_assignment.literalIsAssigned(literal));
     _assignment.assignFromTrueLiteral(literal);
     _trail[_current_info.trail_index] = literal;

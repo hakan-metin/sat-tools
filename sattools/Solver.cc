@@ -7,39 +7,28 @@ namespace sat {
 Solver::Solver() :
     _num_variables(0),
     _is_model_unsat(false),
-    _simplifier(nullptr),
-    _sym_simplifier(nullptr)
+    _simplifier(nullptr)
 {
 }
 
+Solver::Solver(CNFModel *model) {
+    assign(model);
+}
 
 Solver::~Solver() {
 }
 
 void Solver::assign(CNFModel *model) {
-    _model = model;
     setNumberOfVariables(model->numberOfVariables());
-
+    _model = model;
     _simplifier = std::make_unique<Simplifier>(model);
-    activeSymmetries();
-}
-
-
-void Solver::activeSymmetries() {
-    // Search symmetries
-    SymmetryFinder<BlissAutomorphismFinder,
-                   DoubleLiteralGraphNodeAdaptor> bliss_finder;
-    bliss_finder.findAutomorphisms(*_model, &_group);
-    _sym_simplifier = std::make_unique<SymmetrySimplifier>(*_model, _group,
-                                                           _trail.assignment());
-
-    LOG(INFO) << std::endl << _group.debugString();
-    exit(0);
 }
 
 
 void Solver::setNumberOfVariables(unsigned int num_variables) {
+    _num_variables = num_variables;
     _trail.resize(num_variables);
+    _propagator.resize(num_variables);
 }
 
 bool Solver::isClauseSatisfied(Clause *clause) const {
@@ -55,53 +44,92 @@ bool Solver::isClauseSatisfied(const std::vector<Literal>& literals) const {
     return false;
 }
 
-void Solver::detachSatisfiedClauses() {
-    for (Clause *clause : _model->clauses())
-        if (isClauseSatisfied(clause))
-            clause->lazyDetach();
-}
 
 Solver::Status Solver::solve() {
-    ClauseInjector injector;
+    LOG(INFO) << "Solving";
+    for (Clause *clause : _model->clauses())
+        if (!_propagator.addClause(clause, &_trail))
+            return UNSAT;
 
-    LOG(INFO) << "Number of clauses initial: " << _model->numberOfClauses();
-    // simplifyInitialProblem();
-    // LOG(INFO) << "Number of clauses after initial simplification: "
-    //           << _model->numberOfClauses();
+    std::vector<Literal> decisions = { -1, -6, -5 };
 
-    if (_is_model_unsat)
-        return UNSAT;
+    for (Literal decision : decisions) {
+        DCHECK(!_trail.assignment().literalIsAssigned(decision));
+        _trail.newDecisionLevel();
+        _trail.enqueueSearchDecision(decision);
 
-    // LOG(INFO) << "TRAIL : " << _trail.debugString();
-
-    simplifyWithSBP();
-
-
-    if (_is_model_unsat)
-        return UNSAT;
-
-    LOG(INFO) << "Number of clauses after SBP simplification: "
-              << _model->numberOfClauses();
-
-    // LOG(INFO) << "TRAIL : " << _trail.debugString();
-
-    detachSatisfiedClauses();
-    _model->clearDetachedClauses();
-
-    if (_model->numberOfClauses() == 0) {
-        LOG(INFO) << "Solved by simplification SAT";
+        if (!_propagator.propagate(&_trail)) {
+            LOG(INFO) << "conflict";
+            computeFirstUIP();
+        }
     }
-
-    for (unsigned int i = 0; i < _trail.index(); i++) {
-        std::vector<Literal> literals = { _trail[i] };
-        _model->addClause(&literals);
-    }
-    LOG(INFO) << "Number of clauses after SBP simplification and trail: "
-              << _model->numberOfClauses();
-
+    // if (!_propagator.propagate(&_trail))
+    //     LOG(INFO) << "conflict";
 
     return UNKNOWN;
 }
+
+
+void Solver::computeFirstUIP() {
+    std::deque<Literal> learnt;
+    SparseBitset<BooleanVariable> is_marked;
+
+    Clause *clause_to_expand = _propagator.conflictClause();
+
+    unsigned int index = _trail.index() - 1;
+    unsigned int highest_level = _trail.currentDecisionLevel();
+
+    is_marked.ClearAndResize(BooleanVariable(_num_variables));
+
+    int num_literal_at_highest_level_that_needs_to_be_processed = 0;
+
+    while (true) {
+        DCHECK(clause_to_expand != nullptr);
+
+        LOG(INFO) << clause_to_expand->debugString();
+
+        for (Literal literal : *clause_to_expand) {
+            const BooleanVariable var = literal.variable();
+            const unsigned int level = decisionLevel(var);
+
+            // LOG(INFO) << "Level " << literal.debugString() << " = " << level;
+
+            if (is_marked[var] || level == 0)
+                continue;
+
+            is_marked.Set(var);
+
+            if (level == highest_level)
+                num_literal_at_highest_level_that_needs_to_be_processed++;
+            else
+                learnt.push_back(literal);
+        }
+
+        // Find next marked literal to expand from the trail.
+        DCHECK_GT(num_literal_at_highest_level_that_needs_to_be_processed, 0);
+        while (!is_marked[_trail[index].variable()])
+            --index;
+
+        if (num_literal_at_highest_level_that_needs_to_be_processed == 1) {
+            learnt.push_front(_trail[index].negated());
+            break;
+        }
+
+        clause_to_expand = _propagator.reasonClause(index);
+        num_literal_at_highest_level_that_needs_to_be_processed--;
+        index--;
+    }
+
+
+
+    for (Literal l : learnt)
+        std::cout << l.debugString() << " ";
+    std::cout << std::endl;
+
+    LOG(INFO) <<_trail.debugString();
+
+}
+
 
 bool Solver::simplifyInitialProblem() {
     if (_simplifier == nullptr)
@@ -111,7 +139,6 @@ bool Solver::simplifyInitialProblem() {
         if (clause->size() == 1) {
             Literal unit = clause->literals()[0];
             if (_trail.assignment().literalIsFalse(unit)) {
-                LOG(INFO) << "CONTRADICTION";
                 return setModelUnsat();
             }
             if (!_trail.assignment().literalIsAssigned(unit))
@@ -123,55 +150,10 @@ bool Solver::simplifyInitialProblem() {
     if (!_simplifier->simplify(&_trail))
         return setModelUnsat();
 
-    return true;
-}
-
-bool Solver::simplifyWithSBP() {
-    if (_sym_simplifier == nullptr)
-        return true;
-
-    ClauseInjector injector;
-    unsigned int last_trail_index = 0;
-
-    while (true) {
-        _sym_simplifier->simplify(&injector);
-        if (injector.size() == 0)
-            break;
-
-        addSBPIntoModel(&injector);
-
-        if (!_simplifier->simplify(&_trail))
-            return setModelUnsat();
-
-        // Unit prolongation
-        while (last_trail_index < _trail.index()) {
-            for (; last_trail_index < _trail.index(); last_trail_index++)
-                _sym_simplifier->notifyUnit(_trail[last_trail_index],
-                                            &injector);
-
-            addSBPIntoModel(&injector);
-            if (!_simplifier->simplify(&_trail))
-                return setModelUnsat();
-        }
-    }
-
-    _sym_simplifier->finalize();
+    _model->clearDetachedClauses();
 
     return true;
 }
-
-void Solver::addSBPIntoModel(ClauseInjector *injector) {
-    for (std::vector<Literal>& literals : *injector) {
-        if (!_model->addClause(&literals))
-            continue;
-
-        if (_simplifier != nullptr)
-            _simplifier->addClauseToProcess(_model->clauses().back());
-    }
-
-    injector->clear();
-}
-
 
 // void Solver::enqueue(Literal true_literal) {
 

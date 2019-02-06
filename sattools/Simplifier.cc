@@ -14,11 +14,10 @@ bool Simplifier::simplify(Trail *trail) {
     return processAllClauses(trail);
 }
 
-
 void Simplifier::addClauseToProcess(Clause *clause) {
     _clauses_to_process.insert(clause);
-
 }
+
 bool Simplifier::processAllClauses(Trail *trail) {
     while (_clauses_to_process.size() > 0) {
         Clause *clause = *_clauses_to_process.begin();
@@ -29,25 +28,17 @@ bool Simplifier::processAllClauses(Trail *trail) {
         if (clause->size() == 1) {
             Literal unit = clause->literals()[0];
             if (trail->assignment().literalIsFalse(unit)) {
-                LOG(INFO) << "CONTRADICTION";
                 return false;
             }
             if (trail->assignment().literalIsAssigned(unit))
                 continue;
             trail->enqueueWithUnitReason(unit);
-        } else {
-            bool satisfied = false;
-            for (Literal l : *clause)
-                if (trail->assignment().literalIsTrue(l)) {
-                    satisfied = true;
-                    break;
-                }
-            if (satisfied) {
-                clause->lazyDetach();
-                continue;
-            }
-        }
 
+            // Lazy remove all clauses containing unit
+            for (Clause *clause : _model->occurenceListOf(unit))
+                clause->lazyDetach();
+
+        }
         if (!processClauseToSimplifiy(clause))
             return false;
     }
@@ -71,7 +62,6 @@ bool Simplifier::processClauseToSimplifiy(Clause *clause) {
                 c->lazyDetach();
                 continue;
             }
-
             if (c->size() == 0)   // UNSAT model
                 return false;
 

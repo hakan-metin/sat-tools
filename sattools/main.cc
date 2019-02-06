@@ -5,7 +5,6 @@
 
 #include "sattools/Assignment.h"
 #include "sattools/Bitset.h"
-#include "sattools/Breaker.h"
 #include "sattools/CNFModel.h"
 #include "sattools/CNFReader.h"
 #include "sattools/CNFWriter.h"
@@ -13,44 +12,18 @@
 #include "sattools/IntType.h"
 #include "sattools/IntegralTypes.h"
 #include "sattools/Logging.h"
-#include "sattools/Orbits.h"
-#include "sattools/Order.h"
-#include "sattools/OrderScoring.h"
-#include "sattools/RangeIterator.h"
 #include "sattools/StreamBuffer.h"
-#include "sattools/SymmetryFinder.h"
 #include "sattools/Trail.h"
-#include "sattools/ColoredGraph.h"
-#include "sattools/BlissAutomorphismFinder.h"
-#include "sattools/SaucyAutomorphismFinder.h"
-#include "sattools/LiteralGraphNodeAdaptor.h"
-#include "sattools/SymmetrySimplifier.h"
-#include "sattools/OrderWriter.h"
 #include "sattools/Saucy1Writer.h"
 #include "sattools/Propagator.h"
 #include "sattools/Solver.h"
 
 using sat::Assignment;
-using sat::Breaker;
 using sat::Clause;
 using sat::CNFModel;
 using sat::CNFReader;
 using sat::CNFWriter;
-using sat::ColoredGraph;
-using sat::AdjacencyColoredGraph;
-using sat::BlissAutomorphismFinder;
-using sat::SaucyAutomorphismFinder;
-using sat::Group;
 using sat::Literal;
-using sat::Orbits;
-using sat::Order;
-using sat::OrderScoring;
-using sat::SymmetryFinder;
-using sat::SymmetrySimplifier;
-using sat::LiteralGraphNodeAdaptor;
-using sat::DoubleLiteralGraphNodeAdaptor;
-using sat::ConsecutiveLiteralGraphNodeAdaptor;
-using sat::OrderWriter;
 using sat::Saucy1Writer;
 using sat::Trail;
 using sat::Propagator;
@@ -61,7 +34,6 @@ int main(int argc, char *argv[]) {
     Solver solver;
 
     CNFModel model;
-    Group bliss_group, saucy_group;
 
     if (argc < 2)
         LOG(FATAL) << "Need CNF file";
@@ -79,24 +51,19 @@ int main(int argc, char *argv[]) {
 
     solver.assign(&model);
 
+    LOG(INFO) << "Number of clauses initial: " << model.numberOfClauses();
+
+    solver.simplifyInitialProblem();
+
+    LOG(INFO) << "Number of clauses after initial simplification: "
+              << model.numberOfClauses();
+
     if (solver.solve() == Solver::Status::UNSAT) {
         LOG(INFO) << "Solved by simplification";
         std::cout << "s UNSATISFIABLE" << std::endl;
         return 20;
     }
 
-    std::string base_name(basename(cnf_filename.c_str()));
-    std::string output_cnf = "/tmp/reduce-" + base_name;
-    std::string output_order = "/tmp/order-" + base_name;
-    std::string output_group = "/tmp/group-" + base_name;
-
-    CNFWriter::dump(output_cnf, model);
-    OrderWriter::dump(output_order, solver.order());
-    Saucy1Writer::dump(output_group, solver.group());
-
-    LOG(INFO) << "CNF is written in " + output_cnf;
-    LOG(INFO) << "Order is written in " + output_order;
-    LOG(INFO) << "Group is written in " + output_group;
 
     return 0;
 }

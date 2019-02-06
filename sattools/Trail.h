@@ -49,7 +49,6 @@ class Trail {
     void newDecisionLevel();
     unsigned int currentDecisionLevel() const;
 
-
     unsigned int assignmentType(BooleanVariable var) const;
     unsigned int index() const { return _current_info.trail_index; }
     const Literal operator[](int index) const { return _trail[index]; }

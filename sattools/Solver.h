@@ -4,32 +4,27 @@
 #define SATTOOLS_SOLVER_H_
 
 #include <algorithm>
+#include <deque>
 #include <utility>
 #include <vector>
 
+#include "sattools/Bitset.h"
 #include "sattools/CNFModel.h"
 #include "sattools/Literal.h"
 #include "sattools/Clause.h"
 #include "sattools/Trail.h"
 #include "sattools/Propagator.h"
 #include "sattools/Simplifier.h"
-#include "sattools/SymmetrySimplifier.h"
-#include "sattools/SymmetryFinder.h"
-#include "sattools/BlissAutomorphismFinder.h"
-#include "sattools/SaucyAutomorphismFinder.h"
-#include "sattools/LiteralGraphNodeAdaptor.h"
-#include "sattools/Orbits.h"
-#include "sattools/Order.h"
 
 namespace sat {
 
 class Solver {
  public:
     Solver();
+    explicit Solver(CNFModel *model);
     virtual ~Solver();
 
     void assign(CNFModel *model);
-
     void setNumberOfVariables(unsigned int num_variables);
 
     enum Status {
@@ -42,33 +37,25 @@ class Solver {
     bool isClauseSatisfied(Clause *clause) const;
     bool isClauseSatisfied(const std::vector<Literal>& literals) const;
 
-
     bool simplifyInitialProblem();
-    bool simplifyWithSBP();
-    void addSBPIntoModel(ClauseInjector *injector);
-
-
-    void activeSymmetries();
-
-    const Group& group() { return _group; }
-    const Order& order() { return _sym_simplifier->order(); }
 
  private:
     CNFModel *_model;
     unsigned int _num_variables;
     Trail _trail;
+    Propagator _propagator;
+
     bool _is_model_unsat;
 
-    // Symmetries
-    Group _group;
-    Order _order;
-
-
     std::unique_ptr<Simplifier> _simplifier;
-    std::unique_ptr<SymmetrySimplifier> _sym_simplifier;
 
     bool setModelUnsat() { _is_model_unsat = true; return false; }
-    void detachSatisfiedClauses();
+
+    void computeFirstUIP();
+    // Returns the decision level of a given variable.
+    int decisionLevel(BooleanVariable var) const {
+        return _trail.info(var).level;
+    }
 
 };
 
