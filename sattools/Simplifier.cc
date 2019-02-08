@@ -37,7 +37,6 @@ bool Simplifier::processAllClauses(Trail *trail) {
             // Lazy remove all clauses containing unit
             for (Clause *clause : _model->occurenceListOf(unit))
                 clause->lazyDetach();
-
         }
         if (!processClauseToSimplifiy(clause))
             return false;
@@ -58,7 +57,7 @@ bool Simplifier::processClauseToSimplifiy(Clause *clause) {
             if (clause == c || !simplifyClause(clause, c, &opposite_literal))
                 continue;
 
-            if (opposite_literal == kNoLiteralIndex) { // subsumed
+            if (opposite_literal == kNoLiteralIndex) {  // subsumed
                 c->lazyDetach();
                 continue;
             }

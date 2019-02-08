@@ -7,6 +7,7 @@
 #include <deque>
 #include <utility>
 #include <vector>
+#include <memory>
 
 #include "sattools/Bitset.h"
 #include "sattools/CNFModel.h"
@@ -56,7 +57,6 @@ class Solver {
     unsigned int decisionLevel(BooleanVariable var) const {
         return _trail.info(var).level;
     }
-
 };
 
 }  // namespace sat

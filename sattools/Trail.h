@@ -80,7 +80,6 @@ class Trail {
     std::vector<AssignmentInfo> _infos;
     std::vector<Literal> _trail;
     std::vector<Propagator*> _propagators;
-
 };
 
 }  // namespace sat

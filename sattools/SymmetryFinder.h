@@ -8,7 +8,6 @@
 #include <vector>
 #include <limits>
 #include <sstream>
-#include <string>
 
 #include "sattools/CNFModel.h"
 #include "sattools/LiteralGraphNodeAdaptor.h"

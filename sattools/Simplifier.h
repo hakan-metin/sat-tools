@@ -33,7 +33,7 @@ class Simplifier {
 }  // namespace sat
 
 
-#endif  // SATTOOLS_SYMMETRYSIMPLIFIER_H_
+#endif  // SATTOOLS_SIMPLIFIER_H_
 /*
  * Local Variables:
  * mode: c++

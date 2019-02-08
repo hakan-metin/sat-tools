@@ -7,8 +7,7 @@ namespace sat {
 Solver::Solver() :
     _num_variables(0),
     _is_model_unsat(false),
-    _simplifier(nullptr)
-{
+    _simplifier(nullptr) {
 }
 
 Solver::Solver(CNFModel *model) {
@@ -136,9 +135,9 @@ void Solver::computeFirstUIP() {
     while (i != learnt.end()) {
         BooleanVariable v = i->variable();
         Clause *reason = _trail.reason(v);
-        if (reason == nullptr)
+        if (reason == nullptr) {
             *i = *j++;
-        else
+        } else {
             for (Literal literal : *reason) {
                 const BooleanVariable v = literal.variable();
                 if (!is_marked[v] && decisionLevel(v) > 0) {
@@ -146,6 +145,7 @@ void Solver::computeFirstUIP() {
                     break;
                 }
             }
+        }
         ++i;
     }
     learnt.erase(j, i);
@@ -153,7 +153,6 @@ void Solver::computeFirstUIP() {
     for (Literal l : learnt)
         std::cout << l.debugString() << " ";
     std::cout << std::endl;
-
 }
 
 
