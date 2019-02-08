@@ -1,10 +1,11 @@
+
 // Copyright 2017 Hakan Metin - LIP6
 
 #include "sattools/Propagator.h"
 
 namespace sat {
 
-Propagator::Propagator() : _propgation_trail_index(0) {
+Propagator::Propagator() : _id(-1), _propgation_trail_index(0) {
 }
 
 Propagator::~Propagator() {
@@ -76,7 +77,8 @@ bool Propagator::addClause(Clause *clause, Trail *trail) {
         // Propagates literals[0] if it is unassigned.
         if (!trail->assignment().literalIsTrue(literals[0])) {
             _reasons[trail->index()] = clause;
-            trail->enqueueWithAssertiveReason(literals[0]);
+            DCHECK_GE(_id, 0);
+            trail->enqueue(literals[0], _id);
         }
     }
     attachOnFalse(literals[0], literals[1], clause);
@@ -165,7 +167,8 @@ bool Propagator::propagateOnFalse(Literal false_literal, Trail *trail) {
                     break;
                 } else {  // Found unit clause
                     _reasons[trail->index()] = watch.clause;
-                    trail->enqueueWithAssertiveReason(other);
+                    DCHECK_GE(_id, 0);
+                    trail->enqueue(other, _id);
                 }
             }
         }

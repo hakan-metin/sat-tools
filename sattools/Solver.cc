@@ -22,6 +22,7 @@ void Solver::assign(CNFModel *model) {
     setNumberOfVariables(model->numberOfVariables());
     _model = model;
     _simplifier = std::make_unique<Simplifier>(model);
+    _trail.registerPropagator(&_propagator);
 }
 
 
@@ -76,7 +77,7 @@ void Solver::computeFirstUIP() {
 
     Clause *clause_to_expand = _propagator.conflictClause();
 
-    unsigned int index = _trail.index() - 1;
+    unsigned int trail_index = _trail.index() - 1;
     unsigned int highest_level = _trail.currentDecisionLevel();
 
     is_marked.ClearAndResize(BooleanVariable(_num_variables));
@@ -107,26 +108,51 @@ void Solver::computeFirstUIP() {
 
         // Find next marked literal to expand from the trail.
         DCHECK_GT(num_literal_at_highest_level_that_needs_to_be_processed, 0);
-        while (!is_marked[_trail[index].variable()])
-            --index;
+        while (!is_marked[_trail[trail_index].variable()])
+            --trail_index;
 
         if (num_literal_at_highest_level_that_needs_to_be_processed == 1) {
-            learnt.push_front(_trail[index].negated());
+            learnt.push_front(_trail[trail_index].negated());
             break;
         }
 
-        clause_to_expand = _propagator.reasonClause(index);
+        const Literal literal = _trail[trail_index];
+
+        clause_to_expand = _trail.reason(literal.variable());
         num_literal_at_highest_level_that_needs_to_be_processed--;
-        index--;
+        trail_index--;
     }
-
-
 
     for (Literal l : learnt)
         std::cout << l.debugString() << " ";
     std::cout << std::endl;
 
     LOG(INFO) <<_trail.debugString();
+
+    // Minimize conflict clause - SIMPLE
+    auto i = learnt.begin() + 1;
+    auto j = learnt.begin() + 1;;
+
+    while (i != learnt.end()) {
+        BooleanVariable v = i->variable();
+        Clause *reason = _trail.reason(v);
+        if (reason == nullptr)
+            *i = *j++;
+        else
+            for (Literal literal : *reason) {
+                const BooleanVariable v = literal.variable();
+                if (!is_marked[v] && decisionLevel(v) > 0) {
+                    *i = *j++;
+                    break;
+                }
+            }
+        ++i;
+    }
+    learnt.erase(j, i);
+    LOG(INFO) << "After simplification";
+    for (Literal l : learnt)
+        std::cout << l.debugString() << " ";
+    std::cout << std::endl;
 
 }
 

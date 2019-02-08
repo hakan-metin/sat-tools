@@ -7,7 +7,6 @@
 #include <vector>
 
 #include "sattools/CNFModel.h"
-#include "sattools/Propagator.h"
 #include "sattools/Trail.h"
 
 namespace sat {

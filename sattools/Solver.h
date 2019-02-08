@@ -53,7 +53,7 @@ class Solver {
 
     void computeFirstUIP();
     // Returns the decision level of a given variable.
-    int decisionLevel(BooleanVariable var) const {
+    unsigned int decisionLevel(BooleanVariable var) const {
         return _trail.info(var).level;
     }
 

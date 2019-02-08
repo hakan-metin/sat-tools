@@ -15,6 +15,9 @@
 
 namespace sat {
 
+// Forward declaration
+class Trail;
+
 class Propagator {
  public:
     Propagator();
@@ -35,9 +38,12 @@ class Propagator {
     Clause *conflictClause() const { return _conflict; }
     Clause *reasonClause(unsigned int index) const { return _reasons[index]; }
 
+    void setPropagatorId(unsigned int id) { _id = id; }
+
     std::string debugString() const;
 
  private:
+    int _id;
     unsigned int _propgation_trail_index;
     Clause *_conflict;
 
