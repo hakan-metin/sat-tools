@@ -58,11 +58,8 @@ int main(int argc, char *argv[]) {
     LOG(INFO) << "Number of clauses after initial simplification: "
               << model.numberOfClauses();
 
-    if (solver.solve() == Solver::Status::UNSAT) {
-        LOG(INFO) << "Solved by simplification";
-        std::cout << "s UNSATISFIABLE" << std::endl;
-        return 20;
-    }
+    solver.solve();
+
 
 
     return 0;

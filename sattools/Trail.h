@@ -60,7 +60,7 @@ class Trail {
     unsigned int index() const { return _current_info.trail_index; }
     const Literal operator[](int index) const { return _trail[index]; }
 
-    Clause* reason(BooleanVariable var) const;
+    Clause *reason(BooleanVariable var) const;
 
     const Assignment& assignment() const { return _assignment; }
 

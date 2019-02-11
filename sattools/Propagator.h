@@ -3,6 +3,7 @@
 #ifndef SATTOOLS_PROPAGATOR_H_
 #define SATTOOLS_PROPAGATOR_H_
 
+#include <algorithm>
 #include <vector>
 #include <sstream>
 #include <string>
@@ -31,6 +32,10 @@ class Propagator {
     // bool addSBPClause(const std::vector<Literal>& literals, Trail *trail);
 
     bool propagate(Trail *trail);
+    void untrail(unsigned int trail_index) {
+        _propagation_trail_index =
+            std::min(_propagation_trail_index, trail_index);
+    }
 
     void attachClause(Clause *clause, Trail *trail);
     void detachClause(Clause *clause);
@@ -44,7 +49,7 @@ class Propagator {
 
  private:
     int _id;
-    unsigned int _propgation_trail_index;
+    unsigned int _propagation_trail_index;
     Clause *_conflict;
 
     struct Watch {

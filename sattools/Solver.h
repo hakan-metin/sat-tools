@@ -50,9 +50,17 @@ class Solver {
 
     std::unique_ptr<Simplifier> _simplifier;
 
+
+    void backtrack(unsigned int target_level);
+
     bool setModelUnsat() { _is_model_unsat = true; return false; }
 
     void computeFirstUIP();
+
+    unsigned int computeBacktrackLevel(const std::vector<Literal>& literals);
+
+
+
     // Returns the decision level of a given variable.
     unsigned int decisionLevel(BooleanVariable var) const {
         return _trail.info(var).level;

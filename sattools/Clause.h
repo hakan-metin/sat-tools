@@ -1,3 +1,4 @@
+
 // Copyright 2017 Hakan Metin
 
 #ifndef SATTOOLS_CLAUSE_H_

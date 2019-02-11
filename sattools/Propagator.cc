@@ -5,7 +5,7 @@
 
 namespace sat {
 
-Propagator::Propagator() : _id(-1), _propgation_trail_index(0) {
+Propagator::Propagator() : _id(-1), _propagation_trail_index(0) {
 }
 
 Propagator::~Propagator() {
@@ -13,7 +13,7 @@ Propagator::~Propagator() {
 
 
 void Propagator::resize(unsigned int num_vars) {
-    _watchers.resize(num_vars << 2);
+    _watchers.resize(num_vars << 1);
     _reasons.resize(num_vars);
 }
 
@@ -108,9 +108,9 @@ void Propagator::detachClause(Clause *clause) {
 }
 
 bool Propagator::propagate(Trail *trail) {
-    while (_propgation_trail_index < trail->index()) {
-        const Literal literal = (*trail)[_propgation_trail_index++];
-        LOG(INFO) << "propagate " << literal.debugString();
+    while (_propagation_trail_index < trail->index()) {
+        const Literal literal = (*trail)[_propagation_trail_index++];
+        // LOG(INFO) << "propagate " << literal.debugString();
         if (!propagateOnFalse(literal.negated(), trail))
             return false;
     }
@@ -135,6 +135,10 @@ bool Propagator::propagateOnFalse(Literal false_literal, Trail *trail) {
         if (assignment.literalIsTrue(watch.blocking_literal))
             continue;
 
+        if (watch.clause->size() == 0) {
+            j--;
+            continue;
+        }
         Literal *literals = watch.clause->literals();
         Literal other(LiteralIndex(literals[0].index().value() ^
                                    literals[1].index().value() ^
@@ -187,11 +191,37 @@ bool Propagator::propagateOnFalse(Literal false_literal, Trail *trail) {
 std::string Propagator::debugString() const {
     std::stringstream ss;
 
+    LiteralIndex literal_index(0);
     for (const auto &watchers : _watchers) {
+        ss << "= Watch " << Literal(literal_index++).debugString() << std::endl;
         for (const Watch &watch : watchers) {
-            ss << watch.blocking_literal.debugString();
+            ss << "  ==  " << watch.clause->debugString() << " block "
+               << watch.blocking_literal.debugString() << std::endl;
         }
     }
+    // for (BooleanVariable var(0); var < _watchers.size(); ++var) {
+    //     Literal literal(var, true);
+    //     LiteralIndex literal_index = literal.index();
+
+    //     const std::vector<Watch>& watchers = _watchers[literal_index];
+    //     ss << "[" << literal.debugString() << "]" << std::endl;
+    //     for (const Watch &watch : watchers) {
+    //         ss << "  ==  " << watch.clause->debugString() << " block "
+    //            << watch.blocking_literal.debugString() << std::endl;
+    //     }
+    // }
+
+    // for (BooleanVariable var(0); var < _watchers.size(); ++var) {
+    //     Literal literal(var, false);
+    //     LiteralIndex literal_index = literal.index();
+
+    //     const std::vector<Watch>& watchers = _watchers[literal_index];
+    //     ss << "[" << literal.debugString() << "]" << std::endl;
+    //     for (const Watch &watch : watchers) {
+    //         ss << "  ==  " << watch.clause->debugString() << " block "
+    //            << watch.blocking_literal.debugString() << std::endl;
+    //     }
+    // }
 
     return ss.str();
 }

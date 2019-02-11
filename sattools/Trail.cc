@@ -21,7 +21,7 @@ void Trail::resize(unsigned int num_vars) {
 
 
 void Trail::enqueue(Literal literal, unsigned int id) {
-    LOG(INFO) << "enqueue " << literal.debugString();
+    // LOG(INFO) << "enqueue " << literal.debugString();
 
     DCHECK(!_assignment.literalIsAssigned(literal));
     _assignment.assignFromTrueLiteral(literal);
@@ -41,12 +41,21 @@ void Trail::enqueueSearchDecision(Literal literal) {
 
 
 void Trail::dequeue() {
-    int index =  _current_info.trail_index;
-    Literal literal = _trail[index];
-    _assignment.unassignLiteral(literal);
-    _current_info.level = _infos[literal.variable().value()].level;
-    _current_info.trail_index--;
+    if (_current_info.trail_index == 0) {
+        _current_info.level = 0;
+        return;
+    }
+    int index =  --_current_info.trail_index;
+    _assignment.unassignLiteral(_trail[index]);
+    _current_info.level = _infos[_trail[index - 1].variable().value()].level;
 }
+
+
+void Trail::cancelUntil(unsigned int target_level) {
+    while (currentDecisionLevel() > target_level)
+        dequeue();
+}
+
 
 void Trail::newDecisionLevel() {
     _current_info.level++;
@@ -55,7 +64,6 @@ void Trail::newDecisionLevel() {
 unsigned int Trail::currentDecisionLevel() const {
     return _current_info.level;
 }
-
 
 Clause* Trail::reason(BooleanVariable var) const {
     const AssignmentInfo &i = info(var);
