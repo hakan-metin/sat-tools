@@ -16,6 +16,7 @@
 #include "sattools/Trail.h"
 #include "sattools/Propagator.h"
 #include "sattools/Simplifier.h"
+#include "sattools/DecisionPolicies.h"
 
 namespace sat {
 

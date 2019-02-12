@@ -10,20 +10,26 @@ namespace sat {
 
 class DecisionPolicy {
  public:
-    explicit DecisionPolicy(const Trail& trail);
-    virtual ~DecisionPolicy();
+    explicit DecisionPolicy(const Trail& trail) : _trail(trail) {}
+    virtual ~DecisionPolicy() {}
 
-    Literal next();
+    virtual
+    void increaseNumVariables(ATTRIBUTE_UNUSED unsigned int num_variables) {}
 
-    void onConflict(Literal x);
-    void onRestart();
+    virtual Literal nextBranch() = 0;
 
-    void reset();
+    virtual void onUnassignLiteral(ATTRIBUTE_UNUSED Literal x) {}
+    virtual void onConflict() {}
+    virtual void onRestart() {}
 
- private:
+    virtual
+    void clauseOnConflictReason(ATTRIBUTE_UNUSED const Clause *clause) {}
+
+    virtual void resetDecisionHeuristics() {}
+
+ protected:
     const Trail& _trail;
 };
-
 
 }  // namespace sat
 
