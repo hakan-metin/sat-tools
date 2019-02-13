@@ -18,10 +18,11 @@ Solver::~Solver() {
 }
 
 void Solver::assign(CNFModel *model) {
-    setNumberOfVariables(model->numberOfVariables());
     _model = model;
     _simplifier = std::make_unique<Simplifier>(model);
+    _decision_policy = std::make_unique<VSIDSDecisionPolicy>(_trail);
     _trail.registerPropagator(&_propagator);
+    setNumberOfVariables(model->numberOfVariables());
 }
 
 
@@ -29,6 +30,7 @@ void Solver::setNumberOfVariables(unsigned int num_variables) {
     _num_variables = num_variables;
     _trail.resize(num_variables);
     _propagator.resize(num_variables);
+    _decision_policy->increaseNumVariables(num_variables);
 }
 
 bool Solver::isClauseSatisfied(Clause *clause) const {
@@ -58,7 +60,18 @@ Solver::Status Solver::solve() {
         if (!_propagator.propagate(&_trail)) {
             // LOG(INFO) << "conflict";
             computeFirstUIP();
+            _decision_policy->onConflict();
         } else {
+            // LOG(INFO) << "trail index " << _trail.index() << " / " <<
+            //     _num_variables;
+
+            if (_trail.index() == _num_variables)
+                break;
+            // Literal decision_literal = _decision_policy->nextBranch();
+            // LOG(INFO) << "Decision " << decision_literal.debugString();
+
+            // enqueueNewDecision(decision_literal);
+
             stop = true;
             for (BooleanVariable var(0); var < _num_variables; ++var) {
                 if (_trail.assignment().variableIsAssigned(var))
@@ -66,8 +79,7 @@ Solver::Status Solver::solve() {
 
                 stop = false;
                 Literal decision(var, false);
-                _trail.newDecisionLevel();
-                _trail.enqueueSearchDecision(decision);
+                enqueueNewDecision(decision);
                 break;
             }
             // LOG(INFO) << _trail.debugString();
@@ -90,34 +102,29 @@ Solver::Status Solver::solve() {
         return SAT;
     }
 
-
-    // std::vector<Literal> decisions = { -1, -6, -5 };
-
-    // for (Literal decision : decisions) {
-    //     DCHECK(!_trail.assignment().literalIsAssigned(decision));
-    //     _trail.newDecisionLevel();
-    //     _trail.enqueueSearchDecision(decision);
-
-    //     if (!_propagator.propagate(&_trail)) {
-    //         LOG(INFO) << "conflict";
-    //         computeFirstUIP();
-    //     }
-    // }
-
-    // if (!_propagator.propagate(&_trail))
-    //     LOG(INFO) << "conflict";
-
     return UNKNOWN;
 }
 
+void Solver::enqueueNewDecision(Literal true_literal) {
+    _trail.newDecisionLevel();
+    _trail.enqueueSearchDecision(true_literal);
+}
+
+
 void Solver::backtrack(unsigned int target_level) {
     unsigned int current_level = _trail.currentDecisionLevel();
+    unsigned int old_index = _trail.index();
 
     if (target_level >= current_level)
         return;
 
     _trail.cancelUntil(target_level);
     _propagator.untrail(_trail.index());
+
+    unsigned int index = _trail.index();
+
+    for (unsigned int i=index; i<old_index; i++)
+        _decision_policy->onUnassignLiteral(_trail[i]);
 }
 
 
@@ -143,6 +150,8 @@ void Solver::computeFirstUIP() {
         DCHECK(clause_to_expand != nullptr);
 
         // LOG(INFO) << clause_to_expand->debugString();
+
+        _decision_policy->clauseOnConflictReason(clause_to_expand);
 
         for (Literal literal : *clause_to_expand) {
             const BooleanVariable var = literal.variable();
@@ -266,15 +275,6 @@ bool Solver::simplifyInitialProblem() {
 
     return true;
 }
-
-// void Solver::enqueue(Literal true_literal) {
-
-// }
-
-// void Solver::backtrack(unsigned int target_level) {
-
-// }
-
 
 }  // namespace sat
 /*

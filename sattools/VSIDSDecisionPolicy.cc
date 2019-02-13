@@ -4,26 +4,31 @@ namespace sat {
 
 VSIDSDecisionPolicy::VSIDSDecisionPolicy(const Trail& trail) :
     DecisionPolicy(trail),
-    _var_ordering_initialised(false) {
+    _var_ordering_initialised(false),
+    _var_order(0, ActivityLt( _activities)) {
 }
 
 VSIDSDecisionPolicy::~VSIDSDecisionPolicy() {
 }
 
+static const float kVariableActivityDecay = 0.91;
 static const float kInitialVariableActivity = 0.0;
-static const bool kDefaultPolarity = false;
+static const bool  kDefaultPolarity = false;
+static const bool  kUsePhaseSaving = true;
 
 void VSIDSDecisionPolicy::increaseNumVariables(unsigned int num_variables) {
     const unsigned int old_num_variables = _activities.size();
     DCHECK_GE(num_variables, old_num_variables);
 
     _activities.resize(num_variables, kInitialVariableActivity);
-    _pq_need_update_for_var_at_trail_index.IncreaseSize(num_variables);
 
     _var_polarity.resize(num_variables);
-    static const bool kUsePhaseSaving = true;  // Put in Parameters
     _var_use_phase_saving.resize(num_variables, kUsePhaseSaving);
 
+
+    _var_order.reserve(num_variables);
+
+    _var_ordering.reserve(num_variables);
     if (_var_ordering_initialised) {
         for (BooleanVariable var(old_num_variables); var < num_variables; ++var)
             _var_ordering.add({var, _activities[var]});
@@ -54,8 +59,7 @@ void VSIDSDecisionPolicy::initializeVariableOrdering() {
         _var_ordering.add({var, kInitialVariableActivity});
     }
 
-    _pq_need_update_for_var_at_trail_index.ClearAndResize(num_variables);
-    _pq_need_update_for_var_at_trail_index.SetAllBefore(_trail.index());
+    LOG(INFO) << "empty : " << _var_ordering.empty();
 
     _var_ordering_initialised = true;
 }
@@ -73,7 +77,6 @@ void VSIDSDecisionPolicy::clauseOnConflictReason(const Clause *clause) {
             continue;
 
         _activities[var] += _variable_activity_increment;
-        _pq_need_update_for_var_at_trail_index.Set(info.trail_index);
 
         if (_activities[var] > max_activity_value) {
             rescaleVariableActivities(1.0 / max_activity_value);
@@ -87,19 +90,16 @@ Literal VSIDSDecisionPolicy::nextBranch() {
 
     BooleanVariable var;
     bool polarity = kDefaultPolarity;
-
-    DCHECK(!_var_ordering.empty());
-
-    var = _var_ordering.top().var;
     const Assignment &assignment = _trail.assignment();
-    while (assignment.variableIsAssigned(var)) {
-        _var_ordering.pop();
-        const unsigned int trail_index = _trail.info(var).trail_index;
-        _pq_need_update_for_var_at_trail_index.Set(trail_index);
 
+    // TODO(hakan) Add random decition (maybe in DecisionPolicy
+
+    do {
         DCHECK(!_var_ordering.empty());
         var = _var_ordering.top().var;
-    }
+        _var_ordering.pop();
+    } while (assignment.variableIsAssigned(var));
+
 
     // TODO(hakan) Add random polarity
 
@@ -111,10 +111,24 @@ Literal VSIDSDecisionPolicy::nextBranch() {
 }
 
 void VSIDSDecisionPolicy::onConflict() {
-    static const double kVariableActivityDecay = 0.91;
     _variable_activity_increment *= (1.0 / kVariableActivityDecay);
 }
 
+
+void VSIDSDecisionPolicy::onUnassignLiteral(Literal literal) {
+    if (!_var_ordering_initialised)
+        return;
+
+    const BooleanVariable var = literal.variable();
+    const WeightVarQueueElement element = { var, _activities[var] };
+
+    if (_var_ordering.contains(var.value())) {
+        _var_ordering.increasePriority(element);
+    } else {
+        _var_ordering.add(element);
+    }
+
+}
 
 void VSIDSDecisionPolicy::rescaleVariableActivities(float scaling_factor) {
     _variable_activity_increment *= scaling_factor;

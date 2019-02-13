@@ -35,7 +35,7 @@ $(BIN)$(exec)_debug: $(debug_objects)
 CFLAGS += -I. -I$(SRC) #-DUSE_GLOG
 LDFLAGS += #-lglog
 
-default: CFLAGS += -O3 -fPIC -Wall -Wextra
+default: CFLAGS += -O3 -fPIC -Wall -Wextra -g
 default: $(BIN)$(exec)
 
 release: CFLAGS += -O3 -fPIC -Wall -Wextra -DNDEBUG

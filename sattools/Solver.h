@@ -49,8 +49,11 @@ class Solver {
 
     bool _is_model_unsat;
 
+    std::unique_ptr<DecisionPolicy> _decision_policy;
     std::unique_ptr<Simplifier> _simplifier;
 
+
+    void enqueueNewDecision(Literal true_literal);
 
     void backtrack(unsigned int target_level);
 

@@ -18,7 +18,7 @@ class DecisionPolicy {
 
     virtual Literal nextBranch() = 0;
 
-    virtual void onUnassignLiteral(ATTRIBUTE_UNUSED Literal x) {}
+    virtual void onUnassignLiteral(ATTRIBUTE_UNUSED Literal literal) {}
     virtual void onConflict() {}
     virtual void onRestart() {}
 

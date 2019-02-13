@@ -20,7 +20,7 @@ class VSIDSDecisionPolicy : public DecisionPolicy {
 
     Literal nextBranch() override;
 
-    // void onUnassignLiteral(Literal x);
+    void onUnassignLiteral(Literal x);
     void onConflict();
     // void onRestart();
 
@@ -31,8 +31,6 @@ class VSIDSDecisionPolicy : public DecisionPolicy {
  private:
     bool _var_ordering_initialised;
 
-    BitQueue64 _pq_need_update_for_var_at_trail_index;
-
     // Increment used to bump the variable activities.
     float _variable_activity_increment = 1.0;
 
@@ -42,8 +40,6 @@ class VSIDSDecisionPolicy : public DecisionPolicy {
     ITIVector<BooleanVariable, bool> _var_polarity;
 
     struct WeightVarQueueElement {
-        WeightVarQueueElement(BooleanVariable v, float w) : var(v), weight(w) {}
-
         unsigned int index() const { return var.value(); }
 
         bool operator<(const WeightVarQueueElement& other) const {
@@ -53,6 +49,18 @@ class VSIDSDecisionPolicy : public DecisionPolicy {
         float weight;
     };
     IntegerPriorityQueue<WeightVarQueueElement> _var_ordering;
+
+    struct ActivityLt {
+        ActivityLt(const ITIVector<BooleanVariable, float>& a) :
+            activities(a) {}
+        bool operator()(const BooleanVariable& a, const BooleanVariable& b) {
+            return activities[a] < activities[b];
+        }
+
+        const ITIVector<BooleanVariable, float>& activities;
+    };
+
+    IntegerPriorityQueue<BooleanVariable, ActivityLt> _var_order;
 
     void initializeVariableOrdering();
     void rescaleVariableActivities(float scaling_factor);
