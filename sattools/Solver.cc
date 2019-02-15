@@ -53,37 +53,46 @@ Solver::Status Solver::solve() {
         if (!_propagator.addClause(clause, &_trail))
             return UNSAT;
 
-    // LOG(INFO) << _propagator.debugString();
+    Clause *conflict;
+    std::vector<Literal> learnt;
 
-    bool stop = false;
-    while (!stop && !_is_model_unsat) {
-        if (!_propagator.propagate(&_trail)) {
-            // LOG(INFO) << "conflict";
-            computeFirstUIP();
-            _decision_policy->onConflict();
+
+    while (!_is_model_unsat) {
+        if (!_propagator.propagate(&_trail, &conflict)) {
+            if (_trail.currentDecisionLevel() == 0) {
+                setModelUnsat();
+                break;
+            }
+
+            // ConflictManager conflict_manager;
+            // conflict_manager.computeFirstUIP(_trail, conflict, &learnt);
+            // backtrack(computeBacktrackLevel(learnt));
+
+            // for (Literal l : learnt)
+            //     std::cout << l.debugString() << " ";
+            // std::cout << std::endl;
+
+
+            // computeFirstUIP();
+
+
+            Clause *clause = Clause::create(learnt, true);
+            _model->addClause(clause);
+            _propagator.addClause(clause, &_trail);
+
+            // _decision_policy->onConflict();
         } else {
-            // LOG(INFO) << "trail index " << _trail.index() << " / " <<
-            //     _num_variables;
-
             if (_trail.index() == _num_variables)
                 break;
-            Literal decision_literal = _decision_policy->nextBranch();
-            // // LOG(INFO) << "Decision " << decision_literal.debugString();
 
-            enqueueNewDecision(decision_literal);
+            for (BooleanVariable var(0); var < _num_variables; ++var) {
+                if (_trail.assignment().variableIsAssigned(var))
+                    continue;
 
-            // stop = true;
-            // for (BooleanVariable var(0); var < _num_variables; ++var) {
-            //     if (_trail.assignment().variableIsAssigned(var))
-            //         continue;
-
-            //     stop = false;
-            //     Literal decision(var, false);
-            //     enqueueNewDecision(decision);
-            //     break;
-            // }
-            // LOG(INFO) << _trail.debugString();
-
+                Literal decision(var, false);
+                enqueueNewDecision(decision);
+                break;
+            }
         }
     }
 
@@ -157,15 +166,11 @@ void Solver::computeFirstUIP() {
     while (true) {
         DCHECK(clause_to_expand != nullptr);
 
-        // LOG(INFO) << clause_to_expand->debugString();
-
         _decision_policy->clauseOnConflictReason(clause_to_expand);
 
         for (Literal literal : *clause_to_expand) {
             const BooleanVariable var = literal.variable();
             const unsigned int level = decisionLevel(var);
-
-            // LOG(INFO) << "Level " << literal.debugString() << " = " << level;
 
             if (is_marked[var] || level == 0)
                 continue;
@@ -223,25 +228,20 @@ void Solver::computeFirstUIP() {
     //     ++i;
     // }
     // learnt.erase(j, i);
-    // LOG(INFO) << "After simplification";
+    LOG(INFO) << "After simplification";
     // for (Literal l : learnt)
     //     std::cout << l.debugString() << " ";
     // std::cout << std::endl;
-
+    // exit(0);
     unsigned int backtrack_level = computeBacktrackLevel(learnt);
 
-    // LOG(INFO) << "BT LEVEL " << backtrack_level;
-
     backtrack(backtrack_level);
-
-    // LOG(INFO) <<_trail.debugString();
 
     Clause *clause = Clause::create(learnt, true);
     _model->addClause(clause);
     _propagator.addClause(clause, &_trail);
-
-    //    LOG(INFO) << "LEARNT " << clause->debugString();
 }
+
 
 
 unsigned int

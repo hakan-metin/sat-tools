@@ -31,7 +31,7 @@ class Propagator {
     bool addLearntClause(const std::vector<Literal>& literals, Trail *trail);
     // bool addSBPClause(const std::vector<Literal>& literals, Trail *trail);
 
-    bool propagate(Trail *trail);
+    bool propagate(Trail *trail, Clause **conflict);
     void untrail(unsigned int trail_index) {
         _propagation_trail_index =
             std::min(_propagation_trail_index, trail_index);
@@ -63,7 +63,8 @@ class Propagator {
     std::vector<Clause*> _reasons;
 
     void attachOnFalse(Literal literal, Literal blocking, Clause *clause);
-    bool propagateOnFalse(Literal false_literal, Trail *trail);
+    bool propagateOnFalse(Literal false_literal, Trail *trail,
+                          Clause **conflict);
 };
 
 

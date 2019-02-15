@@ -11,6 +11,7 @@
 
 #include "sattools/Bitset.h"
 #include "sattools/CNFModel.h"
+#include "sattools/ConflictManager.h"
 #include "sattools/Literal.h"
 #include "sattools/Clause.h"
 #include "sattools/Trail.h"
@@ -53,16 +54,16 @@ class Solver {
     std::unique_ptr<Simplifier> _simplifier;
 
 
+    struct Counters {
+        uint64_t _num_branches;
+        uint64_t _num_failures;
+    };
+
     void enqueueNewDecision(Literal true_literal);
-
     void backtrack(unsigned int target_level);
-
     bool setModelUnsat() { _is_model_unsat = true; return false; }
-
     void computeFirstUIP();
-
     unsigned int computeBacktrackLevel(const std::vector<Literal>& literals);
-
 
 
     // Returns the decision level of a given variable.

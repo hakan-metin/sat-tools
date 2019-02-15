@@ -35,6 +35,7 @@ bool Propagator::addLearntClause(const std::vector<Literal>& literals,
 bool Propagator::addClause(Clause *clause, Trail *trail) {
     const int size = clause->size();
     Literal *literals = clause->literals();
+    Clause *dummy;
 
     if (size == 1) {
         Literal unit = literals[0];
@@ -44,7 +45,7 @@ bool Propagator::addClause(Clause *clause, Trail *trail) {
         if (assignment.literalIsAssigned(unit))  return true;
 
         trail->enqueueWithUnitReason(unit);
-        if (!propagate(trail))
+        if (!propagate(trail, &dummy))
             return false;
 
         return true;
@@ -107,22 +108,24 @@ void Propagator::detachClause(Clause *clause) {
     LOG(FATAL) << "Not yet Implemented";
 }
 
-bool Propagator::propagate(Trail *trail) {
+bool Propagator::propagate(Trail *trail, Clause **conflict) {
     while (_propagation_trail_index < trail->index()) {
         const Literal literal = (*trail)[_propagation_trail_index++];
         // LOG(INFO) << "propagate " << literal.debugString();
-        if (!propagateOnFalse(literal.negated(), trail))
+        if (!propagateOnFalse(literal.negated(), trail, conflict))
             return false;
     }
     return true;
 }
 
 
-bool Propagator::propagateOnFalse(Literal false_literal, Trail *trail) {
+bool Propagator::propagateOnFalse(Literal false_literal, Trail *trail,
+                                  Clause **conflict) {
     const Assignment& assignment = trail->assignment();
     std::vector<Watch>& watchers = _watchers[false_literal.index()];
 
     _conflict = nullptr;
+    *conflict = nullptr;
 
     auto i = watchers.begin();
     auto j = watchers.begin();
@@ -168,6 +171,7 @@ bool Propagator::propagateOnFalse(Literal false_literal, Trail *trail) {
             } else {  // end
                 if (assignment.literalIsFalse(other)) {
                     _conflict = watch.clause;
+                    *conflict = watch.clause;
                     break;
                 } else {  // Found unit clause
                     _reasons[trail->index()] = watch.clause;

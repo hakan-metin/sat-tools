@@ -32,9 +32,9 @@ class VSIDSDecisionPolicy : public DecisionPolicy {
     bool _var_ordering_initialised;
 
     // Increment used to bump the variable activities.
-    float _variable_activity_increment;
+    double _variable_activity_increment;
 
-    ITIVector<BooleanVariable, float> _activities;
+    ITIVector<BooleanVariable, double> _activities;
 
     ITIVector<BooleanVariable, bool> _var_use_phase_saving;
     ITIVector<BooleanVariable, bool> _var_polarity;
@@ -46,13 +46,15 @@ class VSIDSDecisionPolicy : public DecisionPolicy {
             return *weight < *other.weight;
         }
         BooleanVariable var;
-        const float *weight;
+        const double *weight;
     };
     IntegerPriorityQueue<WeightVarQueueElement> _var_ordering;
-    BitQueue64 _pq_need_update_for_var_at_trail_index;
+
+    std::vector<bool> _seen;
+
 
     void initializeVariableOrdering();
-    void rescaleVariableActivities(float scaling_factor);
+    void rescaleVariableActivities(double scaling_factor);
 };
 
 }  // namespace sat

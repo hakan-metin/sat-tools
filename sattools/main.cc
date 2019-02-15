@@ -53,7 +53,7 @@ int main(int argc, char *argv[]) {
 
     LOG(INFO) << "Number of clauses initial: " << model.numberOfClauses();
 
-    solver.simplifyInitialProblem();
+    // solver.simplifyInitialProblem();
 
     LOG(INFO) << "Number of clauses after initial simplification: "
               << model.numberOfClauses();
