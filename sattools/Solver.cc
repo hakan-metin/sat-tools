@@ -67,22 +67,23 @@ Solver::Status Solver::solve() {
 
             if (_trail.index() == _num_variables)
                 break;
-            // Literal decision_literal = _decision_policy->nextBranch();
-            // LOG(INFO) << "Decision " << decision_literal.debugString();
+            Literal decision_literal = _decision_policy->nextBranch();
+            // // LOG(INFO) << "Decision " << decision_literal.debugString();
 
-            // enqueueNewDecision(decision_literal);
+            enqueueNewDecision(decision_literal);
 
-            stop = true;
-            for (BooleanVariable var(0); var < _num_variables; ++var) {
-                if (_trail.assignment().variableIsAssigned(var))
-                    continue;
+            // stop = true;
+            // for (BooleanVariable var(0); var < _num_variables; ++var) {
+            //     if (_trail.assignment().variableIsAssigned(var))
+            //         continue;
 
-                stop = false;
-                Literal decision(var, false);
-                enqueueNewDecision(decision);
-                break;
-            }
+            //     stop = false;
+            //     Literal decision(var, false);
+            //     enqueueNewDecision(decision);
+            //     break;
+            // }
             // LOG(INFO) << _trail.debugString();
+
         }
     }
 
@@ -118,13 +119,20 @@ void Solver::backtrack(unsigned int target_level) {
     if (target_level >= current_level)
         return;
 
+    // LOG(INFO) << _trail.debugString();
+
     _trail.cancelUntil(target_level);
     _propagator.untrail(_trail.index());
 
     unsigned int index = _trail.index();
 
-    for (unsigned int i=index; i<old_index; i++)
-        _decision_policy->onUnassignLiteral(_trail[i]);
+    for (unsigned int i=index; i<old_index; i++) {
+        Literal l = _trail[i];
+        _decision_policy->onUnassignLiteral(l);
+    }
+
+    // LOG(INFO) << "trail remove from " << index << " to " << old_index;
+    // LOG(INFO) << _trail.debugString();
 }
 
 

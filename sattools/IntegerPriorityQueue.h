@@ -4,6 +4,7 @@
 #define SATTOOLS_INTEGERPRIORITYQUEUE_H_
 
 #include <vector>
+#include <string>
 
 #include "sattools/Macros.h"
 #include "sattools/Logging.h"
@@ -14,10 +15,12 @@ template <typename Element, class Compare = std::less<Element>>
 class IntegerPriorityQueue {
  public:
     IntegerPriorityQueue(int n = 0, Compare comp = Compare()) :
-        _size(n), _less(comp) {}
+        _size(0), _less(comp) { reserve(n); }
     ~IntegerPriorityQueue() {}
 
     unsigned int size() const { return _size; }
+    unsigned int capacity() const { return _position.size(); }
+
     bool empty() const { return _size == 0; }
     bool contains(int index) const { return _position[index] != 0; }
 
@@ -32,6 +35,8 @@ class IntegerPriorityQueue {
     void changePriority(Element element);
 
     void clear();
+
+    std::string debugString() const;
 
  private:
     unsigned int _size;
@@ -163,6 +168,13 @@ template <typename Element, class Compare>
 void IntegerPriorityQueue<Element, Compare>::clear() {
     _size = 0;
     _position.assign(_position.size(), 0);
+}
+
+
+
+template <typename Element, class Compare>
+std::string IntegerPriorityQueue<Element, Compare>::debugString() const {
+    return "toto";
 }
 
 }  // namespace sat

@@ -70,9 +70,7 @@ class Trail {
         return _infos[var.value()];
     }
 
-
     std::string debugString() const;
-
 
  private:
     Assignment _assignment;
@@ -80,6 +78,8 @@ class Trail {
     std::vector<AssignmentInfo> _infos;
     std::vector<Literal> _trail;
     std::vector<Propagator*> _propagators;
+
+    DISALLOW_COPY_AND_ASSIGN(Trail);
 };
 
 }  // namespace sat
