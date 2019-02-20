@@ -75,6 +75,9 @@ Clause* Trail::reason(BooleanVariable var) const {
     return _propagators[type]->reasonClause(i.trail_index);
 }
 
+unsigned int Trail::decisionLevel(BooleanVariable var) const {
+    return info(var).level;
+}
 
 std::string Trail::debugString() const {
     std::string result;

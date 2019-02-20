@@ -55,32 +55,25 @@ Solver::Status Solver::solve() {
 
     Clause *conflict;
     std::vector<Literal> learnt;
+    ConflictManager conflict_manager(_trail);
 
 
     while (!_is_model_unsat) {
         if (!_propagator.propagate(&_trail, &conflict)) {
+
             if (_trail.currentDecisionLevel() == 0) {
                 setModelUnsat();
                 break;
             }
 
-            // ConflictManager conflict_manager;
-            // conflict_manager.computeFirstUIP(_trail, conflict, &learnt);
-            // backtrack(computeBacktrackLevel(learnt));
-
-            // for (Literal l : learnt)
-            //     std::cout << l.debugString() << " ";
-            // std::cout << std::endl;
-
-
-            // computeFirstUIP();
-
-
+            conflict_manager.computeFirstUIP(conflict, &learnt);
+            backtrack(computeBacktrackLevel(learnt));
             Clause *clause = Clause::create(learnt, true);
             _model->addClause(clause);
             _propagator.addClause(clause, &_trail);
 
-            // _decision_policy->onConflict();
+
+            //_decision_policy->onConflict();
         } else {
             if (_trail.index() == _num_variables)
                 break;
@@ -165,7 +158,8 @@ void Solver::computeFirstUIP() {
 
     while (true) {
         DCHECK(clause_to_expand != nullptr);
-
+        LOG(INFO) << clause_to_expand->debugString();
+        exit(0);
         _decision_policy->clauseOnConflictReason(clause_to_expand);
 
         for (Literal literal : *clause_to_expand) {
