@@ -6,7 +6,7 @@
 
 #include "sattools/VSIDSDecisionPolicy.h"
 
-#endif  // SATTOOLS_SDECISIONPOLICIES_H_
+#endif  // SATTOOLS_DECISIONPOLICIES_H_
 /*
  * Local Variables:
  * mode: c++

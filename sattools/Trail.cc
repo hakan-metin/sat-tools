@@ -81,9 +81,15 @@ unsigned int Trail::decisionLevel(BooleanVariable var) const {
 
 std::string Trail::debugString() const {
     std::string result;
+    unsigned int level = 0;
+
     for (unsigned int i = 0; i < _current_info.trail_index; ++i) {
         if (!result.empty())
             result += " ";
+        if (info(_trail[i].variable()).level != level) {
+            level++;
+            result += " | ";
+        }
         result += _trail[i].debugString();
     }
 return result;

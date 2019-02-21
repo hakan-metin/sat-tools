@@ -5,6 +5,7 @@
 
 #include <vector>
 #include <string>
+#include <functional>
 
 #include "sattools/Macros.h"
 #include "sattools/Logging.h"
@@ -14,7 +15,7 @@ namespace sat {
 template <typename Element, class Compare = std::less<Element>>
 class IntegerPriorityQueue {
  public:
-    IntegerPriorityQueue(int n = 0, Compare comp = Compare()) :
+    explicit IntegerPriorityQueue(int n = 0, Compare comp = Compare()) :
         _size(0), _less(comp) { reserve(n); }
     ~IntegerPriorityQueue() {}
 
@@ -47,7 +48,6 @@ class IntegerPriorityQueue {
     void set(unsigned int i, const Element element);
     void setAndIncreasePriority(unsigned int i, const Element element);
     void setAndDecreasePriority(unsigned int i, const Element element);
-
 };
 
 

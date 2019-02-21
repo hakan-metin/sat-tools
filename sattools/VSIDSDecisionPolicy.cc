@@ -1,3 +1,5 @@
+// Copyright 2017 Hakan Metin
+
 #include "sattools/VSIDSDecisionPolicy.h"
 
 namespace sat {

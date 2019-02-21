@@ -69,19 +69,8 @@ unsigned int ConflictManager::computeMaxTrailIndex(const Clause* clause) {
     return index;
 }
 
-
-
 void ConflictManager::minimizeConflict(std::vector<Literal>* conflict) {
-
-    unsigned int old_size = conflict->size();
-
     minimizeConflictRecursively(conflict);
-
-    unsigned int new_size = conflict->size();
-
-    if (new_size < old_size)
-        LOG(INFO) << "Remove " << old_size - new_size << " literals";
-
 }
 
 
@@ -108,10 +97,72 @@ void ConflictManager::minimizeConflictSimple(std::vector<Literal>* conflict) {
     conflict->erase(j, i);
 }
 
+
+void
+ConflictManager::minimizeConflictRecursively(std::vector<Literal>* conflict) {
+    auto i = conflict->begin() + 1;
+    auto j = conflict->begin() + 1;
+
+    _dfs_stack.clear();
+
+    while (i != conflict->end()) {
+        const BooleanVariable var = i->variable();
+        const Clause *reason = _trail.reason(var);
+
+        _dfs_stack.push_back(var);
+
+        if (reason == nullptr || !canBeInferedFromConflictVariables(var))
+            *j++ = *i;
+        ++i;
+    }
+    conflict->erase(j, i);
+}
+
+bool
+ConflictManager::canBeInferedFromConflictVariables(BooleanVariable variable) {
+    _variable_to_process.clear();
+    _variable_to_process.push_back(variable);
+
+    unsigned int size = _dfs_stack.size();
+
+    while (!_variable_to_process.empty()) {
+        const BooleanVariable current_var = _variable_to_process.back();
+        _variable_to_process.pop_back();
+
+        DCHECK_NE(_trail.reason(current_var), nullptr);
+
+        Clause *clause = _trail.reason(current_var);
+
+        auto i = clause->begin() + 1;
+        while (i != clause->end()) {
+            const BooleanVariable var = i->variable();
+
+            if (!_is_marked[var] && _trail.decisionLevel(var) > 0) {
+                if (_trail.reason(var) != nullptr) {
+                    _is_marked.Set(var);
+                    _variable_to_process.push_back(var);
+                    _dfs_stack.push_back(var);
+                } else {
+                    for (unsigned int i = size; i < _dfs_stack.size(); i++)
+                        _is_marked.Clear(_dfs_stack[i]);
+                    _dfs_stack.erase(_dfs_stack.begin()+size, _dfs_stack.end());
+                    return false;
+                }
+            }
+            ++i;
+        }
+    }
+    return true;
+}
+
+
+# if 0
 void
 ConflictManager::minimizeConflictRecursively(std::vector<Literal>* conflict) {
     const unsigned int num_variables = _trail.assignment().numberOfVariables();
     const unsigned int current_decision_level = _trail.currentDecisionLevel();
+
+    LOG(INFO) << " Start Minimize";
 
     _is_independent.ClearAndResize(BooleanVariable(num_variables));
 
@@ -140,7 +191,6 @@ ConflictManager::minimizeConflictRecursively(std::vector<Literal>* conflict) {
         ++i;
     }
     conflict->erase(j, i);
-
     _min_trail_index_per_level.clear();
 }
 
@@ -152,15 +202,19 @@ ConflictManager::canBeInferedFromConflictVariables(BooleanVariable variable) {
     _variable_to_process.clear();
     _variable_to_process.push_back(variable);
 
+    DCHECK(_is_marked[variable]);
+
+    LOG(INFO) << "Try inferred " << variable;
 
     Clause *reason = _trail.reason(variable);
     for (Literal literal : *reason) {
         const BooleanVariable var = literal.variable();
 
-        // DCHECK_NE(var, variable);
+        DCHECK_NE(var, variable);
 
         if (_is_marked[var])
             continue;
+
 
         const unsigned int level = _trail.decisionLevel(var);
         if (level == 0) {
@@ -178,8 +232,8 @@ ConflictManager::canBeInferedFromConflictVariables(BooleanVariable variable) {
 
     while (!_variable_to_process.empty()) {
         const BooleanVariable current_var = _variable_to_process.back();
+        LOG(INFO) << "process " << current_var;
         if (current_var == _dfs_stack.back()) {
-
             if (_dfs_stack.size() > 1) {
                 DCHECK(!_is_marked[current_var]);
                 _is_marked.Set(current_var);
@@ -199,9 +253,8 @@ ConflictManager::canBeInferedFromConflictVariables(BooleanVariable variable) {
 
         _dfs_stack.push_back(current_var);
         bool abort_early = false;
-        for (Literal literal : *_trail.reason(current_var)) {
+        for (Literal literal : *(_trail.reason(current_var))) {
             const BooleanVariable var = literal.variable();
-            //DCHECK_NE(var, current_var);
             const unsigned int level = _trail.decisionLevel(var);
 
             if (level == 0 || _is_marked[var])
@@ -213,6 +266,7 @@ ConflictManager::canBeInferedFromConflictVariables(BooleanVariable variable) {
                break;
            }
 
+           DCHECK_NE(var, current_var);
            _variable_to_process.push_back(var);
         }
 
@@ -225,6 +279,7 @@ ConflictManager::canBeInferedFromConflictVariables(BooleanVariable variable) {
     }
     return _dfs_stack.empty();
 }
+#endif
 
 }  // namespace sat
 /*

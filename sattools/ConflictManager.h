@@ -5,6 +5,8 @@
 
 #include <vector>
 #include <limits>
+#include <utility>
+#include <algorithm>
 
 #include "sattools/Bitset.h"
 #include "sattools/Literal.h"
@@ -15,7 +17,7 @@ namespace sat {
 
 class ConflictManager {
  public:
-    ConflictManager(const Trail &trail) : _trail(trail) {}
+    explicit ConflictManager(const Trail &trail) : _trail(trail) {}
     ~ConflictManager() {}
 
     void computeFirstUIP(Clause *conflict, std::vector<Literal> *learnt);
@@ -25,7 +27,6 @@ class ConflictManager {
 
     SparseBitset<BooleanVariable> _is_marked;
     SparseBitset<BooleanVariable> _is_independent;
-    SparseBitset<BooleanVariable> _tmp_mark;
     std::vector<uint32> _min_trail_index_per_level;
 
     std::vector<BooleanVariable> _dfs_stack;

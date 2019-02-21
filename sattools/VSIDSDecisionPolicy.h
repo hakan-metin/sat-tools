@@ -3,6 +3,9 @@
 #ifndef SATTOOLS_VSIDSDECISIONPOLICY_H_
 #define SATTOOLS_VSIDSDECISIONPOLICY_H_
 
+#include <algorithm>
+#include <vector>
+
 #include "sattools/Bitset.h"
 #include "sattools/DecisionPolicy.h"
 #include "sattools/Trail.h"
@@ -13,7 +16,7 @@ namespace sat {
 
 class VSIDSDecisionPolicy : public DecisionPolicy {
  public:
-    VSIDSDecisionPolicy(const Trail& trail);
+    explicit VSIDSDecisionPolicy(const Trail& trail);
     virtual ~VSIDSDecisionPolicy();
 
     void increaseNumVariables(unsigned int num_variables) override;

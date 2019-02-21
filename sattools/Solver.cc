@@ -60,7 +60,6 @@ Solver::Status Solver::solve() {
 
     while (!_is_model_unsat) {
         if (!_propagator.propagate(&_trail, &conflict)) {
-
             if (_trail.currentDecisionLevel() == 0) {
                 setModelUnsat();
                 break;
@@ -71,9 +70,7 @@ Solver::Status Solver::solve() {
             Clause *clause = Clause::create(learnt, true);
             _model->addClause(clause);
             _propagator.addClause(clause, &_trail);
-
-
-            //_decision_policy->onConflict();
+            // _decision_policy->onConflict();
         } else {
             if (_trail.index() == _num_variables)
                 break;
@@ -128,7 +125,7 @@ void Solver::backtrack(unsigned int target_level) {
 
     unsigned int index = _trail.index();
 
-    for (unsigned int i=index; i<old_index; i++) {
+    for (unsigned int i = index; i < old_index; i++) {
         Literal l = _trail[i];
         _decision_policy->onUnassignLiteral(l);
     }
