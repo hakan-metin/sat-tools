@@ -17,6 +17,7 @@
 #include "sattools/Saucy1Writer.h"
 #include "sattools/Propagator.h"
 #include "sattools/Solver.h"
+#include "sattools/DratProofHandler.h"
 
 using sat::Assignment;
 using sat::Clause;
@@ -28,6 +29,7 @@ using sat::Saucy1Writer;
 using sat::Trail;
 using sat::Propagator;
 using sat::Solver;
+using sat::DratProofHandler;
 
 int main(int argc, char *argv[]) {
     CNFReader<CNFModel> reader;
@@ -44,6 +46,11 @@ int main(int argc, char *argv[]) {
 #endif
 
     std::string cnf_filename(argv[1]);
+    std::string proof_filename = cnf_filename + ".proof";
+    DratProofHandler drat_proof_handler(false, proof_filename);
+
+    solver.setDratProofHandler(&drat_proof_handler);
+
     // std::string symmetry_filename = cnf_filename + ".txt";
 
     if (!reader.load(cnf_filename, &model))

@@ -18,6 +18,7 @@
 #include "sattools/Propagator.h"
 #include "sattools/Simplifier.h"
 #include "sattools/DecisionPolicies.h"
+#include "sattools/DratProofHandler.h"
 
 namespace sat {
 
@@ -42,6 +43,8 @@ class Solver {
 
     bool simplifyInitialProblem();
 
+    void setDratProofHandler(DratProofHandler* drat_proof_handler);
+
  private:
     CNFModel *_model;
     unsigned int _num_variables;
@@ -49,6 +52,8 @@ class Solver {
     Propagator _propagator;
 
     bool _is_model_unsat;
+
+    DratProofHandler* _drat_proof_handler;
 
     std::unique_ptr<DecisionPolicy> _decision_policy;
     std::unique_ptr<Simplifier> _simplifier;

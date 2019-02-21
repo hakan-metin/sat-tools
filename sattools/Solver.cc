@@ -7,6 +7,7 @@ namespace sat {
 Solver::Solver() :
     _num_variables(0),
     _is_model_unsat(false),
+    _drat_proof_handler(nullptr),
     _simplifier(nullptr) {
 }
 
@@ -71,6 +72,9 @@ Solver::Status Solver::solve() {
             _model->addClause(clause);
             _propagator.addClause(clause, &_trail);
             // _decision_policy->onConflict();
+
+            if (_drat_proof_handler != nullptr)
+              _drat_proof_handler->addClause(learnt);
         } else {
             if (_trail.index() == _num_variables)
                 break;
@@ -108,6 +112,11 @@ Solver::Status Solver::solve() {
 void Solver::enqueueNewDecision(Literal true_literal) {
     _trail.newDecisionLevel();
     _trail.enqueueSearchDecision(true_literal);
+}
+
+
+void Solver::setDratProofHandler(DratProofHandler *drat_proof_handler) {
+    _drat_proof_handler = drat_proof_handler;
 }
 
 
