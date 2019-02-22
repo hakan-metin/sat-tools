@@ -19,6 +19,7 @@
 #include "sattools/Simplifier.h"
 #include "sattools/DecisionPolicies.h"
 #include "sattools/DratProofHandler.h"
+#include "sattools/SatParameters.pb.h"
 
 namespace sat {
 

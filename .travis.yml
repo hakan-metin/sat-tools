@@ -15,7 +15,7 @@ matrix:
               - g++-8
               - gcc-8
               - cmake
-              - protobuf
+              - autoconf automake libtool
 
 
 before_script:
@@ -31,6 +31,10 @@ before_script:
   - cmake .
   - sudo cmake --build . --target install
   - cd -
+# Build protobuf
+  - git clone https://github.com/protocolbuffers/protobuf.git
+  - cd protobuf
+  - ./autogen.sh && ./configure && make && sudo make install
 
 script:
    - source .env
