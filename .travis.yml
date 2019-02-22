@@ -15,7 +15,7 @@ matrix:
               - g++-8
               - gcc-8
               - cmake
-              - protobuf-compiler libprotobuf10 libprotoc-dev
+              - protobuf-compiler  libprotoc-dev
               - autoconf automake libtool
 
 
