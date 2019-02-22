@@ -1,6 +1,9 @@
 exec := sat
 
-sources := $(wildcard $(SRC)*.cc)
+proto      := $(wildcard $(SRC)*.proto)
+proto_gen  := $(patsubst %.proto, %.pb.cc, $(proto))
+
+sources := $(wildcard $(SRC)*.cc) $(proto_gen)
 headers := $(wildcard $(SRC)*.h)
 
 objects         := $(patsubst %.cc, $(OBJ)%.o, $(sources))
@@ -33,7 +36,7 @@ $(BIN)$(exec)_release: $(release_objects)
 $(BIN)$(exec)_debug: $(debug_objects)
 
 CFLAGS += -I. -I$(SRC) #-DUSE_GLOG
-LDFLAGS += #-lglog
+LDFLAGS += -lprotobuf #-lglog
 
 default: CFLAGS += -O3 -fPIC -Wall -Wextra -g
 default: $(BIN)$(exec)
@@ -46,6 +49,7 @@ debug: $(BIN)$(exec)_debug
 
 .PHONY: default release debug
 
+#.generate: $(proto_gen)
 
 ################################################################################
 # TESTS
@@ -89,3 +93,6 @@ $(OBJ)%.test.o: %.test.cc
 
 $(BIN)test: $(tests_objects)
 	$(call cmd-ld, $@, $^, $(LDFLAGS))
+
+%.pb.cc: %.proto
+	$(call cmd-protoc,$<,$(SRC))

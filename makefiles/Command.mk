@@ -75,7 +75,12 @@ define cmd-tags
   $(Q)etags -o $(1) $(2)
 endef
 
-
+# $(1) : protoc file
+# $(2) : dest dir of generated file
+define cmd-protoc
+  $(call cmd-echo, PROTOC   $(strip $(call cmd-format, $(1))))
+  $(Q)protoc -I=sattools/ --cpp_out=$(2)  $(1)
+endef
 
 
 # Standard compilation commands

@@ -1,0 +1,11 @@
+
+syntax = "proto2";
+
+message SatParameters {
+    enum VariableOrder {
+        IN_ORDER = 0;
+        IN_REVERSER_ORDER = 1;
+        IN_RANDOM_ORDER = 2;
+    }
+    optional VariableOrder preferred_variable_order = 1 [default = IN_ORDER];
+}
