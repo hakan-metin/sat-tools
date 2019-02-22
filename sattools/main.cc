@@ -18,6 +18,7 @@
 #include "sattools/Propagator.h"
 #include "sattools/Solver.h"
 #include "sattools/DratProofHandler.h"
+#include "sattools/SatParameters.pb.h"
 
 using sat::Assignment;
 using sat::Clause;
@@ -48,7 +49,9 @@ int main(int argc, char *argv[]) {
     std::string cnf_filename(argv[1]);
     std::string proof_filename = cnf_filename + ".proof";
     DratProofHandler drat_proof_handler(false, proof_filename);
+    SatParameters parameters;
 
+    solver.setParameters(parameters);
     solver.setDratProofHandler(&drat_proof_handler);
 
     // std::string symmetry_filename = cnf_filename + ".txt";

@@ -49,7 +49,7 @@ debug: $(BIN)$(exec)_debug
 
 .PHONY: default release debug
 
-#.generate: $(proto_gen)
+.generate: $(proto_gen)
 
 ################################################################################
 # TESTS

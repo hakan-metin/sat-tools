@@ -33,10 +33,10 @@ before_script:
   - sudo cmake --build . --target install
   - cd -
 # Build protobuf
-  - git clone https://github.com/protocolbuffers/protobuf.git
-  - cd protobuf
-  - ./autogen.sh && ./configure && make && sudo make install
-  - cd -
+  # - git clone https://github.com/protocolbuffers/protobuf.git
+  # - cd protobuf
+  # - ./autogen.sh && ./configure && make && sudo make install
+  # - cd -
 
 script:
    - source .env

@@ -115,9 +115,16 @@ void Solver::enqueueNewDecision(Literal true_literal) {
 }
 
 
+
+void Solver::setParameters(const SatParameters& parameters) {
+    *_parameters = parameters;
+}
+
+
 void Solver::setDratProofHandler(DratProofHandler *drat_proof_handler) {
     _drat_proof_handler = drat_proof_handler;
 }
+
 
 
 void Solver::backtrack(unsigned int target_level) {
