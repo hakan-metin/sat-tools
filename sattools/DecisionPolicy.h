@@ -8,6 +8,11 @@
 
 namespace sat {
 
+static const double kVariableActivityDecay = 0.95;
+static const double kInitialVariableActivity = 0.0;
+static const bool  kDefaultPolarity = false;
+static const bool  kUsePhaseSaving = false;
+
 class DecisionPolicy {
  public:
     explicit DecisionPolicy(const Trail& trail) : _trail(trail) {}

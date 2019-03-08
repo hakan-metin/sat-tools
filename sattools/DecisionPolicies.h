@@ -5,6 +5,7 @@
 #define SATTOOLS_DECISIONPOLICIES_H_
 
 #include "sattools/VSIDSDecisionPolicy.h"
+#include "sattools/IncreaseDecisionPolicy.h"
 
 #endif  // SATTOOLS_DECISIONPOLICIES_H_
 /*

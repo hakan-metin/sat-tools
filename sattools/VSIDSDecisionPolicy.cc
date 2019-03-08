@@ -13,10 +13,6 @@ VSIDSDecisionPolicy::VSIDSDecisionPolicy(const Trail& trail) :
 VSIDSDecisionPolicy::~VSIDSDecisionPolicy() {
 }
 
-static const double kVariableActivityDecay = 0.95;
-static const double kInitialVariableActivity = 0.0;
-static const bool  kDefaultPolarity = false;
-static const bool  kUsePhaseSaving = false;
 
 void VSIDSDecisionPolicy::increaseNumVariables(unsigned int num_variables) {
     const unsigned int old_num_variables = _activities.size();
