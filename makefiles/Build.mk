@@ -1,10 +1,10 @@
-exec := sat
 
 proto      := $(wildcard $(SRC)*.proto)
 proto_gen  := $(patsubst %.proto, %.pb.cc, $(proto))
 
 sources := $(wildcard $(SRC)*.cc) $(proto_gen)
 headers := $(wildcard $(SRC)*.h)
+dst_headers := $(patsubst $(SRC)%.h, $(INC)%.h, $(headers))
 
 objects         := $(patsubst %.cc, $(OBJ)%.o, $(sources))
 release_objects := $(patsubst %.cc, $(OBJ)release/%.o, $(sources))
@@ -15,14 +15,10 @@ tests_objects := $(patsubst %.cc, $(OBJ)%.o, $(tests))
 tests_objects += $(debug_objects)
 tests_objects := $(filter-out %main.o, $(tests_objects))
 
+$(call REQUIRE-DIR, $(INC))
+
 $(call REQUIRE-DIR, $(objects))
-$(call REQUIRE-DIR, $(BIN)$(exec))
-
-$(call REQUIRE-DIR, $(release_objects))
-$(call REQUIRE-DIR, $(BIN)$(exec)_release)
-
-$(call REQUIRE-DIR, $(debug_objects))
-$(call REQUIRE-DIR, $(BIN)$(exec)_debug)
+$(call REQUIRE-DIR, $(LIB)sattools.a)
 
 $(call REQUIRE-DIR, $(tests_objects))
 $(call REQUIRE-DIR, $(BIN)test)
@@ -31,15 +27,12 @@ $(call REQUIRE-DEP, $(sources))
 $(call REQUIRE-DEP, $(tests))
 
 
-$(BIN)$(exec): $(objects)
-$(BIN)$(exec)_release: $(release_objects)
-$(BIN)$(exec)_debug: $(debug_objects)
-
 CFLAGS += -I. -I$(SRC) #-DUSE_GLOG
-LDFLAGS += -lprotobuf #-lglog
+LDFLAGS += -lprotobuf -lpthread #-lglog
+
 
 default: CFLAGS += -O3 -fPIC -Wall -Wextra -g
-default: $(BIN)$(exec)
+default: $(LIB)sattools.a
 
 release: CFLAGS += -O3 -fPIC -Wall -Wextra -DNDEBUG
 release: $(BIN)$(exec)_release
@@ -47,7 +40,7 @@ release: $(BIN)$(exec)_release
 debug: CFLAGS += -O0 -fPIC -Wall -Wextra -g  -DDEBUG
 debug: $(BIN)$(exec)_debug
 
-.PHONY: default release debug
+.PHONY: default release debug 
 
 .generate: $(proto_gen)
 
@@ -70,6 +63,10 @@ check-style: $(sources) $(headers)
 ################################################################################
 
 # Generic rules
+
+$(LIB)sattools.a: $(objects) $(headers) | $(INC)
+	$(call cmd-ar, $@, $^)
+	# $(call cmd-cp, $(INC), $(headers))
 
 $(BIN)$(exec): $(objects)
 	$(call cmd-ld, $@, $^)

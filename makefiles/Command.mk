@@ -3,7 +3,7 @@
 # Arg2 = source file
 define cmd-cp
   $(call cmd-echo,  CP      $(strip $(call cmd-format, $(1))))
-  $(Q) cp -r $(2) $(1)
+  $(Q)cp -r $(2) $(1)
 endef
 
 # Call an arbitrary script with arbitrary arguments
@@ -12,6 +12,14 @@ endef
 define cmd-call
   $(call cmd-echo,  CALL    $(strip $(1)))
   $(Q)./$(strip $(1)) $(2)
+endef
+
+# Create a symbolic link
+# Arg1 = source
+# Arg2 = target
+define cmd-ln
+  $(call cmd-echo,   LN     $(strip $(1)))
+  $(Q)ln -s $(1) $(2)
 endef
 
 # Call gcovr
@@ -103,7 +111,7 @@ endef
 # Arg2 = compiled objects (.o)
 define cmd-ar
   $(call cmd-echo,  AR      $(strip $(call cmd-format, $(1))))
-  $(Q)$(AR) cr $(1) $(2)
+  $(Q)$(AR) scr $(1) $(2)
 endef
 
 # Compile a C++ source file into on object file (.o)

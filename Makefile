@@ -51,7 +51,7 @@ clean:
 	$(call cmd-clean, $(OBJ) $(DEP) .depends)
 
 cleanall:
-	$(call cmd-clean, $(OBJ) $(LIB) $(DEP) .depends $(BIN))
+	$(call cmd-clean, $(OBJ) $(LIB) $(DEP) $(INC) .depends $(BIN))
 
 tags:
 	$(call cmd-tags, TAGS, $(filter %.c %.cc %.s %.h, $(call FIND, .)))
