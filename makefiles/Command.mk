@@ -124,6 +124,11 @@ define cmd-cxx
   $(Q)$(CXX) $(COMMON-FLAGS) -std=c++17 -c $(2) -o $(1) $(3)
 endef
 
+define cmd-cxx-bin
+  $(call cmd-echo, CCXXBIN  $(strip $(call cmd-format, $(1))))
+  $(Q)$(CXX) $(COMMON-FLAGS) -std=c++17 $(2) -o $(1) $(3)
+endef
+
 # Compile a C source file into on object file (.o)
 # Arg1 = target (.o)
 # Arg2 = source file (.c)

@@ -18,7 +18,7 @@ tests_objects := $(filter-out %main.o, $(tests_objects))
 $(call REQUIRE-DIR, $(INC))
 
 $(call REQUIRE-DIR, $(objects))
-$(call REQUIRE-DIR, $(LIB)sattools.a)
+$(call REQUIRE-DIR, $(LIB)libsattools.a)
 
 $(call REQUIRE-DIR, $(tests_objects))
 $(call REQUIRE-DIR, $(BIN)test)
@@ -28,17 +28,14 @@ $(call REQUIRE-DEP, $(tests))
 
 
 CFLAGS += -I. -I$(SRC) #-DUSE_GLOG
-LDFLAGS += -lprotobuf -lpthread #-lglog
-
+LDFLAGS += -lprotobuf -lpthread -lz #-lglog
 
 default: CFLAGS += -O3 -fPIC -Wall -Wextra -g
-default: $(LIB)sattools.a
+default: $(LIB)libsattools.a
 
 release: CFLAGS += -O3 -fPIC -Wall -Wextra -DNDEBUG
-release: $(BIN)$(exec)_release
 
 debug: CFLAGS += -O0 -fPIC -Wall -Wextra -g  -DDEBUG
-debug: $(BIN)$(exec)_debug
 
 .PHONY: default release debug 
 
@@ -64,18 +61,11 @@ check-style: $(sources) $(headers)
 
 # Generic rules
 
-$(LIB)sattools.a: $(objects) $(headers) | $(INC)
+$(LIB)libsattools.a: $(objects) $(headers) | $(INC)
 	$(call cmd-ar, $@, $^)
-	# $(call cmd-cp, $(INC), $(headers))
 
-$(BIN)$(exec): $(objects)
-	$(call cmd-ld, $@, $^)
+# $(call cmd-cp, $(INC), $(headers))
 
-$(BIN)$(exec)_release: $(release_objects)
-	$(call cmd-ld, $@, $^)
-
-$(BIN)$(exec)_debug: $(debug_objects)
-	$(call cmd-ld, $@, $^)
 
 $(OBJ)release/%.o: %.cc
 	$(call cmd-cxx, $@, $<, $(CFLAGS))
