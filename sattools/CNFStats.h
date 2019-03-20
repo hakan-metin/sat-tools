@@ -34,7 +34,8 @@ class CNFStats {
 
     const std::vector<Clause*>& clauses() const { return _clauses; }
 
-    void printStats() { _stats.print(true); }
+    void summarize() const;
+    void printStats() const { _stats.print(true); }
  private:
     int64 _num_variables;
     int64 _num_trivial_clauses;
@@ -44,21 +45,22 @@ class CNFStats {
     int64 _num_ternary_clauses;
     int64 _num_large_clauses;
 
-    struct BaseStats : public StatsGroup {
-        BaseStats() : StatsGroup("CNF Statistics"),
-                      num_unary_clauses("num unary clauses", this),
-                      num_binary_clauses("num binary clauses", this),
-                      num_ternary_clauses("num ternary clauses", this),
-                      num_large_clauses("num large clauses", this) {}
 
-        CounterStat num_unary_clauses;
-        CounterStat num_binary_clauses;
-        CounterStat num_ternary_clauses;
-        CounterStat num_large_clauses;
+    struct BaseStats : public StatsGroup {
+        BaseStats() : StatsGroup(" CNF Statistics "),
+                      unary_clauses("unary clauses", this),
+                      binary_clauses("binary clauses", this),
+                      ternary_clauses("ternary clauses", this),
+                      large_clauses("large clauses", this)
+        {}
+
+        LiteralStat unary_clauses;
+        LiteralStat binary_clauses;
+        LiteralStat ternary_clauses;
+        LiteralStat large_clauses;
     };
 
     BaseStats _stats;
-
 
     // The set of all clauses.
     std::vector<Clause*> _clauses;

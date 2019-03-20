@@ -55,7 +55,7 @@ void CNFModel::addClause(Clause *clause) {
     _clauses.push_back(clause);
 
     // Resize internal structure.
-    const unsigned int required_size = numberOfVariables() << 1;
+    const unsigned int required_size = numberOfVariables() << 2;
     if (required_size > _literal_to_clauses.size())
         _literal_to_clauses.resize(required_size);
 

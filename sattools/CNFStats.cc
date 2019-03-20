@@ -46,13 +46,25 @@ bool CNFStats::addClause(std::vector<Literal>* literals) {
     default: _num_large_clauses++;   break;
     }
 
+
+    unsigned int size = literals->size();
+    unsigned int positive = 0;
+    unsigned int negative = 0;
+
+    for (Literal literal : *literals) {
+        if (literal.isPositive()) positive++;
+        if (literal.isNegative()) negative++;
+    }
+
+
     // Update statistics.
     switch (literals->size()) {
-    case 1:  _stats.num_unary_clauses.increment();   break;
-    case 2:  _stats.num_binary_clauses.increment();  break;
-    case 3:  _stats.num_ternary_clauses.increment(); break;
-    default: _stats.num_large_clauses.increment();   break;
+    case 1:  _stats.unary_clauses.add(size, positive, negative);   break;
+    case 2:  _stats.binary_clauses.add(size, positive, negative);  break;
+    case 3:  _stats.ternary_clauses.add(size, positive, negative); break;
+    default: _stats.large_clauses.add(size, positive, negative);   break;
     }
+
 
     // Add clause.
     Clause *clause = Clause::create(*literals, false);
@@ -63,6 +75,18 @@ bool CNFStats::addClause(std::vector<Literal>* literals) {
 
 void CNFStats::addClause(Clause *clause) {
     _clauses.push_back(clause);
+}
+
+void CNFStats::summarize() const {
+    const int64 ncl = numberOfClauses();
+
+    Printer::printSection(" Instance Informations ");
+    Printer::printStat("Number of variables", numberOfVariables());
+    Printer::printStat("Number of clauses", ncl);
+    Printer::printStat(" |- unary clauses", numberOfUnaryClauses(), ncl);
+    Printer::printStat(" |- binary clauses", numberOfBinaryClauses(), ncl);
+    Printer::printStat(" |- ternary clauses", numberOfTernaryClauses(), ncl);
+    Printer::printStat(" |- large clauses", numberOfLargeClauses(), ncl);
 }
 
 }  // namespace sat

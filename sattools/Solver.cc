@@ -21,7 +21,7 @@ Solver::~Solver() {
 void Solver::assign(CNFModel *model) {
     _model = model;
     _simplifier = std::make_unique<Simplifier>(model);
-    _decision_policy = std::make_unique<IncreaseDecisionPolicy>(_trail);
+    _decision_policy = std::make_unique<VSIDSDecisionPolicy>(_trail);
     _trail.registerPropagator(&_propagator);
     setNumberOfVariables(model->numberOfVariables());
 }
@@ -58,6 +58,7 @@ Solver::Status Solver::solve() {
     std::vector<Literal> learnt;
     ConflictManager conflict_manager(_trail);
 
+
     while (!_is_model_unsat) {
         if (!_propagator.propagate(&_trail, &conflict)) {
             if (_trail.currentDecisionLevel() == 0) {
@@ -78,8 +79,6 @@ Solver::Status Solver::solve() {
             if (_trail.index() == _num_variables)
                 break;
 
-            Literal a = _decision_policy->nextBranch();
-            LOG(INFO) << a.debugString();
             for (BooleanVariable var(0); var < _num_variables; ++var) {
                 if (_trail.assignment().variableIsAssigned(var))
                     continue;

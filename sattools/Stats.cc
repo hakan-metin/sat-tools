@@ -13,8 +13,7 @@ Stat::Stat(const std::string& name, StatsGroup *group) : _name(name) {
 
 void StatsGroup::print(bool section /* = false */) const {
     if (section)
-        std::cout << "======= " << _name << std::endl;
-        // Printer::printSection(_name.c_str());
+        Printer::printSection(_name.c_str());
     for (const Stat* stat : _stats)
         stat->print();
 }

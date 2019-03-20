@@ -42,7 +42,7 @@ else
 
 # Phony rules
 
-all: default
+all: example # default
 
 tidy:
 	$(call cmd-clean, "*~" ".#*" "#*")

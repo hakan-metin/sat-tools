@@ -1,7 +1,7 @@
 // Copyright 2017 Hakan Metin - LIP6
 
 #ifndef SATTOOLS_STATS_H_
-#define SATOOLS_STATS_H_
+#define SATTOOLS_STATS_H_
 
 #include <cmath>
 #include <utility>
@@ -14,7 +14,7 @@
 #include "sattools/IntegralTypes.h"
 #include "sattools/Logging.h"
 #include "sattools/Macros.h"
-// #include "sattools/Printer.h"
+#include "sattools/Printer.h"
 // #include "sattools/Timer.h"
 
 namespace sat {
@@ -33,8 +33,7 @@ class Stat {
     virtual std::string valueString() const = 0;
 
     void print() const {
-        std::cout << _name << " " << valueString() << std::endl;
-        // Printer::printStat(_name, valueString());
+        Printer::printStat(_name, valueString());
     }
  private:
     std::string _name;
@@ -160,6 +159,40 @@ class CounterStat : public Stat {
     virtual std::string valueString() const { return std::to_string(_value); }
  private:
     int64 _value;
+};
+
+class LiteralStat : public Stat {
+ public:
+    explicit LiteralStat(const std::string& name) :
+        Stat(name),
+        literals("literals"),
+        positive_literals("|- postive literals"),
+        negative_literals("|- negative literals") {}
+
+    LiteralStat(const std::string& name, StatsGroup *group) :
+        Stat(name, group),
+        literals("literals"),
+        positive_literals("|- postive literals", group),
+        negative_literals("|- negative literals", group) {}
+
+    ~LiteralStat() {}
+
+    void add(unsigned int size, unsigned int pos, unsigned int neg) {
+        literals.add(size);
+        if (pos != 0)
+            positive_literals.add(pos);
+        if (neg != 0)
+            negative_literals.add(neg);
+    }
+
+    std::string valueString() const {
+        return literals.valueString();
+    }
+
+ private:
+    IntegerDistribution literals;
+    IntegerDistribution positive_literals;
+    IntegerDistribution negative_literals;
 };
 
 /*

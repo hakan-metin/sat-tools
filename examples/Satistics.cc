@@ -43,12 +43,8 @@ int main(int argc, char *argv[]) {
     if (!reader.load(cnf_filename, &model))
         LOG(FATAL) << "Cannot load CNF file: " << cnf_filename;
 
-    LOG(INFO) << "Unary clauses:   " << model.numberOfUnaryClauses();
-    LOG(INFO) << "Binary clauses:  " << model.numberOfBinaryClauses();
-    LOG(INFO) << "Ternary clauses: " << model.numberOfTernaryClauses();
-    LOG(INFO) << "Large clauses:   " << model.numberOfLargeClauses();
 
-
+    model.summarize();
     model.printStats();
 
     return 0;
