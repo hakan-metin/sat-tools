@@ -129,9 +129,9 @@ ConflictManager::canBeInferedFromConflictVariables(BooleanVariable variable) {
         const BooleanVariable current_var = _variable_to_process.back();
         _variable_to_process.pop_back();
 
-        DCHECK_NE(_trail.reason(current_var), nullptr);
-
         Clause *clause = _trail.reason(current_var);
+
+        CHECK_NOTNULL(clause);
 
         auto i = clause->begin() + 1;
         while (i != clause->end()) {

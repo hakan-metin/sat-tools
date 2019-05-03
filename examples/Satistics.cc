@@ -33,10 +33,10 @@ int main(int argc, char *argv[]) {
     if (argc < 2)
         LOG(FATAL) << "Need CNF file";
 
-// #ifdef USE_GLOG
-//     google::InitGoogleLogging(argv[0]);
-//     FLAGS_logtostderr = 1;
-// #endif
+#ifdef USE_GLOG
+    google::InitGoogleLogging(argv[0]);
+    FLAGS_logtostderr = 1;
+#endif
 
     std::string cnf_filename(argv[1]);
 

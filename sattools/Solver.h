@@ -44,7 +44,7 @@ class Solver {
 
     bool simplifyInitialProblem();
 
-    void setParameters(const SatParameters& parameters);
+    void setParameters(SatParameters *parameters);
     void setDratProofHandler(DratProofHandler* drat_proof_handler);
 
  private:

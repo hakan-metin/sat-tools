@@ -27,8 +27,8 @@ $(call REQUIRE-DEP, $(sources))
 $(call REQUIRE-DEP, $(tests))
 
 
-CFLAGS += -I. -I$(SRC) #-DUSE_GLOG
-LDFLAGS += -lprotobuf -lpthread -lz #-lglog
+CFLAGS += -g -I. -I$(SRC) -DUSE_GLOG -DUSE_GFLAGS
+LDFLAGS += -lprotobuf -lz -lglog -lgflags -lpthread
 
 default: CFLAGS += -O3 -fPIC -Wall -Wextra -g
 default: $(LIB)libsattools.a
@@ -37,7 +37,7 @@ release: CFLAGS += -O3 -fPIC -Wall -Wextra -DNDEBUG
 
 debug: CFLAGS += -O0 -fPIC -Wall -Wextra -g  -DDEBUG
 
-.PHONY: default release debug 
+.PHONY: default release debug
 
 .generate: $(proto_gen)
 
