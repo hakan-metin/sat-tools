@@ -18,16 +18,16 @@
 #include "sattools/Group.h"
 #include "sattools/Literal.h"
 #include "sattools/Macros.h"
+#include "sattools/Order.h"
 
 namespace sat {
 
 
 class BreakerManager {
  public:
-    BreakerManager(const Group& group, const Assignment &assignment);
+    BreakerManager(const Group& group, const Order& order,
+                   const Assignment &assignment);
     virtual ~BreakerManager();
-
-    void updateOrder(Literal literal);
 
     void updateAssignment(Literal literal);
     void updateAssignmentForAll();
@@ -42,6 +42,8 @@ class BreakerManager {
     const Assignment& _assignment;
 
     std::vector<std::unique_ptr<Breaker>> _breakers;
+
+    void updateOrder(Literal literal);
 
     DISALLOW_COPY_AND_ASSIGN(BreakerManager);
 };

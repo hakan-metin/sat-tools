@@ -19,6 +19,8 @@ class Order {
     Order() {}
     virtual ~Order() {}
 
+    void createIncreaseOrder(unsigned int num_vars);
+
     bool add(Literal x);
     bool contains(Literal x) const;
 
@@ -38,13 +40,6 @@ class Order {
     std::unordered_map<Literal, unsigned int> _indexes;
 };
 
-
-class StaticOrder : public Order {
-};
-
-
-class DynamicOrder : public Order {
-};
 
 }  // namespace sat
 #endif  // SATTOOLS_ORDER_H_

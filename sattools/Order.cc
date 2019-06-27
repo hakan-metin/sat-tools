@@ -4,6 +4,15 @@
 
 namespace sat {
 
+
+void Order::createIncreaseOrder(unsigned int num_vars) {
+    for (unsigned int i=0; i<num_vars; i++) {
+        Literal l(BooleanVariable(i), true);
+        DCHECK(!contains(l));
+        add(l);
+    }
+}
+
 bool Order::add(Literal literal) {
     if (contains(literal))
         return false;

@@ -5,6 +5,7 @@
 namespace sat {
 
 BreakerManager::BreakerManager(const Group& group,
+                               const Order& order,
                                const Assignment &assignment) :
     _group(group),
     _assignment(assignment) {
@@ -13,6 +14,9 @@ BreakerManager::BreakerManager(const Group& group,
             std::make_unique<Breaker>(perm, _assignment);
         _breakers.push_back(std::move(breaker));
     }
+
+    for (const Literal& literal : order)
+        updateOrder(literal);
 }
 
 BreakerManager::~BreakerManager() {
