@@ -9,4 +9,4 @@ $(call REQUIRE-DIR, $(bins))
 example: $(bins)
 
 $(BIN)%: $(EXAMPLES)%.cc default
-	$(call cmd-cxx-bin, $@, $<, $(CFLAGS) -L lib -lsattools -lbliss $(LDFLAGS))
+	$(call cmd-cxx-bin, $@, $<, $(CFLAGS) -L lib -lsattools $(LDFLAGS))

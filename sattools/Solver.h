@@ -44,7 +44,6 @@ class Solver {
 
     bool simplifyInitialProblem();
 
-    void setParameters(SatParameters *parameters);
     void setDratProofHandler(DratProofHandler* drat_proof_handler);
 
  private:
@@ -54,7 +53,6 @@ class Solver {
     Propagator _propagator;
     bool _is_model_unsat;
 
-    SatParameters *_parameters;
     DratProofHandler* _drat_proof_handler;
 
     std::unique_ptr<DecisionPolicy> _decision_policy;

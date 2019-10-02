@@ -27,8 +27,8 @@ $(call REQUIRE-DEP, $(sources))
 $(call REQUIRE-DEP, $(tests))
 
 
-CFLAGS += -g -I. -I$(SRC) -DUSE_GLOG -DUSE_GFLAGS
-LDFLAGS += -lprotobuf -lz -lglog -lgflags -lpthread
+CFLAGS  += -I. -I$(SRC)
+LDFLAGS += -lz  -lpthread
 
 default: CFLAGS += -O3 -fPIC -Wall -Wextra -g
 default: $(LIB)libsattools.a

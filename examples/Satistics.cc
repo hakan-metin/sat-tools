@@ -9,13 +9,11 @@
 #include "sattools/CNFStats.h"
 #include "sattools/CNFReader.h"
 #include "sattools/CNFWriter.h"
-#include "sattools/Group.h"
 #include "sattools/IntType.h"
 #include "sattools/IntegralTypes.h"
 #include "sattools/Logging.h"
 #include "sattools/StreamBuffer.h"
 #include "sattools/Trail.h"
-#include "sattools/Saucy1Writer.h"
 
 using sat::Assignment;
 using sat::Clause;
@@ -23,7 +21,6 @@ using sat::CNFStats;
 using sat::CNFReader;
 using sat::CNFWriter;
 using sat::Literal;
-using sat::Saucy1Writer;
 
 int main(int argc, char *argv[]) {
     CNFReader<CNFStats> reader;

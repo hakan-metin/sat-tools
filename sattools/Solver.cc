@@ -114,15 +114,9 @@ void Solver::enqueueNewDecision(Literal true_literal) {
     _trail.enqueueSearchDecision(true_literal);
 }
 
-void Solver::setParameters(SatParameters *parameters) {
-    _parameters = parameters;
-}
-
 void Solver::setDratProofHandler(DratProofHandler *drat_proof_handler) {
     _drat_proof_handler = drat_proof_handler;
 }
-
-
 
 void Solver::backtrack(unsigned int target_level) {
     unsigned int current_level = _trail.currentDecisionLevel();
