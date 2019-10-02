@@ -39,9 +39,6 @@ before_script:
   # - cd -
 
 script:
-   - source .env
-   - make -C third_party/automorphism/bliss/ lib
-   - make -C third_party/automorphism/saucy
    - make
    - make run-test
    - make check-style
