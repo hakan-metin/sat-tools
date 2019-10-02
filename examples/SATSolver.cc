@@ -20,7 +20,6 @@
 #include "sattools/Propagator.h"
 #include "sattools/Solver.h"
 #include "sattools/DratProofHandler.h"
-#include "sattools/SatParameters.pb.h"
 
 using sat::Assignment;
 using sat::Clause;
