@@ -3,6 +3,7 @@
 #ifndef SATTOOLS_STATS_H_
 #define SATTOOLS_STATS_H_
 
+#include <algorithm>
 #include <cmath>
 #include <utility>
 #include <deque>

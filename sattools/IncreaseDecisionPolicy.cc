@@ -20,7 +20,6 @@ void IncreaseDecisionPolicy::increaseNumVariables(unsigned int num_variables) {
 
     for (BooleanVariable var(old_num_variables); var < num_variables; ++var)
         _variables.PushBack(!_trail.assignment().variableIsAssigned(var));
-
 }
 
 void IncreaseDecisionPolicy::initializeVariableOrdering() {

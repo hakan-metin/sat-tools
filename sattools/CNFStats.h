@@ -36,6 +36,7 @@ class CNFStats {
 
     void summarize() const;
     void printStats() const { _stats.print(true); }
+
  private:
     int64 _num_variables;
     int64 _num_trivial_clauses;
