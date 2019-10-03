@@ -22,6 +22,11 @@ void Solver::assign(CNFModel *model) {
     _model = model;
     _simplifier = std::make_unique<Simplifier>(model);
     _decision_policy = std::make_unique<VSIDSDecisionPolicy>(_trail);
+    _restart_policy = std::make_unique<LubyRestartPolicy>();
+
+    //_decision_policy = std::make_unique<IncreaseDecisionPolicy>(_trail);
+    //_restart_policy = std::make_unique<NoRestartPolicy>();
+
     _trail.registerPropagator(&_propagator);
     setNumberOfVariables(model->numberOfVariables());
 }
@@ -49,6 +54,8 @@ bool Solver::isClauseSatisfied(const std::vector<Literal>& literals) const {
 
 
 Solver::Status Solver::solve() {
+    std::vector<Literal> reason_used_to_infer_the_conflict;
+
     LOG(INFO) << "Solving";
     for (Clause *clause : _model->clauses())
         if (!_propagator.addClause(clause, &_trail))
@@ -66,27 +73,32 @@ Solver::Status Solver::solve() {
                 break;
             }
 
-            conflict_manager.computeFirstUIP(conflict, &learnt);
+            conflict_manager.computeFirstUIP(conflict, &reason_used_to_infer_the_conflict, &learnt);
             backtrack(computeBacktrackLevel(learnt));
             Clause *clause = Clause::create(learnt, true);
             _model->addClause(clause);
             _propagator.addClause(clause, &_trail);
-            // _decision_policy->onConflict();
+            
+            _decision_policy->literalsOnConflict(learnt);
+            _decision_policy->literalsOnConflict(reason_used_to_infer_the_conflict);
+
+            _decision_policy->onConflict();
+            _restart_policy->onConflict();
+            _counters.num_failures++;
 
             if (_drat_proof_handler != nullptr)
               _drat_proof_handler->addClause(learnt);
+
+            if (_restart_policy->shouldRestart()) {
+                backtrack(0);
+            }
         } else {
             if (_trail.index() == _num_variables)
                 break;
 
-            for (BooleanVariable var(0); var < _num_variables; ++var) {
-                if (_trail.assignment().variableIsAssigned(var))
-                    continue;
-
-                Literal decision(var, false);
-                enqueueNewDecision(decision);
-                break;
-            }
+            Literal decision = _decision_policy->nextBranch();
+            enqueueNewDecision(decision);
+            _counters.num_branches++;
         }
     }
 
@@ -103,6 +115,10 @@ Solver::Status Solver::solve() {
             std::cout << l.debugString() << " ";
         }
         std::cout << "0" << std::endl;
+
+        std::cout << "Num decisions : " << _counters.num_branches << std::endl;
+        std::cout << "Num conflicts : " << _counters.num_failures << std::endl;
+
         return SAT;
     }
 
@@ -132,6 +148,7 @@ void Solver::backtrack(unsigned int target_level) {
 
     unsigned int index = _trail.index();
 
+    DCHECK_LT(index, old_index);
     for (unsigned int i = index; i < old_index; i++) {
         Literal l = _trail[i];
         _decision_policy->onUnassignLiteral(l);

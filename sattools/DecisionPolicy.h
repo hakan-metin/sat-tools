@@ -28,7 +28,7 @@ class DecisionPolicy {
     virtual void onRestart() {}
 
     virtual
-    void clauseOnConflictReason(ATTRIBUTE_UNUSED const Clause *clause) {}
+    void literalsOnConflict(ATTRIBUTE_UNUSED const std::vector<Literal>& literals) {}
 
     virtual void resetDecisionHeuristics() {}
 

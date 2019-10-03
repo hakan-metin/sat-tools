@@ -5,6 +5,7 @@
 
 #include <vector>
 #include <string>
+#include <sstream>
 #include <functional>
 
 #include "sattools/Macros.h"
@@ -171,10 +172,13 @@ void IntegerPriorityQueue<Element, Compare>::clear() {
 }
 
 
-
 template <typename Element, class Compare>
 std::string IntegerPriorityQueue<Element, Compare>::debugString() const {
-    return "toto";
+    std::stringstream ss;
+    for (const Element& element : _heap) {
+        ss << element << " ";
+  }
+  return ss.str();
 }
 
 }  // namespace sat

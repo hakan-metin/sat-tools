@@ -18,6 +18,8 @@
 #include "sattools/Propagator.h"
 #include "sattools/Simplifier.h"
 #include "sattools/DecisionPolicies.h"
+#include "sattools/RestartPolicies.h"
+
 #include "sattools/DratProofHandler.h"
 
 namespace sat {
@@ -55,13 +57,16 @@ class Solver {
     DratProofHandler* _drat_proof_handler;
 
     std::unique_ptr<DecisionPolicy> _decision_policy;
+    std::unique_ptr<RestartPolicy> _restart_policy;
+
     std::unique_ptr<Simplifier> _simplifier;
 
 
     struct Counters {
-        uint64_t _num_branches;
-        uint64_t _num_failures;
+        uint64_t num_branches;
+        uint64_t num_failures;
     };
+    Counters _counters;
 
     void enqueueNewDecision(Literal true_literal);
     void backtrack(unsigned int target_level);

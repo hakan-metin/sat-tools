@@ -6,6 +6,7 @@ namespace sat {
 
 
 void ConflictManager::computeFirstUIP(Clause *conflict,
+                                      std::vector<Literal> *reason_used_to_infer_the_conflict,
                                       std::vector<Literal> *learnt) {
     const unsigned int num_variables = _trail.assignment().numberOfVariables();
     unsigned int trail_index = computeMaxTrailIndex(conflict);
@@ -14,6 +15,7 @@ void ConflictManager::computeFirstUIP(Clause *conflict,
     int num_literal_at_highest_level_that_needs_to_be_processed = 0;
     Clause *clause_to_expand = conflict;
 
+    reason_used_to_infer_the_conflict->clear();
     learnt->clear();
 
     _is_marked.ClearAndResize(BooleanVariable(num_variables));
@@ -28,6 +30,7 @@ void ConflictManager::computeFirstUIP(Clause *conflict,
             if (_is_marked[var] || level == 0)
                 continue;
 
+            reason_used_to_infer_the_conflict->push_back(literal);
             _is_marked.Set(var);
 
             if (level == highest_level)

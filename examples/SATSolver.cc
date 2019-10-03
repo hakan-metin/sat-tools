@@ -5,7 +5,6 @@
 
 #include <iostream>
 #include <string>
-#include <gflags/gflags.h>
 
 #include "sattools/Assignment.h"
 #include "sattools/Bitset.h"

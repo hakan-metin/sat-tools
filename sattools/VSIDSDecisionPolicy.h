@@ -23,11 +23,11 @@ class VSIDSDecisionPolicy : public DecisionPolicy {
 
     Literal nextBranch() override;
 
-    void onUnassignLiteral(Literal x);
-    void onConflict();
+    void onUnassignLiteral(Literal x) override;
+    void onConflict() override;
     // void onRestart();
 
-    void clauseOnConflictReason(const Clause *clause);
+    void literalsOnConflict(const std::vector<Literal>& literals) override;
 
     // void resetDecisionHeuristics();
 

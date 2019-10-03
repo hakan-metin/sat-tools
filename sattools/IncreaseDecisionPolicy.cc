@@ -33,10 +33,6 @@ void IncreaseDecisionPolicy::initializeVariableOrdering() {
     }
 }
 
-
-void IncreaseDecisionPolicy::clauseOnConflictReason(const Clause *clause) {
-}
-
 Literal IncreaseDecisionPolicy::nextBranch() {
     BooleanVariable first;
     bool polarity = kDefaultPolarity;

@@ -26,9 +26,6 @@ class IncreaseDecisionPolicy : public DecisionPolicy {
     void onUnassignLiteral(Literal x);
     void onConflict();
     // void onRestart();
-
-    void clauseOnConflictReason(const Clause *clause);
-
     // void resetDecisionHeuristics();
 
  private:
