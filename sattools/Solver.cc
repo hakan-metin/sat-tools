@@ -24,9 +24,6 @@ void Solver::assign(CNFModel *model) {
     _decision_policy = std::make_unique<VSIDSDecisionPolicy>(_trail);
     _restart_policy = std::make_unique<LubyRestartPolicy>();
 
-    //_decision_policy = std::make_unique<IncreaseDecisionPolicy>(_trail);
-    //_restart_policy = std::make_unique<NoRestartPolicy>();
-
     _trail.registerPropagator(&_propagator);
     setNumberOfVariables(model->numberOfVariables());
 }
@@ -73,21 +70,24 @@ Solver::Status Solver::solve() {
                 break;
             }
 
-            conflict_manager.computeFirstUIP(conflict, &reason_used_to_infer_the_conflict, &learnt);
+            conflict_manager.computeFirstUIP(conflict,
+                                             &reason_used_to_infer_the_conflict,
+                                             &learnt);
             backtrack(computeBacktrackLevel(learnt));
             Clause *clause = Clause::create(learnt, true);
             _model->addClause(clause);
             _propagator.addClause(clause, &_trail);
-            
+
             _decision_policy->literalsOnConflict(learnt);
-            _decision_policy->literalsOnConflict(reason_used_to_infer_the_conflict);
+            _decision_policy->literalsOnConflict(
+                                            reason_used_to_infer_the_conflict);
 
             _decision_policy->onConflict();
             _restart_policy->onConflict();
             _counters.num_failures++;
 
             if (_drat_proof_handler != nullptr)
-              _drat_proof_handler->addClause(learnt);
+                _drat_proof_handler->addClause(learnt);
 
             if (_restart_policy->shouldRestart()) {
                 backtrack(0);

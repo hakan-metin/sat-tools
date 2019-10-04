@@ -8,14 +8,14 @@
 namespace sat {
 
 class NoRestartPolicy : public RestartPolicy {
-    public:
-        NoRestartPolicy() : RestartPolicy() {}
+ public:
+    NoRestartPolicy() : RestartPolicy() {}
 
-        virtual ~NoRestartPolicy() {}
+    virtual ~NoRestartPolicy() {}
 
-        bool shouldRestart() override {
-           return false;
-        }
+    bool shouldRestart() override {
+        return false;
+    }
 };
 
 }  // namespace sat

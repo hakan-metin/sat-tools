@@ -6,8 +6,8 @@ namespace sat {
 
 
 void ConflictManager::computeFirstUIP(Clause *conflict,
-                                      std::vector<Literal> *reason_used_to_infer_the_conflict,
-                                      std::vector<Literal> *learnt) {
+                       std::vector<Literal> *reason_used_to_infer_the_conflict,
+                       std::vector<Literal> *learnt) {
     const unsigned int num_variables = _trail.assignment().numberOfVariables();
     unsigned int trail_index = computeMaxTrailIndex(conflict);
     const BooleanVariable var = _trail[trail_index].variable();

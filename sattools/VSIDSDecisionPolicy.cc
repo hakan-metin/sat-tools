@@ -61,11 +61,11 @@ void VSIDSDecisionPolicy::initializeVariableOrdering() {
     }
 
     _var_ordering_initialised = true;
-  //  LOG(INFO) << __FUNCTION__ << "  " << _var_ordering.size();
 }
 
 
-void VSIDSDecisionPolicy::literalsOnConflict(const std::vector<Literal>& literals) {
+void
+VSIDSDecisionPolicy::literalsOnConflict(const std::vector<Literal>& literals) {
     const double max_activity_value = 1e100;
 
     for (const Literal literal : literals) {
@@ -107,7 +107,7 @@ Literal VSIDSDecisionPolicy::nextBranch() {
 
     do {
         DCHECK(!_var_ordering.empty());
-       // LOG(INFO) << "Take next decision var " << _var_ordering.top().var
+        // LOG(INFO) << "Take next decision var " << _var_ordering.top().var
         //          << " with score " << *(_var_ordering.top().weight);
         var = _var_ordering.top().var;
         _var_ordering.pop();
@@ -118,8 +118,6 @@ Literal VSIDSDecisionPolicy::nextBranch() {
 
     if (_var_use_phase_saving[var])
         polarity = _trail.info(var).last_polarity;
-
-   // LOG(INFO) << __FUNCTION__ << "  " << _var_ordering.size();
 
     return Literal(var, polarity);
 }
@@ -143,9 +141,6 @@ void VSIDSDecisionPolicy::onUnassignLiteral(Literal literal) {
     } else {
         _var_ordering.add(element);
     }
-
-   // LOG(INFO) << __FUNCTION__ << "  " << _var_ordering.size();
-
 }
 
 void VSIDSDecisionPolicy::rescaleVariableActivities(double scaling_factor) {

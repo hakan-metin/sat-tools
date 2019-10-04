@@ -18,54 +18,52 @@ namespace sat {
 // The sequence is defined for i > 0 and starts with:
 //   {1, 1, 2, 1, 1, 2, 4, 1, 1, 2, 1, 1, 2, 4, 8, ...}
 inline int SUniv(int i) {
-  DCHECK_GT(i, 0);
-  while (i > 2) {
-    const int most_significant_bit_position =
-        MostSignificantBitPosition64(i + 1);
-    if ((1 << most_significant_bit_position) == i + 1) {
-      return 1 << (most_significant_bit_position - 1);
+    DCHECK_GT(i, 0);
+    while (i > 2) {
+        const int most_significant_bit_position =
+            MostSignificantBitPosition64(i + 1);
+        if ((1 << most_significant_bit_position) == i + 1) {
+            return 1 << (most_significant_bit_position - 1);
+        }
+        i -= (1 << most_significant_bit_position) - 1;
     }
-    i -= (1 << most_significant_bit_position) - 1;
-  }
-  return 1;
+    return 1;
 }
 
-constexpr int RESTART_PERIOD = 50;
+constexpr int RESTART_PERIOD = 100;
 
 class LubyRestartPolicy : public RestartPolicy {
-    public:
-        LubyRestartPolicy() : RestartPolicy(),
-        _luby_count(0),
-        _conflicts_until_next_restart(RESTART_PERIOD) {}
+ public:
+    LubyRestartPolicy() : RestartPolicy(),
+                          _luby_count(0),
+                          _conflicts_until_next_restart(RESTART_PERIOD) {}
 
-        virtual ~LubyRestartPolicy() {}
+    virtual ~LubyRestartPolicy() {}
 
-        bool shouldRestart() override {
-            bool should_restart = false;
+    bool shouldRestart() override {
+        bool should_restart = false;
 
-            if (_conflicts_until_next_restart == 0) {
-                should_restart = true;
-                _luby_count++;
-            }
-
-            if (should_restart) {
-                _conflicts_until_next_restart = RESTART_PERIOD;
-                _conflicts_until_next_restart = RESTART_PERIOD * SUniv(_luby_count + 1);
-                LOG(INFO) << "Restart " << _conflicts_until_next_restart;
-
-            }
-            return should_restart;
-        }
-        
-        void onConflict() override {
-            if (_conflicts_until_next_restart > 0)
-                _conflicts_until_next_restart--;
+        if (_conflicts_until_next_restart == 0) {
+            should_restart = true;
+            _luby_count++;
         }
 
-    private:
-        int _luby_count;
-        int _conflicts_until_next_restart;
+        if (should_restart) {
+            _conflicts_until_next_restart  = RESTART_PERIOD;
+            _conflicts_until_next_restart *= SUniv(_luby_count + 1);
+        }
 
+        return should_restart;
+    }
+
+    void onConflict() override {
+        if (_conflicts_until_next_restart > 0)
+            _conflicts_until_next_restart--;
+    }
+
+ private:
+    int _luby_count;
+    int _conflicts_until_next_restart;
 };
 
 

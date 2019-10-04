@@ -5,19 +5,15 @@
 
 namespace sat {
 class RestartPolicy {
-    public:
-        RestartPolicy() {};
-        virtual ~RestartPolicy() {};
+ public:
+    RestartPolicy() {}
+    virtual ~RestartPolicy() {}
 
-        virtual bool shouldRestart() = 0;
-        virtual void onConflict() {};
-
-    protected:
-
+    virtual bool shouldRestart() = 0;
+    virtual void onConflict() {}
 };
 
 }  // namespace sat
-
 
 #endif  // SATTOOLS_RESTARTPOLICY_H_
 /*

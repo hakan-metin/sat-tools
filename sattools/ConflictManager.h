@@ -20,9 +20,9 @@ class ConflictManager {
     explicit ConflictManager(const Trail &trail) : _trail(trail) {}
     ~ConflictManager() {}
 
-    void computeFirstUIP(Clause *conflict, 
-                         std::vector<Literal> *reason_used_to_infer_the_conflict,
-                         std::vector<Literal> *learnt);
+    void computeFirstUIP(Clause *conflict,
+                        std::vector<Literal> *reason_used_to_infer_the_conflict,
+                        std::vector<Literal> *learnt);
 
  private:
     const Trail& _trail;

@@ -3,6 +3,7 @@
 #ifndef SATTOOLS_DECISIONPOLICY_H_
 #define SATTOOLS_DECISIONPOLICY_H_
 
+#include <vector>
 
 #include "sattools/Trail.h"
 
@@ -27,8 +28,8 @@ class DecisionPolicy {
     virtual void onConflict() {}
     virtual void onRestart() {}
 
-    virtual
-    void literalsOnConflict(ATTRIBUTE_UNUSED const std::vector<Literal>& literals) {}
+    virtual void
+    literalsOnConflict(ATTRIBUTE_UNUSED const std::vector<Literal>& literals) {}
 
     virtual void resetDecisionHeuristics() {}
 
